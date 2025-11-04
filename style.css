@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Press+Start+2P&display=swap');
+
+:root {
+    --primary: #8b5cf6;
+    --primary-dark: #7c3aed;
+    --secondary: #ec4899;
+    --dark: #111827;
+    --darker: #0f172a;
+    --light: #f3f4f6;
+    --lighter: #f9fafb;
+    --gray: #6b7280;
+    --gray-light: #9ca3af;
+    --gray-dark: #4b5563;
+}
+
+body {
+    font-family: 'Orbitron', sans-serif;
+    background-color: var(--dark);
+    color: var(--light);
+    line-height: 1.6;
+    scroll-behavior: smooth;
+    letter-spacing: 0.5px;
+}
+
+/* Game/Arcade specific font styling */
+h1 {
+    font-family: 'Press Start 2P', cursive;
+    font-weight: 400;
+    letter-spacing: 1px;
+    font-size: 2.5rem !important;
+}
+
+h2 {
+    font-family: 'Press Start 2P', cursive;
+    font-weight: 400;
+    letter-spacing: 1px;
+    font-size: 1.5rem !important;
+    line-height: 1.8 !important;
+}
+
+h3 {
+    font-family: 'Press Start 2P', cursive;
+    font-weight: 400;
+    letter-spacing: 1px;
+    font-size: 1rem !important;
+    line-height: 1.6 !important;
+}
+
+h4, h5, h6 {
+    font-family: 'Press Start 2P', cursive;
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+.arcade-heading {
+    font-family: 'Press Start 2P', cursive;
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+.arcade-text {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.75rem;
+    line-height: 1.6;
+}
+
+/* Responsive heading adjustments */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    h2 {
+        font-size: 1.125rem !important;
+        line-height: 1.6 !important;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    h1 {
+        font-size: 2rem !important;
+    }
+    
+    h2 {
+        font-size: 1.25rem !important;
+        line-height: 1.7 !important;
+    }
+}
+
+/* Add padding to sections to account for fixed navbar */
+section[id] {
+    scroll-margin-top: 80px;
+}
+
+.glow {
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.7);
+}
+
+.glow-hover:hover {
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--darker);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Tokenomics Section Enhancements */
+.tokenomics-item {
+    position: relative;
+}
+
+.tokenomics-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, transparent, var(--primary), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 0.75rem 0 0 0.75rem;
+}
+
+.tokenomics-item:hover::before {
+    opacity: 1;
+}
+
+.tokenomics-item i {
+    transition: transform 0.3s ease;
+}
+
+.tokenomics-item:hover i {
+    transform: scale(1.2);
+}
+
+.tokenomics-detail {
+    animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-content {
+        padding-top: 6rem;
+    }
+}

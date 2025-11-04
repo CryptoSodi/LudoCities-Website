@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<h2>Receiver</h2>
+<video id="remoteVideo" autoplay playsinline></video>
+<textarea id="offer" cols="60" rows="10" placeholder="Paste offer here"></textarea>
+<textarea id="answer" cols="60" rows="10" placeholder="Answer will appear here"></textarea>
+<button id="setOffer">Set Offer</button>
+<button id="createAnswer">Create Answer</button>
+
+<script>
+const remoteVideo = document.getElementById('remoteVideo');
+const offerTextarea = document.getElementById('offer');
+const answerTextarea = document.getElementById('answer');
+
+let pc = new RTCPeerConnection();
+
+pc.ontrack = event => {
+    remoteVideo.srcObject = event.streams[0];
+};
+
+pc.onicecandidate = event => {
+    if (!event.candidate) {
+        console.log("All ICE candidates gathered");
+        answerTextarea.value = JSON.stringify(pc.localDescription);
+        console.log("AAAAAAA : "+answerTextarea.value);
+    }
+};
+
+document.getElementById('setOffer').onclick = async () => {
+    const offer = JSON.parse(offerTextarea.value);
+    await pc.setRemoteDescription(offer);
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    answerTextarea.value = JSON.stringify(pc.localDescription);
+        console.log("CCCCCC : "+answerTextarea.value);
+};
+
+document.getElementById('createAnswer').onclick = async () => {
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    answerTextarea.value = JSON.stringify(pc.localDescription);
+};
+
+
+async function createAnswer(offerString) {
+    offerString = offerString.replace(/\r/g, "\\r").replace(/\n/g, "\\n");
+    const offer = JSON.parse(offerString);
+    await pc.setRemoteDescription(offer);
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    answerTextarea.value = JSON.stringify(pc.localDescription);
+    console.log("BBBBBB : "+answerTextarea.value);
+    await waitForIceGatheringComplete(pc);
+    
+    // ✅ Return the *complete* answer JSON
+    const finalAnswer = JSON.stringify(pc.localDescription);
+    console.log("✅ Answer ready:", finalAnswer);
+    return finalAnswer;
+}
+// ✅ This Promise resolves once ICE gathering is complete
+function waitForIceGatheringComplete(pc) {
+    return new Promise(resolve => {
+        if (pc.iceGatheringState === "complete") {
+            resolve();
+        } else {
+            const checkState = () => {
+                if (pc.iceGatheringState === "complete") {
+                    pc.removeEventListener("icegatheringstatechange", checkState);
+                    resolve();
+                }
+            };
+            pc.addEventListener("icegatheringstatechange", checkState);
+        }
+    });
+}
+</script>
+</body>
+</html>
