@@ -151,8 +151,8 @@ class CustomFooter extends HTMLElement {
         <footer>
           <div class="footer-brand">
             <div class="footer-logo">
-              <img src="https://www.ludocities.com/logo.png" alt="Ludo Metropolis">
-              <span>Ludo Metropolis</span>
+              <img src="https://www.ludocities.com/img/logo.png" alt="Ludo Cities">
+              <span>Ludo Cities</span>
             </div>
             <p class="footer-text">
               The ultimate Web3 board game experience on Solana blockchain. Play, earn, and collect.
@@ -196,7 +196,7 @@ class CustomFooter extends HTMLElement {
           
           <div class="footer-bottom">
             <div class="footer-copyright">
-              &copy; ${new Date().getFullYear()} Ludo Metropolis. All rights reserved.
+              &copy; ${new Date().getFullYear()} Ludo Cities. All rights reserved.
             </div>
             
             <div class="footer-legal">
@@ -207,7 +207,7 @@ class CustomFooter extends HTMLElement {
             
             <div class="solana-badge">
               <span>Powered by</span>
-              <img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="Solana">
+              <img src="https://www.playsolana.com/_next/image?url=%2Fbrandkit%2Flogos%2FLogoMark.png&w=640&q=75" alt="Solana">
             </div>
           </div>
         </footer>

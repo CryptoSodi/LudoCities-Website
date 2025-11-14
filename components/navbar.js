@@ -316,7 +316,7 @@ class CustomNavbar extends HTMLElement {
         
         <nav>
           <a href="#" class="logo">
-            <img src="https://www.ludocities.com/img/logo.png" alt="Ludo Metropolis">
+              <img src="https://www.ludocities.com/img/logo.png" alt="Ludo Cities">
             Ludo Cities
           </a>
           
@@ -336,10 +336,7 @@ class CustomNavbar extends HTMLElement {
                 <i data-feather="twitter"></i>
               </a>
             </div>
-            <button id="connect-wallet" class="wallet-btn">
-              <i data-feather="user"></i>
-              Connect Wallet
-            </button>
+           
           </div>
           
           <button class="mobile-menu-btn" id="mobile-menu-toggle">
@@ -365,10 +362,7 @@ class CustomNavbar extends HTMLElement {
                 <i data-feather="twitter"></i>
               </a>
             </div>
-            <button id="connect-wallet-mobile" class="wallet-btn">
-              <i data-feather="user"></i>
-              Connect Wallet
-            </button>
+          
           </div>
         </div>
       `;
