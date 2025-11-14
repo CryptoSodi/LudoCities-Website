@@ -324,6 +324,7 @@ class CustomNavbar extends HTMLElement {
             <li><a data-section="features">Features</a></li>
             <li><a data-section="gameplay">Gameplay</a></li>
             <li><a data-section="tokenomics">Tokenomics</a></li>
+            <li><a data-section="traction">Traction</a></li>
             <li><a data-section="socials">Socials</a></li>
           </ul>
           
@@ -350,7 +351,7 @@ class CustomNavbar extends HTMLElement {
             <li><a data-section="features">Features</a></li>
             <li><a data-section="gameplay">Gameplay</a></li>
             <li><a data-section="tokenomics">Tokenomics</a></li>
-            <li><a data-section="team">Team</a></li>
+            <li><a data-section="traction">Traction</a></li>
             <li><a data-section="socials">Socials</a></li>
           </ul>
           <div class="nav-actions">
