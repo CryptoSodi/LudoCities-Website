@@ -388,33 +388,14 @@
                 spacing: 18.00
             });
 
-            // Initialize Lottie animation - Ludo Board Game themed
-            const animation = lottie.loadAnimation({
-                container: document.getElementById('lottie-animation'),
-                renderer: 'svg',
-                loop: true,
-                autoplay: true,
-                path: 'https://assets8.lottiefiles.com/packages/lf20_CyEUDv.json' // Ludo/Board game tokens animation
-            });
-            
-            animation.addEventListener('data_ready', () => {
-                console.log('Animation loaded successfully');
-            });
-            
-            animation.addEventListener('data_failed', (err) => {
-                console.error('Animation failed to load:', err);
-                // Fallback: show alternative animation with colored game pieces
-                document.getElementById('lottie-animation').innerHTML = `
-                    <div class="flex items-center justify-center h-full">
-                        <div class="grid grid-cols-2 gap-6">
-                            <div class="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-lg animate-pulse"></div>
-                            <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg animate-bounce" style="animation-delay: 0.2s"></div>
-                            <div class="w-24 h-24 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl shadow-lg animate-pulse" style="animation-delay: 0.4s"></div>
-                            <div class="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg animate-bounce" style="animation-delay: 0.6s"></div>
-                        </div>
-                    </div>
-                `;
-            });
+            // Display Hero Banner Image
+            const lottieContainer = document.getElementById('lottie-animation');
+            if (lottieContainer) {
+                lottieContainer.style.background = 'transparent';
+                lottieContainer.style.padding = '0';
+                lottieContainer.style.margin = '0';
+                lottieContainer.innerHTML = `<img src="banner_hero.png" alt="LudoCities Hero Banner" class="w-full h-auto">`;
+            }
         });
     </script>
 </body>
