@@ -21,7 +21,420 @@ body {
     scroll-behavior: smooth;
     letter-spacing: 0.5px;
 }
+@media (min-width: 1280px) {
+    #screen-height-container .xl-w-660px {
+            width: 100%;
+    max-width: 760px;
+    }
+}
+    @media (min-width: 1536px) {
+.container-14{
+        max-width: 1440px;
+    }
+}
 
+
+        /* --- Base transform variables (so transforms compose like Tailwind) --- */
+        .transform,
+        /* helper if you want to add explicitly */
+        [class*="translate"],
+        [class*="scale"],
+        [class*="rotate"],
+        [class*="skew"] {
+            --tw-translate-x: 0;
+            --tw-translate-y: 0;
+            --tw-rotate: 0;
+            --tw-skew-x: 0;
+            --tw-skew-y: 0;
+            --tw-scale-x: 1;
+            --tw-scale-y: 1;
+        }
+
+        /* Compose final transform for elements that use transforms */
+        .-translate-x-1\/2,
+        .-translate-y-1\/2,
+        .-translate-x-\[88\%\],
+        .-translate-y-\[108\%\],
+        .-translate-x-\[65\%\],
+        .-translate-x-\[35\%\],
+        .group-hover\:-translate-x-\[96\%\],
+        .group-hover\:-translate-x-\[68\%\],
+        .group-hover\:-translate-x-\[32\%\],
+        .group-hover\/inner\:translate-x-4,
+        .group-hover\/inner\:translate-x-8,
+        .group-hover\/inner\:translate-x-4:hover {
+            /* ensure transform applies */
+            transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+        }
+
+        /* --- Positioning --- */
+        .relative {
+            position: relative;
+        }
+
+        .absolute {
+            position: absolute;
+        }
+
+        .left-1\/2 {
+            left: 50%;
+        }
+
+        .top-1\/2 {
+            top: 50%;
+        }
+
+        .-right-12 {
+            right: -3rem;
+        }
+
+        /* Tailwind spacing scale: 12 => 3rem */
+        .-right-\[90px\] {
+            right: -90px;
+        }
+
+        .-right-4 {
+            right: -1rem;
+        }
+
+        .-left-16 {
+            left: -4rem;
+        }
+
+        .-top-2 {
+            top: -0.5rem;
+        }
+
+        .-bottom-1 {
+            bottom: -0.25rem;
+        }
+
+        .bottom-36 {
+            bottom: 9rem;
+        }
+
+        /* Tailwind: 36 => 9rem */
+        .top-\[100px\] {
+            top: 100px;
+        }
+
+        /* --- Display / Responsive --- */
+        .hidden {
+            display: none !important;
+        }
+
+        .block {
+            display: block;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .xl\:block {
+            display: none;
+        }
+
+        /* default; will be overridden in media query below */
+
+        /* --- Flex utilities --- */
+        .flex-col {
+            flex-direction: column;
+        }
+
+        .items-start {
+            align-items: flex-start;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .justify-start {
+            justify-content: flex-start;
+        }
+
+        .gap-1 {
+            gap: 0.25rem;
+        }
+
+        .gap-\[10px\] {
+            gap: 10px;
+        }
+
+        .self-start {
+            align-self: flex-start;
+        }
+
+        /* --- Sizing (bracketed widths/heights) --- */
+        .h-\[620px\] {
+            height: 620px;
+        }
+
+        .w-\[350px\] {
+            width: 350px;
+        }
+
+        .xl\:w-\[580px\] {
+            width: 580px;
+        }
+
+        /* active inside xl media query */
+        .h-\[500px\] {
+            height: 500px;
+        }
+
+        .w-\[500px\] {
+            width: 500px;
+        }
+
+        .w-\[515px\] {
+            width: 515px;
+        }
+
+        .w-\[466px\] {
+            width: 466px;
+        }
+
+        .w-\[187px\] {
+            width: 187px;
+        }
+
+        /* --- Z-index --- */
+        .z-10 {
+            z-index: 10;
+        }
+
+        .z-20 {
+            z-index: 20;
+        }
+
+        /* --- Translate variable utilities (set the CSS variables, not direct transform) --- */
+        /* Negative 50% */
+        .-translate-x-1\/2 {
+            --tw-translate-x: -50%;
+        }
+
+        .-translate-y-1\/2 {
+            --tw-translate-y: -50%;
+        }
+
+        /* Arbitrary percent/values used in your HTML */
+        .-translate-x-\[88\%\] {
+            --tw-translate-x: -88%;
+        }
+
+        .-translate-y-\[108\%\] {
+            --tw-translate-y: -108%;
+        }
+
+        .-translate-x-\[65\%\] {
+            --tw-translate-x: -65%;
+        }
+
+        .-translate-x-\[35\%\] {
+            --tw-translate-x: -35%;
+        }
+
+        /* group-hover transforms will be applied by separate selectors below */
+
+        /* --- Transition / Duration utilities --- */
+        .transition-transform {
+            transition-property: transform;
+            transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .duration-200 {
+            transition-duration: 200ms;
+        }
+
+        .duration-300 {
+            transition-duration: 300ms;
+        }
+
+        /* Shorthand used in your markup (combine transition + duration) */
+        .transition-transform.duration-200,
+        .transition-transform.duration-300 {
+            transition-property: transform;
+            transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+        }
+
+        /* --- Hover cursor --- */
+        .hover\:cursor-pointer:hover {
+            cursor: pointer;
+        }
+
+        /* --- Typography --- */
+        .font-menlo {
+            font-family: Menlo, Monaco, "Courier New", monospace;
+        }
+
+        .text-base {
+            font-size: 1rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+            line-height: 1.25;
+            margin: 0;
+        }
+
+        .font-bold {
+            font-weight: 700;
+        }
+
+        .text-white {
+            color: #ffffff;
+        }
+
+        .text-white\/\[0\.72\] {
+            color: rgba(255, 255, 255, 0.72);
+        }
+
+        /* --- Backgrounds / blur / borders --- */
+        .bg-white\/\[0\.04\] {
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .hover\:bg-white\/10:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .backdrop-blur {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .border {
+            border-width: 1px;
+            border-style: solid;
+        }
+
+        .border-\[\#BA52EB\]\/30 {
+            border-color: rgba(186, 82, 235, 0.30);
+        }
+
+        /* --- Padding / margin --- */
+        .px-4 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .py-3 {
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+
+        .-ml-3 {
+            margin-left: -0.75rem;
+        }
+
+        /* --- Rounded --- */
+        .rounded-lg {
+            border-radius: 0.5rem;
+        }
+
+        /* --- Group + group-hover (top-level group) --- */
+        /* Generic group class */
+        .group {
+            position: relative;
+        }
+
+        /* group-hover variants used in your HTML:
+- group-hover:-translate-x-[96%]
+- group-hover:-translate-x-[68%]
+- group-hover:-translate-x-[32%]
+These apply when any ancestor .group is hovered. */
+        .group:hover .group-hover\:-translate-x-\[96\%\] {
+            /* selector escapes colon and bracket */
+            --tw-translate-x: -96%;
+            transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+        }
+
+        .group:hover .group-hover\:-translate-x-\[68\%\] {
+            --tw-translate-x: -68%;
+            transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+        }
+
+        .group:hover .group-hover\:-translate-x-\[32\%\] {
+            --tw-translate-x: -32%;
+            transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+        }
+
+        /* --- group/inner variant used in your HTML --- */
+        /* In your markup the container has class "group/inner" (literal). We'll provide a selector for it. */
+        .group\/inner {
+            /* no special styles by itself in your example, but keep it present */
+        }
+
+        /* The anchors inside have classes like:
+- group-hover/inner:translate-x-4
+- group-hover/inner:translate-x-8
+We emulate them by applying the translate when the top-level .group is hovered.
+*/
+        .group:hover .group-hover\/inner\:translate-x-4 {
+            --tw-translate-x: 1rem;
+            /* translate-x-4 in Tailwind = 1rem */
+            transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+        }
+
+        .group:hover .group-hover\/inner\:translate-x-8 {
+            --tw-translate-x: 2rem;
+            /* translate-x-8 = 2rem */
+            transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+        }
+
+        /* In your HTML an anchor had class: group-hover/inner:translate-x-4 AND also transition duration 200 +
+a negative left margin. Make sure anchor has transition available by combining rules when needed. */
+        .group-hover\/inner\:translate-x-4,
+        .group-hover\/inner\:translate-x-8,
+        .group-hover\:-translate-x-\[96\%\],
+        .group-hover\:-translate-x-\[68\%\],
+        .group-hover\:-translate-x-\[32\%\] {
+            /* allow transition-transform to work if applied */
+        }
+
+        /* --- Images / misc --- */
+        img[loading="lazy"] {
+            display: inline-block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* --- utility: hover cursor on anchors (in markup they had hover:cursor-pointer) --- */
+        a.hover\:cursor-pointer:hover {
+            cursor: pointer;
+        }
+
+        /* --- small helpers for svg/text container sizes used in markup --- */
+        .flex.items-center {
+            display: flex;
+            align-items: center;
+        }
+
+        .contain {
+            /* background-color: #15101D; */
+            /* min-height: 700px; */
+            display: flex;
+            justify-content: center;
+        }
+
+        .top-20 {
+            top: -20%;
+        }
+
+        /* --- Responsive: XL (min-width: 1280px) --- */
+        @media (min-width: 1280px) {
+            .xl\:block {
+                display: block !important;
+            }
+
+            .xl\:w-\[580px\] {
+                width: 580px !important;
+            }
+        }
 /* Game/Arcade specific font styling */
 h1 {
     font-family: 'Press Start 2P', cursive;

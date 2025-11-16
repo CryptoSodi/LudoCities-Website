@@ -156,9 +156,8 @@ class CustomNavbar extends HTMLElement {
             display: flex;
             flex-direction: column;
             position: fixed;
-            top: 0;
+            top: 100%;
             right: 0;
-            bottom: 0;
             width: 80%;
             max-width: 400px;
             background: rgba(17, 24, 39, 0.98);
@@ -166,7 +165,7 @@ class CustomNavbar extends HTMLElement {
             transform: translateX(100%);
             transition: transform 0.3s ease-in-out;
             overflow-y: auto;
-            padding-top: 6rem;
+            padding: 1rem;
             z-index: 1002;
           }
           
@@ -267,6 +266,7 @@ class CustomNavbar extends HTMLElement {
               height: 1.75rem;
             }
             
+            
             .nav-links,
             .nav-actions {
               display: none;
@@ -323,7 +323,6 @@ class CustomNavbar extends HTMLElement {
           <ul class="nav-links" id="desktop-nav">
             <li><a data-section="features">Features</a></li>
             <li><a data-section="gameplay">Gameplay</a></li>
-            <li><a data-section="tokenomics">Tokenomics</a></li>
             <li><a data-section="traction">Traction</a></li>
             <li><a data-section="socials">Socials</a></li>
           </ul>
@@ -340,9 +339,15 @@ class CustomNavbar extends HTMLElement {
            
           </div>
           
-          <button class="mobile-menu-btn" id="mobile-menu-toggle">
-            <i data-feather="menu"></i>
-          </button>
+         <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle menu">
+  <svg class="icon icon-menu" width="24" height="24" viewBox="0 0 24 24">
+    <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+  <svg class="icon icon-close" width="24" height="24" viewBox="0 0 24 24" style="display:none;">
+    <path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</button>
+
         </nav>
         
         <div class="mobile-menu-overlay" id="menu-overlay"></div>
@@ -350,7 +355,6 @@ class CustomNavbar extends HTMLElement {
           <ul class="nav-links">
             <li><a data-section="features">Features</a></li>
             <li><a data-section="gameplay">Gameplay</a></li>
-            <li><a data-section="tokenomics">Tokenomics</a></li>
             <li><a data-section="traction">Traction</a></li>
             <li><a data-section="socials">Socials</a></li>
           </ul>
