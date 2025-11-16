@@ -316,7 +316,7 @@ class CustomNavbar extends HTMLElement {
         
         <nav>
           <a href="#" class="logo">
-              <img src="https://www.ludocities.com/img/logo.png" alt="Ludo Cities">
+              <img src="images/logo.png" alt="Ludo Cities">
             Ludo Cities
           </a>
           
