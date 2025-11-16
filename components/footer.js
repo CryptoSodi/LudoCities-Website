@@ -151,7 +151,7 @@ class CustomFooter extends HTMLElement {
         <footer>
           <div class="footer-brand">
             <div class="footer-logo">
-              <img src="https://www.ludocities.com/img/logo.png" alt="Ludo Cities">
+              <img src="imgages/logo.png" alt="Ludo Cities">
               <span>Ludo Cities</span>
             </div>
             <p class="footer-text">
