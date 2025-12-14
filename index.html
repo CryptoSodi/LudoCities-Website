@@ -31,6 +31,63 @@
 </head>
 
 <body class="bg-gray-900 text-white">
+<!-- $LUDC Live Announcement Banner -->
+<div id="ludc-announcement" onclick="window.open('https://jup.ag/tokens/JSXWEi4ZXJkrkqWQg4UjUPzpmpYYFxzLmBuADh5cyai', '_blank')" 
+     class="fixed top-0 left-0 right-0 overflow-hidden bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 py-3 cursor-pointer hover:from-purple-700 hover:via-pink-600 hover:to-purple-700 transition-all duration-300" style="z-index: 1100;">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjAzIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30"></div>
+    <div class="container mx-auto px-6 relative z-10">
+        <div class="flex items-center justify-center gap-3 text-center flex-wrap">
+            <span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-xs font-bold uppercase tracking-wider animate-pulse">
+                🚀 NEW
+            </span>
+            <p class="text-white font-bold text-lg md:text-xl flex items-center gap-2">
+                <span class="hidden sm:inline">🎮</span>
+                $LUDC is now LIVE!
+                <span class="hidden sm:inline">🎮</span>
+            </p>
+            <span class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-sm font-semibold hover:bg-white/30 transition-all">
+                Trade Now
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </span>
+        </div>
+    </div>
+    <!-- Animated shine effect -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-0 -left-full w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 animate-shine"></div>
+    </div>
+</div>
+
+<style>
+    @keyframes shine {
+        0% {
+            left: -100%;
+        }
+        100% {
+            left: 200%;
+        }
+    }
+    
+    .animate-shine {
+        animation: shine 3s infinite;
+    }
+    
+    #ludc-announcement:active {
+        transform: scale(0.98);
+    }
+    
+    /* Push navbar down to account for announcement banner */
+    custom-navbar {
+        margin-top: 52px;
+    }
+    
+    /* Add padding to body to account for both banner and navbar */
+    body {
+        padding-top: 0;
+    }
+</style>
+
 <custom-navbar></custom-navbar>
 <div id="hero">
     <div id="screen-height-container"
