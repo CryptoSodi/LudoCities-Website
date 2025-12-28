@@ -3,264 +3,6 @@
 <link rel="icon" type="image/png" href="/images/logo.png">
 
 <head>
-<<<<<<< HEAD
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ludo Cities | Web3 Board Game on Solana</title>
-<meta name="description"
-    content="Play-to-earn Ludo game powered by Solana blockchain. Collect NFTs, earn tokens, and dominate the board in this futuristic crypto game.">
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-    nav{margin-top:50px;}  
-    @media (max-width:1280px){ 
-        #text-and-console{margin-top:120px;}
-    }
-    body {
-        font-family: 'Orbitron', sans-serif;
-        overflow-x: hidden;
-        padding-top: 0;
-    }
-@keyframes shine {
-        0% {
-            left: -100%;
-        }
-
-        100% {
-            left: 200%;
-        }
-    }
-
-    .animate-shine {
-        animation: shine 3s infinite;
-    }
-
-    #ludc-announcement:active {
-        transform: scale(0.98);
-    }
-
-    /* Push navbar down to account for announcement banner */
-    
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        font-family: 'Press Start 2P', cursive;
-    }
-    
-</style>
-<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-<script src="https://unpkg.com/feather-icons"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.4/lottie.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
-</head>
-
-<body class="bg-gray-900 text-white">
-<!-- $LUDC Live Announcement Banner -->
-<div id="ludc-announcement"
-    onclick="window.open('https://jup.ag/tokens/JSXWEi4ZXJkrkqWQg4UjUPzpmpYYFxzLmBuADh5cyai', '_blank')"
-    class="fixed top-0 left-0 right-0 overflow-hidden bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 py-3 cursor-pointer hover:from-purple-700 hover:via-pink-600 hover:to-purple-700 transition-all duration-300"
-    style="z-index: 1100;">
-    <div
-        class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjAzIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30">
-    </div>
-    <div class="container mx-auto px-6 relative z-10">
-        <div class="flex items-center justify-center gap-3 text-center flex-wrap">
-            <span
-                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-xs font-bold uppercase tracking-wider animate-pulse">
-                🚀 NEW
-            </span>
-            <p class="text-white font-bold text-lg md:text-xl flex items-center gap-2">
-                <span class="hidden sm:inline">🎮</span>
-                $LUDC is now LIVE!
-                <span class="hidden sm:inline">🎮</span>
-            </p>
-            <span
-                class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-sm font-semibold hover:bg-white/30 transition-all">
-                Trade Now
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                        clip-rule="evenodd" />
-                </svg>
-            </span>
-        </div>
-    </div>
-    <!-- Animated shine effect -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-            class="absolute top-0 -left-full w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 animate-shine">
-        </div>
-    </div>
-</div>
-
-
-
-<custom-navbar></custom-navbar>
-<div id="hero">
-    <div id="screen-height-container"
-        class="py-32 md:py-20 mx-auto mb-12 flex max-h-[1050px] max-w-md items-center xl:mb-8 xl:mt-2 xl:h-[83vh] xl:min-h-[800px] xl:max-w-max">
-        <div id="content-container"
-            class="relative flex w-full flex-col items-center justify-between gap-8 xl:h-full  xl:gap-0">
-            <div id="text-and-console"
-                class="flex w-full flex-col items-center justify-center gap-10 xl:flex-row xl:gap-10 2xl:gap-30">
-                <div class="container z-10 mt-7 flex flex-col items-start  px-2 text-start xl:-mt-5 xl-w-660px">
-                    <div class="flex items-center ">
-                        <img src="images/logo.png" alt="Ludo Cities Logo" class="h-16 md:h-20 mr-4">
-                        <h1
-                            class="font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600 ">
-                            Ludo Cities
-                        </h1>
-                    </div>
-                    <div class="relative -mb-5 h-[500px] w-full self-center xl:hidden">
-                        
-                        <div
-                            class="absolute bottom-10 left-1/2 z-20 flex translate-x-[20%] flex-col items-end gap-1">
-                            
-                            <div style="min-width:150px; top:-100px"
-                            class="absolute  z-20 flex flex-col items-start gap-1 self-start rounded-lg border border-[#BA52EB]/30 bg-white/[0.04] px-4 py-3 backdrop-blur transition-colors duration-300 hover:bg-white/10">
-                            <p class="self-center text-xs font-normal text-white/[0.72] text-center">Powered by</p>
-                            <div class="flex items-center self-center justify-start gap-2 ">
-
-                                <img width="20" height="20" src="https://upload.wikimedia.org/wikipedia/en/b/b9/Solana_logo.png"
-                                    alt="Solana" class="h-5">
-                                <p class="text-base text-xs font-bold text-white">Solana</p>
-
-                            </div>
-
-                        </div>
-                        <div style="min-width:170px; right:50px; top:-150px"
-                            class="absolute right-0 top-0 object-top-left z-20 flex flex-col items-start gap-1 self-start rounded-lg border border-[#BA52EB]/30 bg-white/[0.04] px-4 py-3 backdrop-blur transition-colors duration-300 hover:bg-white/10">
-                            <p  class="self-center text-xs font-normal text-white/[0.72] text-center">Upcoming On</p>
-                            <div class="flex items-center justify-start gap-2 self-center">
-                                <div class="flex items-center self-center justify-start gap-2 ">
-
-                                    <img width="20" height="20" src="https://www.playsolana.com/_next/image?url=%2Fbrandkit%2Flogos%2FLogoMark.png&w=640&q=75"
-                                        alt="Play Solana" class="h-5 w-5 mr-3 rounded">
-                                    <p  class="text-base text-xs font-bold text-white">Play Solana Console</p>
-                                    <span class="text-white font-medium"></span>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div style="min-width:180px; left:50px; top:-250px"
-                            class="absolute -bottom-1 -right-4 z-20 flex flex-col items-start gap-1 self-start rounded-lg border border-[#BA52EB]/30 bg-white/[0.04] px-4 py-3 backdrop-blur transition-colors duration-300 hover:bg-white/10">
-                            <div class="flex items-center justify-start gap-2 self-center">
-
-                                <p class="self-center text-xs font-normal text-white/[0.72] text-center">Upcoming On
-                                </p>
-                            </div>
-                            
-                            <div class="flex items-center self-center justify-start gap-2 ">
-
-                                <img width="20" height="20" src="seeker.jpeg" alt="Seeker Phone" class="h-5 w-5 mr-3 rounded object-cover">
-                                <p class=" text-xs text-base font-bold text-white">Solana Seeker Phone</p>
-
-                            </div>
-                        </div>
-
-                        </div>
-                        <img alt="" loading="lazy" width="764" height="803" decoding="async" data-nimg="1"
-                            class="absolute left-1/2 top-1/2 z-20 w-[116px] -translate-x-[85%] -translate-y-[109%] transition-transform duration-300 group-hover:-translate-x-[96%]"
-                            src="/images/screen-2.png" style="color: transparent;"><img alt="" loading="lazy"
-                            width="500" height="500" decoding="async" data-nimg="1"
-                            class="absolute left-1/2 top-1/2 z-10 w-[315px] -translate-x-[64%] -translate-y-1/2 transition-transform duration-300 group-hover:-translate-x-[68%]"
-                            src="/images/console-front.webp" style="color: transparent;"><img alt="" loading="lazy"
-                            width="500" height="500" decoding="async" data-nimg="1"
-                            class="absolute left-1/2 top-1/2 w-[290px] -translate-x-[36%] -translate-y-1/2 transition-transform duration-300 group-hover:-translate-x-[32%]"
-                            src="/images/console-back.webp" style="color: transparent;">
-                    </div>
-
-                    <p class="text-base md:text-lg lg:text-xl mb-10 text-gray-300"
-                        style="font-family: 'Orbitron', sans-serif;">
-                        The first Web3 Ludo game where you can play the classic board game and earn cryptocurrency
-                        rewards. Collect NFTs, compete globally, and own your gaming experience.
-                    </p>
-                    <div class="flex flex-wrap gap-6 mb-10  justify-center">
-                        <a href="https://play.google.com/store/apps/details?id=com.ludoengine.ludocities"
-                            class=" hover:from-purple-600 hover:to-pink-700 text-white font-bold  px-8 rounded-full flex items-center transition-all duration-300 shadow-lg hover:shadow-xl">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
-                                alt="Get it on Google Play" class="h-16">
-                        </a>
-                        <a href="https://ludo-cities.gitbook.io/ludo-cities-whitepaper/"
-                            class="border-2 border-purple-500 hover:bg-purple-900/30 text-white font-bold py-4 px-8 rounded-full flex items-center transition-all duration-300 text-lg">
-                            <i data-feather="file-text" class="mr-2"></i> View Whitepaper
-                        </a>
-                    </div>
-
-                    <div class="hidden flex-col items-start gap-4 xl:flex">
-                        <div class="flex gap-4"><button
-                                class="w-[220px] glowButtonGradient hover:scale-[1.03] relative flex transform items-center justify-center gap-2 overflow-hidden rounded-[6px] px-4 py-2.5 text-[14px] font-bold leading-6 tracking-[0px] transition-all duration-300"
-                                type="button" style="--gradient-color-1: #2A70F4; --gradient-color-2: #D77BF6;">Buy
-                                Now</button><a href="/products"><button
-                                    class="w-[205px] bg-[#1F1B33] hover:bg-[#272241] relative flex transform items-center justify-center gap-2 overflow-hidden rounded-[6px] px-4 py-2.5 text-[14px] font-bold leading-6 tracking-[0px] transition-all duration-300"
-                                    type="button"
-                                    style="--gradient-color-1: #2A70F4; --gradient-color-2: #D77BF6;">Discover
-                                    More</button></a></div>
-                        <p class="text-base font-normal italic text-white/[0.72]">Single Purchase. Lifetime Perks
-                        </p>
-                    </div>
-                </div>
-                <!-- Desktop Version Hero -->
-                <div class="relative z-10 hidden h-[620px] w-[350px] xl:block xl:w-[580px]">
-                    <div
-                        class="group absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2">
-                        <img alt="" loading="lazy" width="764" height="803" decoding="async" data-nimg="1"
-                            class="absolute left-1/2 top-1/2 z-20 w-[187px] -translate-x-[88%] -translate-y-[108%] transition-transform duration-300 group-hover:-translate-x-[96%]"
-                            src="/images/screen-2.png" style="color: transparent;"><img alt="" loading="lazy"
-                            width="500" height="500" decoding="async" data-nimg="1"
-                            class="absolute left-1/2 top-1/2 z-10 w-[515px] -translate-x-[65%] -translate-y-1/2 transition-transform duration-300 group-hover:-translate-x-[68%]"
-                            src="/images/console-front.webp" style="color: transparent;"><img alt="" loading="lazy"
-                            width="500" height="500" decoding="async" data-nimg="1"
-                            class="absolute left-1/2 top-1/2 w-[466px] -translate-x-[35%] -translate-y-1/2 transition-transform duration-300 group-hover:-translate-x-[32%]"
-                            src="/images/console-back.webp" style="color: transparent;">
-                        <div
-                            class="absolute -left-16 -top-2 z-20 flex flex-col items-start gap-1 self-start rounded-lg border border-[#BA52EB]/30 bg-white/[0.04] px-4 py-3 backdrop-blur transition-colors duration-300 hover:bg-white/10">
-                            <p class="self-center text-sm font-normal text-white/[0.72] text-center">Powered by</p>
-                            <div class="flex items-center self-center justify-start gap-2 ">
-
-                                <img src="https://upload.wikimedia.org/wikipedia/en/b/b9/Solana_logo.png"
-                                    alt="Solana" class="h-10">
-                                <p class="text-base font-bold text-white">Solana</p>
-
-                            </div>
-
-                        </div>
-
-                        <div
-                            class="absolute -right-[90px] top-[100px] z-20 flex flex-col items-start gap-1 self-start rounded-lg border border-[#BA52EB]/30 bg-white/[0.04] px-4 py-3 backdrop-blur transition-colors duration-300 hover:bg-white/10">
-                            <p class="self-center text-sm font-normal text-white/[0.72] text-center">Upcoming On</p>
-                            <div class="flex items-center justify-start gap-2 self-center">
-                                <div class="flex items-center self-center justify-start gap-2 ">
-
-                                    <img src="https://www.playsolana.com/_next/image?url=%2Fbrandkit%2Flogos%2FLogoMark.png&w=640&q=75"
-                                        alt="Play Solana" class="h-8 w-8 mr-3 rounded">
-                                    <p class="text-base font-bold text-white">Play Solana Console</p>
-                                    <span class="text-white font-medium"></span>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div
-                            class="absolute -bottom-1 -right-4 z-20 flex flex-col items-start gap-1 self-start rounded-lg border border-[#BA52EB]/30 bg-white/[0.04] px-4 py-3 backdrop-blur transition-colors duration-300 hover:bg-white/10">
-                            <div class="flex items-center justify-start gap-2 self-center">
-
-                                <p class="self-center text-sm font-normal text-white/[0.72] text-center">Upcoming On
-                                </p>
-                            </div>
-                            <p class="self-center text-sm font-normal text-white/[0.72] text-center"></p>
-                            <div class="flex items-center self-center justify-start gap-2 ">
-
-                                <img src="seeker.jpeg" alt="Seeker Phone" class="h-8 w-8 mr-3 rounded object-cover">
-                                <p class="text-base font-bold text-white">Solana Seeker Phone</p>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-=======
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ludo Cities | Web3 Board Game on Solana</title>
@@ -318,7 +60,6 @@
                             clip-rule="evenodd" />
                     </svg>
                 </span>
->>>>>>> 3967a882de681cd43d7caf62c6dd48483149fb06
             </div>
         </div>
         <!-- Animated shine effect -->
@@ -328,45 +69,6 @@
             </div>
         </div>
     </div>
-<<<<<<< HEAD
-</div>
-<!-- Hero Section -->
-<!-- <section class="relative overflow-hidden py-32 md:py-40">
-<div id="vanta-bg" class="absolute inset-0"></div>
-<div class="container-14 mx-auto px-6 relative z-10">
-    <div class="flex flex-col lg:flex-row items-center">
-        <div class="lg:w-1/2 mb-12 lg:mb-0">
-            <div class="flex items-center mb-8">
-                <img src="https://www.ludocities.com/img/logo.png" alt="Ludo Cities Logo"
-                    class="h-16 md:h-20 mr-4">
-                <h1
-                    class="font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
-                    Ludo Cities
-                </h1>
-            </div>
-            <p class="text-base md:text-lg lg:text-xl mb-12 text-gray-300"
-                style="font-family: 'Orbitron', sans-serif;">
-                The first Web3 Ludo game where you can play the classic board game and earn cryptocurrency
-                rewards. Collect NFTs, compete globally, and own your gaming experience.
-            </p>
-            <div class="flex flex-wrap gap-6 mb-10">
-                <a href="https://play.google.com/store/apps/details?id=com.ludocities.game"
-                    class=" hover:from-purple-600 hover:to-pink-700 text-white font-bold  px-8 rounded-full flex items-center transition-all duration-300 shadow-lg hover:shadow-xl">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
-                        alt="Get it on Google Play" class="h-16">
-                </a>
-                <a href="https://ludo-cities.gitbook.io/ludo-cities-whitepaper/"
-                    class="border-2 border-purple-500 hover:bg-purple-900/30 text-white font-bold py-4 px-8 rounded-full flex items-center transition-all duration-300 text-lg">
-                    <i data-feather="file-text" class="mr-2"></i> View Whitepaper
-                </a>
-            </div>
-            <div class="flex flex-wrap gap-6  pt-6 border-t border-gray-700/50">
-                <div class="flex items-center mb-4 flex-col">
-                    <span class="text-gray-400 text-lg mb-2">Powered by</span>
-                    <img src="https://upload.wikimedia.org/wikipedia/en/b/b9/Solana_logo.png" alt="Solana"
-                        class="h-10">
-                    <span class="text-lg mb-2">Solana</span>
-=======
 
     <style>
         @keyframes shine {
@@ -698,133 +400,155 @@
                         class="font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
                         Ludo Cities
                     </h1>
->>>>>>> 3967a882de681cd43d7caf62c6dd48483149fb06
                 </div>
-                <div class="">
-                    <span class="text-gray-400 text-lg mb-2 uppercase tracking-wider  block">Available on</span>
-                    <div class="flex flex-wrap items-center gap-4">
-                        <div
-                            class="flex items-center bg-gray-800/50 px-4 py-2 rounded-lg border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300">
-                            <img src="https://www.playsolana.com/_next/image?url=%2Fbrandkit%2Flogos%2FLogoMark.png&w=640&q=75"
-                                alt="Play Solana" class="h-8 w-8 mr-3 rounded">
-                            <span class="text-white font-medium">Play Solana</span>
-                        </div>
-                        <div
-                            class="flex items-center bg-gray-800/50 px-4 py-2 rounded-lg border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300">
-                            <img src="seeker.jpeg" alt="Seeker Phone" class="h-8 w-8 mr-3 rounded object-cover">
-                            <span class="text-white font-medium">Seeker Phone</span>
-                        </div>
+                <p class="text-base md:text-lg lg:text-xl mb-12 text-gray-300"
+                    style="font-family: 'Orbitron', sans-serif;">
+                    The first Web3 Ludo game where you can play the classic board game and earn cryptocurrency
+                    rewards. Collect NFTs, compete globally, and own your gaming experience.
+                </p>
+                <div class="flex flex-wrap gap-6 mb-10">
+                    <a href="https://play.google.com/store/apps/details?id=com.ludocities.game"
+                        class=" hover:from-purple-600 hover:to-pink-700 text-white font-bold  px-8 rounded-full flex items-center transition-all duration-300 shadow-lg hover:shadow-xl">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+                            alt="Get it on Google Play" class="h-16">
+                    </a>
+                    <a href="https://ludo-cities.gitbook.io/ludo-cities-whitepaper/"
+                        class="border-2 border-purple-500 hover:bg-purple-900/30 text-white font-bold py-4 px-8 rounded-full flex items-center transition-all duration-300 text-lg">
+                        <i data-feather="file-text" class="mr-2"></i> View Whitepaper
+                    </a>
+                </div>
+                <div class="flex flex-wrap gap-6  pt-6 border-t border-gray-700/50">
+                    <div class="flex items-center mb-4 flex-col">
+                        <span class="text-gray-400 text-lg mb-2">Powered by</span>
+                        <img src="https://upload.wikimedia.org/wikipedia/en/b/b9/Solana_logo.png" alt="Solana"
+                            class="h-10">
+                        <span class="text-lg mb-2">Solana</span>
                     </div>
-                </div>
-
-            </div>
-        </div>
-        <div class="lg:w-1/2 flex justify-center">
-            
-            <div class="contain">
-                <div class="relative z-10 hidden  w-[350px] xl:block xl:w-[580px]">
-                    <div
-                        class="group absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2">
-                        <div class="absolute -right-12 bottom-36 z-20 flex flex-col items-start gap-[10px]">
-                            <div class="group/inner flex items-center"><a class="relative hover:cursor-pointer"
-                                    href="/products?psg1=BONK%20Limited%20Edition"><img alt="" loading="lazy"
-                                        width="36" height="36" decoding="async" data-nimg="1"
-                                        src="/images/bonkBadge.webp" style="color: transparent;"></a><a
-                                    class="relative -ml-3 transition-transform duration-200 hover:cursor-pointer group-hover/inner:translate-x-4"
-                                    href="/products?psg1=JUP%20Limited%20Edition"><img alt="" loading="lazy"
-                                        width="36" height="36" decoding="async" data-nimg="1"
-                                        src="/images/jupBadge.webp" style="color: transparent;"></a><a
-                                    class="relative -ml-3 transition-transform duration-200 hover:cursor-pointer group-hover/inner:translate-x-8"
-                                    href="/products?psg1=PUDGY%20Limited%20Edition"><img alt="" loading="lazy"
-                                        width="36" height="36" decoding="async" data-nimg="1"
-                                        src="/images/pudgyBadge.webp" style="color: transparent;"></a></div>
-                            <p class="font-menlo text-base font-bold text-white">+10 other designs</p>
-                        </div>
-                        <img alt="" loading="lazy" width="764" height="803" decoding="async" data-nimg="1"
-                            class="absolute left-1/2 top-1/2 z-20 w-[187px] -translate-x-[88%] -translate-y-[108%] transition-transform duration-300 group-hover:-translate-x-[96%]"
-                            src="/images/screen-2.png" style="color: transparent;"><img alt="" loading="lazy"
-                            width="500" height="500" decoding="async" data-nimg="1"
-                            class="absolute left-1/2 top-1/2 z-10 w-[515px] -translate-x-[65%] -translate-y-1/2 transition-transform duration-300 group-hover:-translate-x-[68%]"
-                            src="/images/console-front.webp" style="color: transparent;"><img alt=""
-                            loading="lazy" width="500" height="500" decoding="async" data-nimg="1"
-                            class="absolute left-1/2 top-1/2 w-[466px] -translate-x-[35%] -translate-y-1/2 transition-transform duration-300 group-hover:-translate-x-[32%]"
-                            src="/images/console-back.webp" style="color: transparent;">
-                        <div
-                            class="absolute -left-16 -top-2 z-20 flex flex-col items-start gap-1 self-start rounded-lg border border-[#BA52EB]/30 bg-white/[0.04] px-4 py-3 backdrop-blur transition-colors duration-300 hover:bg-white/10">
-                            <p class="self-start text-sm font-normal text-white/[0.72] ">Available ON
-                            </p>
-                            <div class="flex items-center justify-start gap-2 self-start">
-                                
+                    <div class="">
+                        <span class="text-gray-400 text-lg mb-2 uppercase tracking-wider  block">Available on</span>
+                        <div class="flex flex-wrap items-center gap-4">
+                            <div
+                                class="flex items-center bg-gray-800/50 px-4 py-2 rounded-lg border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300">
                                 <img src="https://www.playsolana.com/_next/image?url=%2Fbrandkit%2Flogos%2FLogoMark.png&w=640&q=75"
                                     alt="Play Solana" class="h-8 w-8 mr-3 rounded">
-                                <p class="text-base font-bold text-white">Play Solana</p>
-                                <span class="text-white font-medium"></span>
+                                <span class="text-white font-medium">Play Solana</span>
                             </div>
-
-                        </div>
-                        <div
-                            class="absolute -right-[90px] top-[100px] z-20 flex flex-col items-start gap-1 self-start rounded-lg border border-[#BA52EB]/30 bg-white/[0.04] px-4 py-3 backdrop-blur transition-colors duration-300 hover:bg-white/10">
-                            <div class="flex items-center justify-start gap-2 self-start"><svg width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                        d="M12.937 3.75126C11.5913 3.75126 10.3418 4.16303 9.29938 4.87007C8.96186 5.09899 8.50704 5.00438 8.2835 4.65875C8.05996 4.31312 8.15235 3.84737 8.48986 3.61845C9.76496 2.75362 11.2946 2.25 12.937 2.25C17.3901 2.25 21 5.94674 21 10.5069C21 13.5247 20.4389 16.4101 19.4166 19.0583C19.2678 19.4438 18.8419 19.6328 18.4654 19.4804C18.089 19.328 17.9044 18.8919 18.0533 18.5063C19.0089 16.0311 19.534 13.3328 19.534 10.5069C19.534 6.77586 16.5804 3.75126 12.937 3.75126ZM7.22613 5.74155C7.56364 5.97046 7.65603 6.43622 7.43249 6.78185C6.74205 7.84938 6.33994 9.12891 6.33994 10.5069C6.33994 12.1214 5.887 13.6299 5.10324 14.9036C4.8874 15.2543 4.43479 15.3594 4.0923 15.1384C3.74981 14.9174 3.64713 14.4539 3.86296 14.1032C4.50347 13.0623 4.87394 11.8302 4.87394 10.5069C4.87394 8.82509 5.36574 7.25862 6.21026 5.95287C6.4338 5.60724 6.88862 5.51263 7.22613 5.74155ZM12.937 7.50439C11.3177 7.50439 10.005 8.84866 10.005 10.5069C10.005 13.6092 8.85564 16.4384 6.96997 18.5693C6.69813 18.8765 6.23458 18.8998 5.9346 18.6214C5.63463 18.3431 5.61182 17.8684 5.88367 17.5612C7.53444 15.6958 8.53895 13.2224 8.53895 10.5069C8.53895 8.01954 10.508 6.00314 12.937 6.00314C15.3659 6.00314 17.335 8.01954 17.335 10.5069C17.335 11.0546 17.3132 11.5975 17.2699 12.1347C17.2366 12.5478 16.8825 12.8551 16.479 12.8209C16.0756 12.7868 15.7755 12.4242 15.8089 12.0111C15.8489 11.5156 15.869 11.0139 15.869 10.5069C15.869 8.84866 14.5563 7.50439 12.937 7.50439ZM12.9373 9.75628C13.3421 9.75628 13.6703 10.0923 13.6703 10.5069C13.6703 14.4183 12.2782 17.9987 9.97453 20.7539C9.71124 21.0688 9.24851 21.1055 8.94101 20.8359C8.6335 20.5662 8.59765 20.0924 8.86094 19.7775C10.9457 17.284 12.2043 14.0469 12.2043 10.5069C12.2043 10.0923 12.5325 9.75628 12.9373 9.75628ZM16.1023 14.9437C16.4916 15.0574 16.7171 15.4728 16.6061 15.8714C16.0491 17.8707 15.1888 19.7385 14.0798 21.4195C13.8532 21.763 13.3975 21.8534 13.0621 21.6213C12.7267 21.3892 12.6384 20.9226 12.8651 20.5791C13.8889 19.0272 14.6826 17.3036 15.1963 15.4596C15.3074 15.0609 15.713 14.83 16.1023 14.9437Z"
-                                        fill="url(#paint0_linear_1902_305)"></path>
-                                    <defs>
-                                        <linearGradient id="paint0_linear_1902_305" x1="3.75" y1="1.03125"
-                                            x2="26.9795" y2="22.3598" gradientUnits="userSpaceOnUse">
-                                            <stop stop-color="#00FFAE"></stop>
-                                            <stop offset="1" stop-color="#F700FF"></stop>
-                                        </linearGradient>
-                                    </defs>
-                                </svg>
-                                <p class="text-base font-bold text-white">Fingerprint Sensor</p>
+                            <div
+                                class="flex items-center bg-gray-800/50 px-4 py-2 rounded-lg border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300">
+                                <img src="seeker.jpeg" alt="Seeker Phone" class="h-8 w-8 mr-3 rounded object-cover">
+                                <span class="text-white font-medium">Seeker Phone</span>
                             </div>
-                            <p class="self-start text-sm font-normal text-white/[0.72]">Frictionless
-                                authentication and <br> an
-                                enhanced user experience</p>
-                        </div>
-
-                        <div
-                            class="absolute -bottom-1 -right-4 z-20 flex flex-col items-start gap-1 self-start rounded-lg border border-[#BA52EB]/30 bg-white/[0.04] px-4 py-3 backdrop-blur transition-colors duration-300 hover:bg-white/10">
-                            <div class="flex items-center justify-start gap-2 self-start"><svg width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M19 20H5C4.46957 20 3.96086 19.7893 3.58579 19.4142C3.21071 19.0391 3 18.5304 3 18V9C3 8.46957 3.21071 7.96086 3.58579 7.58579C3.96086 7.21071 4.46957 7 5 7H19C19.5304 7 20.0391 7.21071 20.4142 7.58579C20.7893 7.96086 21 8.46957 21 9V18C21 18.5304 20.7893 19.0391 20.4142 19.4142C20.0391 19.7893 19.5304 20 19 20Z"
-                                        fill="url(#paint0_linear_1898_1167)"></path>
-                                    <path
-                                        d="M18 7.00008V5.60308C17.9999 5.29658 17.9294 4.99421 17.7939 4.7193C17.6583 4.44439 17.4614 4.20431 17.2184 4.01759C16.9753 3.83088 16.6926 3.70252 16.3921 3.64244C16.0915 3.58236 15.7812 3.59216 15.485 3.67108L4.485 6.60408C4.05905 6.71759 3.68254 6.96864 3.41399 7.31821C3.14544 7.66777 2.9999 8.09627 3 8.53708V9.00008"
-                                        fill="url(#paint1_linear_1898_1167)"></path>
-                                    <defs>
-                                        <linearGradient id="paint0_linear_1898_1167" x1="3" y1="6.1875"
-                                            x2="17.5739" y2="27.1321" gradientUnits="userSpaceOnUse">
-                                            <stop stop-color="#00FFAE"></stop>
-                                            <stop offset="1" stop-color="#F700FF"></stop>
-                                        </linearGradient>
-                                        <linearGradient id="paint1_linear_1898_1167" x1="3" y1="3.26636"
-                                            x2="6.99299" y2="14.7863" gradientUnits="userSpaceOnUse">
-                                            <stop stop-color="#00FFAE"></stop>
-                                            <stop offset="1" stop-color="#F700FF"></stop>
-                                        </linearGradient>
-                                    </defs>
-                                </svg>
-                                <p class="text-base font-bold text-white">Hardware Wallet</p>
-                            </div>
-                            <p class="self-start text-sm font-normal text-white/[0.72]">Security and seamless
-                                <br> experience
-                                with
-                                built-in wallet
-                            </p>
                         </div>
                     </div>
+
                 </div>
+            </div>
+            <div class="lg:w-1/2 flex justify-center">
+                
+                <div class="contain">
+                    <div class="relative z-10 hidden  w-[350px] xl:block xl:w-[580px]">
+                        <div
+                            class="group absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2">
+                            <div class="absolute -right-12 bottom-36 z-20 flex flex-col items-start gap-[10px]">
+                                <div class="group/inner flex items-center"><a class="relative hover:cursor-pointer"
+                                        href="/products?psg1=BONK%20Limited%20Edition"><img alt="" loading="lazy"
+                                            width="36" height="36" decoding="async" data-nimg="1"
+                                            src="/images/bonkBadge.webp" style="color: transparent;"></a><a
+                                        class="relative -ml-3 transition-transform duration-200 hover:cursor-pointer group-hover/inner:translate-x-4"
+                                        href="/products?psg1=JUP%20Limited%20Edition"><img alt="" loading="lazy"
+                                            width="36" height="36" decoding="async" data-nimg="1"
+                                            src="/images/jupBadge.webp" style="color: transparent;"></a><a
+                                        class="relative -ml-3 transition-transform duration-200 hover:cursor-pointer group-hover/inner:translate-x-8"
+                                        href="/products?psg1=PUDGY%20Limited%20Edition"><img alt="" loading="lazy"
+                                            width="36" height="36" decoding="async" data-nimg="1"
+                                            src="/images/pudgyBadge.webp" style="color: transparent;"></a></div>
+                                <p class="font-menlo text-base font-bold text-white">+10 other designs</p>
+                            </div>
+                            <img alt="" loading="lazy" width="764" height="803" decoding="async" data-nimg="1"
+                                class="absolute left-1/2 top-1/2 z-20 w-[187px] -translate-x-[88%] -translate-y-[108%] transition-transform duration-300 group-hover:-translate-x-[96%]"
+                                src="/images/screen-2.png" style="color: transparent;"><img alt="" loading="lazy"
+                                width="500" height="500" decoding="async" data-nimg="1"
+                                class="absolute left-1/2 top-1/2 z-10 w-[515px] -translate-x-[65%] -translate-y-1/2 transition-transform duration-300 group-hover:-translate-x-[68%]"
+                                src="/images/console-front.webp" style="color: transparent;"><img alt=""
+                                loading="lazy" width="500" height="500" decoding="async" data-nimg="1"
+                                class="absolute left-1/2 top-1/2 w-[466px] -translate-x-[35%] -translate-y-1/2 transition-transform duration-300 group-hover:-translate-x-[32%]"
+                                src="/images/console-back.webp" style="color: transparent;">
+                            <div
+                                class="absolute -left-16 -top-2 z-20 flex flex-col items-start gap-1 self-start rounded-lg border border-[#BA52EB]/30 bg-white/[0.04] px-4 py-3 backdrop-blur transition-colors duration-300 hover:bg-white/10">
+                                <p class="self-start text-sm font-normal text-white/[0.72] ">Available ON
+                                </p>
+                                <div class="flex items-center justify-start gap-2 self-start">
+                                    
+                                    <img src="https://www.playsolana.com/_next/image?url=%2Fbrandkit%2Flogos%2FLogoMark.png&w=640&q=75"
+                                        alt="Play Solana" class="h-8 w-8 mr-3 rounded">
+                                    <p class="text-base font-bold text-white">Play Solana</p>
+                                    <span class="text-white font-medium"></span>
+                                </div>
+
+                            </div>
+                            <div
+                                class="absolute -right-[90px] top-[100px] z-20 flex flex-col items-start gap-1 self-start rounded-lg border border-[#BA52EB]/30 bg-white/[0.04] px-4 py-3 backdrop-blur transition-colors duration-300 hover:bg-white/10">
+                                <div class="flex items-center justify-start gap-2 self-start"><svg width="24"
+                                        height="24" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                            d="M12.937 3.75126C11.5913 3.75126 10.3418 4.16303 9.29938 4.87007C8.96186 5.09899 8.50704 5.00438 8.2835 4.65875C8.05996 4.31312 8.15235 3.84737 8.48986 3.61845C9.76496 2.75362 11.2946 2.25 12.937 2.25C17.3901 2.25 21 5.94674 21 10.5069C21 13.5247 20.4389 16.4101 19.4166 19.0583C19.2678 19.4438 18.8419 19.6328 18.4654 19.4804C18.089 19.328 17.9044 18.8919 18.0533 18.5063C19.0089 16.0311 19.534 13.3328 19.534 10.5069C19.534 6.77586 16.5804 3.75126 12.937 3.75126ZM7.22613 5.74155C7.56364 5.97046 7.65603 6.43622 7.43249 6.78185C6.74205 7.84938 6.33994 9.12891 6.33994 10.5069C6.33994 12.1214 5.887 13.6299 5.10324 14.9036C4.8874 15.2543 4.43479 15.3594 4.0923 15.1384C3.74981 14.9174 3.64713 14.4539 3.86296 14.1032C4.50347 13.0623 4.87394 11.8302 4.87394 10.5069C4.87394 8.82509 5.36574 7.25862 6.21026 5.95287C6.4338 5.60724 6.88862 5.51263 7.22613 5.74155ZM12.937 7.50439C11.3177 7.50439 10.005 8.84866 10.005 10.5069C10.005 13.6092 8.85564 16.4384 6.96997 18.5693C6.69813 18.8765 6.23458 18.8998 5.9346 18.6214C5.63463 18.3431 5.61182 17.8684 5.88367 17.5612C7.53444 15.6958 8.53895 13.2224 8.53895 10.5069C8.53895 8.01954 10.508 6.00314 12.937 6.00314C15.3659 6.00314 17.335 8.01954 17.335 10.5069C17.335 11.0546 17.3132 11.5975 17.2699 12.1347C17.2366 12.5478 16.8825 12.8551 16.479 12.8209C16.0756 12.7868 15.7755 12.4242 15.8089 12.0111C15.8489 11.5156 15.869 11.0139 15.869 10.5069C15.869 8.84866 14.5563 7.50439 12.937 7.50439ZM12.9373 9.75628C13.3421 9.75628 13.6703 10.0923 13.6703 10.5069C13.6703 14.4183 12.2782 17.9987 9.97453 20.7539C9.71124 21.0688 9.24851 21.1055 8.94101 20.8359C8.6335 20.5662 8.59765 20.0924 8.86094 19.7775C10.9457 17.284 12.2043 14.0469 12.2043 10.5069C12.2043 10.0923 12.5325 9.75628 12.9373 9.75628ZM16.1023 14.9437C16.4916 15.0574 16.7171 15.4728 16.6061 15.8714C16.0491 17.8707 15.1888 19.7385 14.0798 21.4195C13.8532 21.763 13.3975 21.8534 13.0621 21.6213C12.7267 21.3892 12.6384 20.9226 12.8651 20.5791C13.8889 19.0272 14.6826 17.3036 15.1963 15.4596C15.3074 15.0609 15.713 14.83 16.1023 14.9437Z"
+                                            fill="url(#paint0_linear_1902_305)"></path>
+                                        <defs>
+                                            <linearGradient id="paint0_linear_1902_305" x1="3.75" y1="1.03125"
+                                                x2="26.9795" y2="22.3598" gradientUnits="userSpaceOnUse">
+                                                <stop stop-color="#00FFAE"></stop>
+                                                <stop offset="1" stop-color="#F700FF"></stop>
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                    <p class="text-base font-bold text-white">Fingerprint Sensor</p>
+                                </div>
+                                <p class="self-start text-sm font-normal text-white/[0.72]">Frictionless
+                                    authentication and <br> an
+                                    enhanced user experience</p>
+                            </div>
+
+                            <div
+                                class="absolute -bottom-1 -right-4 z-20 flex flex-col items-start gap-1 self-start rounded-lg border border-[#BA52EB]/30 bg-white/[0.04] px-4 py-3 backdrop-blur transition-colors duration-300 hover:bg-white/10">
+                                <div class="flex items-center justify-start gap-2 self-start"><svg width="24"
+                                        height="24" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M19 20H5C4.46957 20 3.96086 19.7893 3.58579 19.4142C3.21071 19.0391 3 18.5304 3 18V9C3 8.46957 3.21071 7.96086 3.58579 7.58579C3.96086 7.21071 4.46957 7 5 7H19C19.5304 7 20.0391 7.21071 20.4142 7.58579C20.7893 7.96086 21 8.46957 21 9V18C21 18.5304 20.7893 19.0391 20.4142 19.4142C20.0391 19.7893 19.5304 20 19 20Z"
+                                            fill="url(#paint0_linear_1898_1167)"></path>
+                                        <path
+                                            d="M18 7.00008V5.60308C17.9999 5.29658 17.9294 4.99421 17.7939 4.7193C17.6583 4.44439 17.4614 4.20431 17.2184 4.01759C16.9753 3.83088 16.6926 3.70252 16.3921 3.64244C16.0915 3.58236 15.7812 3.59216 15.485 3.67108L4.485 6.60408C4.05905 6.71759 3.68254 6.96864 3.41399 7.31821C3.14544 7.66777 2.9999 8.09627 3 8.53708V9.00008"
+                                            fill="url(#paint1_linear_1898_1167)"></path>
+                                        <defs>
+                                            <linearGradient id="paint0_linear_1898_1167" x1="3" y1="6.1875"
+                                                x2="17.5739" y2="27.1321" gradientUnits="userSpaceOnUse">
+                                                <stop stop-color="#00FFAE"></stop>
+                                                <stop offset="1" stop-color="#F700FF"></stop>
+                                            </linearGradient>
+                                            <linearGradient id="paint1_linear_1898_1167" x1="3" y1="3.26636"
+                                                x2="6.99299" y2="14.7863" gradientUnits="userSpaceOnUse">
+                                                <stop stop-color="#00FFAE"></stop>
+                                                <stop offset="1" stop-color="#F700FF"></stop>
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                    <p class="text-base font-bold text-white">Hardware Wallet</p>
+                                </div>
+                                <p class="self-start text-sm font-normal text-white/[0.72]">Security and seamless
+                                    <br> experience
+                                    with
+                                    built-in wallet
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
 
+                </div>
             </div>
         </div>
     </div>
-</div>
 </section> -->
 
     <!-- Features Section -->
@@ -839,215 +563,12 @@
                     <h3 class="text-xl font-bold mb-3">Play-to-Earn</h3>
                     <p class="text-gray-300">Win crypto rewards and NFTs by outplaying your opponents on the board.</p>
                 </div>
-<<<<<<< HEAD
-                <h3 class="text-xl font-bold mb-3">Play-to-Earn</h3>
-                <p class="text-gray-300">Win crypto rewards and NFTs by outplaying your opponents on the board.</p>
-            </div>
-            <div class="bg-gray-800/50 p-8 rounded-xl hover:bg-gray-700/50 transition-all duration-300">
-                <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mb-6">
-                    <i data-feather="users" class="text-purple-400" width="32" height="32"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-3">Multiplayer Battles</h3>
-                <p class="text-gray-300">Challenge players worldwide in real-time PvP matches with crypto stakes.
-                </p>
-            </div>
-            <div class="bg-gray-800/50 p-8 rounded-xl hover:bg-gray-700/50 transition-all duration-300">
-                <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mb-6">
-                    <i data-feather="dollar-sign" class="text-purple-400" width="32" height="32"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-3">Own Your Assets</h3>
-                <p class="text-gray-300">True digital ownership of in-game items as Solana NFTs.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Game Preview Section -->
-<section id="gameplay" class="py-20">
-    <div class="container mx-auto px-6">
-        <h2 class="font-bold text-center mb-16">Experience the Game</h2>
-        <div class="bg-gray-800 rounded-xl overflow-hidden shadow-2xl max-w-4xl mx-auto">
-            <div class="relative" style="padding-bottom: 56.25%; max-height: 400px;">
-                <video class="absolute top-0 left-0 w-full h-full object-cover" controls preload="metadata">
-                    <source src="gameplay.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Tokenomics Section -->
-
-<!-- Traction and Validation Section -->
-<section id="traction" class="py-20 bg-gray-800/50">
-    <div class="container mx-auto px-6">
-        <h2 class="font-bold text-center mb-16">Traction & Validation</h2>
-        <div class="max-w-4xl mx-auto">
-            <p class="text-xl text-center text-gray-300 mb-12">
-                Recognized by leading Web3 communities and hackathons for innovation in blockchain gaming.
-            </p>
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Solana Game Jam -->
-                <a href="https://x.com/SuperteamVN/status/1975520287115587960?s=20" target="_blank"
-                    rel="noopener noreferrer"
-                    class="bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-8 rounded-xl border-2 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 group text-center relative overflow-hidden block">
-                    <!-- Decorative background elements -->
-                    <div
-                        class="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all duration-300">
-                    </div>
-                    <div
-                        class="absolute -bottom-8 -left-8 w-32 h-32 bg-pink-500/10 rounded-full blur-3xl group-hover:bg-pink-500/20 transition-all duration-300">
-                    </div>
-
-                    <div class="relative z-10">
-                        <div
-                            class="w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg shadow-yellow-500/50 relative">
-                            <i data-feather="trophy" class="text-yellow-900" width="40" height="40"></i>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="text-yellow-900" width="40" height="40"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M8 21h8" />
-                                <path d="M12 17v4" />
-                                <path d="M7 4h10v3a5 5 0 0 1-10 0V4Z" />
-                                <path d="M5 4h2v3a5 5 0 0 0 5 5" />
-                                <path d="M19 4h-2v3a5 5 0 0 1-5 5" />
-                                <path d="M5 4a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4" />
-                                <path d="M19 4a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4" />
-                            </svg>
-
-                            <!-- Mini game icon -->
-                            <div
-                                class="absolute -top-2 -right-2 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center border-2 border-gray-900">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="text-white" width="16" height="16"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="2" y="8" width="20" height="8" rx="2" />
-                                    <path d="M6 12h4" />
-                                    <path d="M8 10v4" />
-                                    <circle cx="16" cy="11" r="1" />
-                                    <circle cx="18" cy="13" r="1" />
-                                </svg>
-
-                            </div>
-                        </div>
-                        <div
-                            class="inline-block bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 text-yellow-300 px-4 py-2 rounded-full text-sm font-bold mb-4 border border-yellow-500/30">
-                            <i data-feather="award" class="inline-block" width="14" height="14"></i> 🥇 Winner
-                        </div>
-                        <h3 class="text-xl font-bold mb-3 flex items-center justify-center gap-2">
-                            <i data-feather="zap" class="text-purple-400" width="20" height="20"></i>
-                            Solana Game Jam 2
-                        </h3>
-                        <p class="text-gray-400">Recognized for innovative gameplay mechanics and seamless Solana
-                            integration.</p>
-                    </div>
-                </a>
-
-                <!-- Breakout Local Track -->
-                <a href="https://x.com/ShipyardPAK/status/1925854226707566955?s=20" target="_blank"
-                    rel="noopener noreferrer"
-                    class="bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-8 rounded-xl border-2 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 group text-center relative overflow-hidden block">
-                    <!-- Decorative background elements -->
-                    <div
-                        class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all duration-300">
-                    </div>
-                    <div
-                        class="absolute -bottom-8 -left-8 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all duration-300">
-                    </div>
-
-                    <div class="relative z-10">
-                        <div
-                            class="w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg shadow-yellow-500/50 relative">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="text-yellow-900" width="40" height="40"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M8 21h8" />
-                                <path d="M12 17v4" />
-                                <path d="M7 4h10v3a5 5 0 0 1-10 0V4Z" />
-                                <path d="M5 4h2v3a5 5 0 0 0 5 5" />
-                                <path d="M19 4h-2v3a5 5 0 0 1-5 5" />
-                                <path d="M5 4a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4" />
-                                <path d="M19 4a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4" />
-                            </svg>
-                            <!-- Mini local icon -->
-                            <div
-                                class="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 border-gray-900">
-                                <i data-feather="map-pin" class="text-white" width="16" height="16"></i>
-                            </div>
-                        </div>
-                        <div
-                            class="inline-block bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 text-yellow-300 px-4 py-2 rounded-full text-sm font-bold mb-4 border border-yellow-500/30">
-                            <i data-feather="award" class="inline-block" width="14" height="14"></i> 🥇 Winner
-                        </div>
-                        <h3 class="text-xl font-bold mb-3 flex items-center justify-center gap-2">
-                            <i data-feather="trending-up" class="text-blue-400" width="20" height="20"></i>
-                            Colosseum Breakout Local Track
-                        </h3>
-                        <p class="text-gray-400">Awarded for exceptional user experience and community engagement
-                            potential.</p>
-                    </div>
-                </a>
-
-                <!-- Colosseum -->
-                <a href="https://x.com/LudoCities/status/1989043745967468857?s=20" target="_blank"
-                    rel="noopener noreferrer"
-                    class="bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-8 rounded-xl border-2 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 group text-center relative overflow-hidden block">
-                    <!-- Decorative background elements -->
-                    <div
-                        class="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl group-hover:bg-orange-500/20 transition-all duration-300">
-                    </div>
-                    <div
-                        class="absolute -bottom-8 -left-8 w-32 h-32 bg-red-500/10 rounded-full blur-3xl group-hover:bg-red-500/20 transition-all duration-300">
-                    </div>
-
-                    <div class="relative z-10">
-                        <div
-                            class="w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg shadow-yellow-500/50 relative">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="text-yellow-900" width="40" height="40"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M8 21h8" />
-                                <path d="M12 17v4" />
-                                <path d="M7 4h10v3a5 5 0 0 1-10 0V4Z" />
-                                <path d="M5 4h2v3a5 5 0 0 0 5 5" />
-                                <path d="M19 4h-2v3a5 5 0 0 1-5 5" />
-                                <path d="M5 4a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4" />
-                                <path d="M19 4a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4" />
-                            </svg>
-                            <!-- Mini shield icon -->
-                            <div
-                                class="absolute -top-2 -right-2 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center border-2 border-gray-900">
-                                <i data-feather="shield" class="text-white" width="16" height="16"></i>
-                            </div>
-                        </div>
-                        <div
-                            class="inline-block bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 text-yellow-300 px-4 py-2 rounded-full text-sm font-bold mb-4 border border-yellow-500/30">
-                            <i data-feather="award" class="inline-block" width="14" height="14"></i> 🥇 Winner
-                        </div>
-                        <h3 class="text-xl font-bold mb-3 flex items-center justify-center gap-2">
-                            <i data-feather="star" class="text-orange-400" width="20" height="20"></i>
-                            Colosseum Cypherpunk Local Track
-                        </h3>
-                        <p class="text-gray-400">Celebrated for pushing the boundaries of Web3 gaming on Solana.</p>
-                    </div>
-                </a>
-            </div>
-
-            <div class="mt-12 text-center">
-                <div class="inline-block bg-gray-800/50 px-6 py-4 rounded-xl border border-purple-500/30">
-                    <p class="text-gray-300 text-lg">
-                        <span class="text-purple-400 font-bold text-2xl">3</span> Hackathon Wins
-                        <span class="mx-4 text-gray-600">|</span>
-                        Validated by the <span class="text-purple-400 font-semibold">Solana Ecosystem</span>
-=======
                 <div class="bg-gray-800/50 p-8 rounded-xl hover:bg-gray-700/50 transition-all duration-300">
                     <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mb-6">
                         <i data-feather="users" class="text-purple-400" width="32" height="32"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-3">Multiplayer Battles</h3>
                     <p class="text-gray-300">Challenge players worldwide in real-time PvP matches with crypto stakes.
->>>>>>> 3967a882de681cd43d7caf62c6dd48483149fb06
                     </p>
                 </div>
                 <div class="bg-gray-800/50 p-8 rounded-xl hover:bg-gray-700/50 transition-all duration-300">
@@ -1061,240 +582,6 @@
         </div>
     </section>
 
-<<<<<<< HEAD
-<section id="roadmap" class="relative py-20 lg:py-28 bg-slate-950 text-slate-100">
-    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <!-- Heading -->
-        <div class="text-center max-w-3xl mx-auto mb-12">
-            <span
-                class="inline-flex items-center rounded-full bg-purple-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-purple-300">
-                Roadmap
-            </span>
-            <h2 class="mt-4 text-3xl sm:text-4xl font-bold tracking-tight">
-                Ludo Cities Roadmap
-            </h2>
-            <p class="mt-3 text-sm sm:text-base text-slate-400">
-                From live product to an expanding Web3 gaming ecosystem on Solana and Seeker Phone.
-            </p>
-        </div>
-
-        <div class="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.2fr)] items-start">
-            <!-- Current Status Card -->
-            <div class="relative">
-                <div
-                    class="absolute -inset-[1px] rounded-2xl bg-gradient-to-br from-purple-500 via-cyan-400 to-emerald-400 opacity-60 blur-lg">
-                </div>
-                <div class="relative rounded-2xl bg-slate-900/80 border border-slate-700/60 p-6 sm:p-8 shadow-xl">
-                    <div class="flex items-center gap-2 mb-4">
-                        <div class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
-                            Current Status
-                        </p>
-                    </div>
-                    <h3 class="text-xl sm:text-2xl font-semibold mb-4">Ludo Cities is Live & Growing</h3>
-                    <p class="text-sm sm:text-base text-slate-400 mb-6">
-                        Core development is complete and the game is already live across multiple platforms.
-                    </p>
-
-                    <ul class="space-y-4 text-sm sm:text-base">
-                        <!-- Item -->
-                        <li class="flex gap-3">
-                            <span
-                                class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/15 border border-emerald-400/50">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-300"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </span>
-                            <div>
-                                <p class="font-medium text-slate-100">Live on Google Play Store (Android)</p>
-                                <p class="text-slate-400 text-xs sm:text-sm mt-1">
-                                    The game is publicly available and fully playable on Android devices.
-                                </p>
-                            </div>
-                        </li>
-
-                        <!-- Item -->
-                        <li class="flex gap-3">
-                            <span
-                                class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/15 border border-emerald-400/50">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-300"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M4 6h16M4 12h10M4 18h6"></path>
-                                </svg>
-                            </span>
-                            <div>
-                                <p class="font-medium text-slate-100">Multi-Platform Support</p>
-                                <p class="text-slate-400 text-xs sm:text-sm mt-1">
-                                    Current support includes Android, iOS, Play Solana, and Seeker Phone for a
-                                    unified cross-platform experience.
-                                </p>
-                            </div>
-                        </li>
-
-                        <!-- Item -->
-                        <li class="flex gap-3">
-                            <span
-                                class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/15 border border-emerald-400/50">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-300"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M4 4h16v6H4z"></path>
-                                    <path d="M4 14h16v6H4z"></path>
-                                    <path d="M9 10v4"></path>
-                                    <path d="M15 10v4"></path>
-                                </svg>
-                            </span>
-                            <div>
-                                <p class="font-medium text-slate-100">Integrated With Solana Testnet</p>
-                                <p class="text-slate-400 text-xs sm:text-sm mt-1">
-                                    Web3 rewards and blockchain-backed gameplay are live on the Solana Test Network
-                                    for beta and QA testing.
-                                </p>
-                            </div>
-                        </li>
-
-                        <!-- Item -->
-                        <li class="flex gap-3">
-                            <span
-                                class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/15 border border-emerald-400/50">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-300"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M4 4h16v6H4z"></path>
-                                    <path d="M4 14h16v6H4z"></path>
-                                    <path d="M9 10v4"></path>
-                                    <path d="M15 10v4"></path>
-                                </svg>
-                            </span>
-                            <div>
-                                <p class="font-medium text-slate-100">Integrated With Solana Mainnet</p>
-                                <p class="text-slate-400 text-xs sm:text-sm mt-1">
-                                    $LUDC token is live on the mainnet. <br>
-                                    CA : <a href="https://jup.ag/tokens/JSXWEi4ZXJkrkqWQg4UjUPzpmpYYFxzLmBuADh5cyai"
-                                        target="_blank" rel="noopener noreferrer"
-                                        class="break-all text-blue-400 hover:underline">JSXWEi4ZXJkrkqWQg4UjUPzpmpYYFxzLmBuADh5cyai</a>
-                                </p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Upcoming Milestones Timeline -->
-            <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-purple-300 mb-4">
-                    Upcoming Milestones
-                </p>
-
-                <ol class="relative border-l border-slate-700/70 space-y-8 pl-5">
-                    <!-- Milestone 1 -->
-                    <li class="relative">
-                        <span
-                            class="absolute -left-[11px] mt-1 flex h-5 w-5 items-center justify-center rounded-full border border-purple-400 bg-slate-950">
-                            <span class="h-2.5 w-2.5 rounded-full bg-purple-400"></span>
-                        </span>
-                        <div class="rounded-xl bg-slate-900/70 border border-slate-700/60 p-4 sm:p-5">
-                            <p class="text-xs font-medium text-purple-300 mb-1">December 2025</p>
-                            <h3 class="text-sm sm:text-base font-semibold mb-1">
-                                Launch on Seeker Phone
-                            </h3>
-                            <p class="text-xs sm:text-sm text-slate-400">
-                                Optimized build for Seeker Phone with native wallet integration and seamless
-                                on-chain interactions for mobile-first Web3 gamers.
-                            </p>
-                        </div>
-                    </li>
-
-                    <!-- Milestone 2 -->
-                    <li class="relative">
-                        <span
-                            class="absolute -left-[11px] mt-1 flex h-5 w-5 items-center justify-center rounded-full border border-cyan-400 bg-slate-950">
-                            <span class="h-2.5 w-2.5 rounded-full bg-cyan-400"></span>
-                        </span>
-                        <div class="rounded-xl bg-slate-900/70 border border-slate-700/60 p-4 sm:p-5">
-                            <p class="text-xs font-medium text-cyan-300 mb-1">January 2026</p>
-                            <h3 class="text-sm sm:text-base font-semibold mb-1">
-                                Launch on Play Solana Console
-                            </h3>
-                            <p class="text-xs sm:text-sm text-slate-400">
-                                Console experience with matchmaking, PvP, and integrated Solana wallet support via
-                                Play Solana.
-                            </p>
-                        </div>
-                    </li>
-
-                    <!-- Milestone 3 -->
-                    <li class="relative">
-                        <span
-                            class="absolute -left-[11px] mt-1 flex h-5 w-5 items-center justify-center rounded-full border border-cyan-400 bg-slate-950">
-                            <span class="h-2.5 w-2.5 rounded-full bg-cyan-400"></span>
-                        </span>
-                        <div class="rounded-xl bg-slate-900/70 border border-slate-700/60 p-4 sm:p-5">
-                            <p class="text-xs font-medium text-cyan-300 mb-1">January 2026</p>
-                            <h3 class="text-sm sm:text-base font-semibold mb-1">
-                                Launch on Web
-                            </h3>
-                            <p class="text-xs sm:text-sm text-slate-400">
-                                Play Ludo Cities directly in your browser with this update.
-                            </p>
-                        </div>
-                    </li>
-
-                    <!-- Milestone 4 -->
-                    <li class="relative">
-                        <span
-                            class="absolute -left-[11px] mt-1 flex h-5 w-5 items-center justify-center rounded-full border border-amber-400 bg-slate-950">
-                            <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
-                        </span>
-                        <div class="rounded-xl bg-slate-900/70 border border-slate-700/60 p-4 sm:p-5">
-                            <p class="text-xs font-medium text-amber-300 mb-1">June 2026</p>
-                            <h3 class="text-sm sm:text-base font-semibold mb-1">
-                                City NFT Sale Goes Live
-                            </h3>
-                            <p class="text-xs sm:text-sm text-slate-400">
-                                First official sale of Ludo City NFTs, unlocking revenue sharing, city upgrades,
-                                tournament hosting, and long-term ecosystem participation for owners.
-                            </p>
-                        </div>
-                    </li>
-                </ol>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- Team Section -->
-
-<!-- <section id="team" class="py-20">
-<div class="container mx-auto px-6">
-    <h2 class="text-3xl font-bold text-center mb-16">Our Team</h2>
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div class="bg-gray-800 rounded-xl p-6 text-center">
-            <img src="https://www.ludocities.com/team1.jpg" alt="Team Member" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
-            <h3 class="text-xl font-bold">Alex Chen</h3>
-            <p class="text-purple-400 mb-2">CEO & Founder</p>
-            <p class="text-gray-400">Former game designer at Ubisoft</p>
-        </div>
-        <div class="bg-gray-800 rounded-xl p-6 text-center">
-            <img src="https://www.ludocities.com/team2.jpg" alt="Team Member" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
-            <h3 class="text-xl font-bold">Maria Rodriguez</h3>
-            <p class="text-purple-400 mb-2">Blockchain Developer</p>
-            <p class="text-gray-400">Solana core contributor</p>
-        </div>
-        <div class="bg-gray-800 rounded-xl p-6 text-center">
-            <img src="https://www.ludocities.com/team3.jpg" alt="Team Member" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
-            <h3 class="text-xl font-bold">James Kim</h3>
-            <p class="text-purple-400 mb-2">Game Developer</p>
-            <p class="text-gray-400">Unity expert</p>
-        </div>
-        <div class="bg-gray-800 rounded-xl p-6 text-center">
-            <img src="https://www.ludocities.com/team4.jpg" alt="Team Member" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
-            <h3 class="text-xl font-bold">Sarah Johnson</h3>
-            <p class="text-purple-400 mb-2">Marketing Lead</p>
-            <p class="text-gray-400">Crypto community builder</p>
-=======
     <!-- Game Preview Section -->
     <section id="gameplay" class="py-20">
         <div class="container mx-auto px-6">
@@ -1713,65 +1000,10 @@
                 <p class="text-purple-400 mb-2">Marketing Lead</p>
                 <p class="text-gray-400">Crypto community builder</p>
             </div>
->>>>>>> 3967a882de681cd43d7caf62c6dd48483149fb06
         </div>
     </div>
-</div>
 </section> -->
 
-<<<<<<< HEAD
-<!-- Socials Section -->
-<section id="socials" class="py-20">
-    <div class="container mx-auto px-6">
-        <h2 class="font-bold text-center mb-16">Connect With Us</h2>
-        <div class="max-w-4xl mx-auto">
-            <p class="text-xl text-center text-gray-300 mb-12">
-                Join our community and stay updated with the latest news, updates, and exclusive content.
-            </p>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <a href="https://discord.gg/v7D3EprRdY"
-                    class="bg-gray-800/50 p-8 rounded-xl hover:bg-gray-700/50 transition-all duration-300 group text-center">
-                    <div
-                        class="w-20 h-20 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-purple-500/30 transition-all duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                            class="w-10 h-10 text-purple-400 fill-current" aria-hidden="true">
-                            <path
-                                d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.08.08 0 0 0-.084.04c-.21.375-.444.864-.608 1.249a18.18 18.18 0 0 0-5.454 0 12.5 12.5 0 0 0-.617-1.249.08.08 0 0 0-.084-.04A19.79 19.79 0 0 0 3.68 4.369a.08.08 0 0 0-.038.03C.533 9.046-.32 13.58.099 18.057a.09.09 0 0 0 .032.058 19.9 19.9 0 0 0 5.993 3.03.08.08 0 0 0 .09-.03c.462-.63.874-1.296 1.226-1.995a.08.08 0 0 0-.043-.109 13 13 0 0 1-1.872-.892.08.08 0 0 1-.01-.13c.127-.094.253-.192.373-.291a.08.08 0 0 1 .084-.011c3.927 1.793 8.18 1.793 12.061 0a.08.08 0 0 1 .085.01c.12.1.246.199.373.293a.08.08 0 0 1-.008.13 12.3 12.3 0 0 1-1.873.89.08.08 0 0 0-.042.11c.36.699.773 1.364 1.226 1.994a.08.08 0 0 0 .09.03 19.87 19.87 0 0 0 6.002-3.03.08.08 0 0 0 .032-.057c.5-5.177-.838-9.673-3.548-13.662a.07.07 0 0 0-.035-.03ZM8.02 15.33c-1.183 0-2.157-1.084-2.157-2.419 0-1.335.96-2.42 2.157-2.42 1.213 0 2.177 1.095 2.157 2.42 0 1.335-.953 2.42-2.157 2.42Zm7.974 0c-1.183 0-2.157-1.084-2.157-2.419 0-1.335.953-2.42 2.157-2.42 1.213 0 2.177 1.095 2.157 2.42 0 1.335-.944 2.42-2.157 2.42Z" />
-                        </svg>
-                    </div>
-
-                    <h3 class="text-xl font-bold mb-3">Discord</h3>
-                    <p class="text-gray-400">Join our community on Discord for updates, support, and discussions.
-                    </p>
-                </a>
-                <a href="https://twitter.com/ludocities"
-                    class="bg-gray-800/50 p-8 rounded-xl hover:bg-gray-700/50 transition-all duration-300 group text-center">
-                    <div
-                        class="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-500/30 transition-all duration-300">
-                        <i data-feather="twitter" class="text-blue-400" width="40" height="40"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Twitter</h3>
-                    <p class="text-gray-400">Follow us on Twitter for the latest news and announcements.</p>
-                </a>
-                <a href="https://t.me/ludo_cities"
-                    class="bg-gray-800/50 p-8 rounded-xl hover:bg-gray-700/50 transition-all duration-300 group text-center">
-                    <div
-                        class="w-20 h-20 bg-cyan-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-cyan-500/30 transition-all duration-300">
-                        <i data-feather="send" class="text-cyan-400" width="40" height="40"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Telegram</h3>
-                    <p class="text-gray-400">Connect with our community on Telegram for real-time updates.</p>
-                </a>
-                <!-- <a href="https://ludo-cities.gitbook.io/ludo-cities-whitepaper/"
-                    class="bg-gray-800/50 p-8 rounded-xl hover:bg-gray-700/50 transition-all duration-300 group text-center">
-                    <div
-                        class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-green-500/30 transition-all duration-300">
-                        <i data-feather="file-text" class="text-green-400" width="40" height="40"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Documentation</h3>
-                    <p class="text-gray-400">Read our whitepaper and learn more about Ludo Cities.</p>
-                </a> -->
-=======
     <!-- Socials Section -->
     <section id="socials" class="py-20">
         <div class="container mx-auto px-6">
@@ -1840,7 +1072,6 @@
                     <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
                         alt="Get it on Google Play" class="h-12">
                 </a>
->>>>>>> 3967a882de681cd43d7caf62c6dd48483149fb06
             </div>
         </div>
     </section>
@@ -1886,21 +1117,6 @@
                 console.log('Animation loaded successfully');
             });
 
-<<<<<<< HEAD
-        animation.addEventListener('data_failed', (err) => {
-            console.error('Animation failed to load:', err);
-            // Fallback: show alternative animation with colored game pieces
-            document.getElementById('lottie-animation').innerHTML = `
-            <div class="flex items-center justify-center h-full">
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-lg animate-pulse"></div>
-                    <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg animate-bounce" style="animation-delay: 0.2s"></div>
-                    <div class="w-24 h-24 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl shadow-lg animate-pulse" style="animation-delay: 0.4s"></div>
-                    <div class="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg animate-bounce" style="animation-delay: 0.6s"></div>
-                </div>
-            </div>
-        `;
-=======
             animation.addEventListener('data_failed', (err) => {
                 console.error('Animation failed to load:', err);
                 // Fallback: show alternative animation with colored game pieces
@@ -1915,7 +1131,6 @@
                 </div>
             `;
             });
->>>>>>> 3967a882de681cd43d7caf62c6dd48483149fb06
         });
     </script>
 </body>
