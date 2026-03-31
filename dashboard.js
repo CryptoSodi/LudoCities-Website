@@ -2,13 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
     feather.replace();
 
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl("http://192.168.1.13:8085/DashboardHub")
+        .withUrl("http://192.168.1.15:8085/DashboardHub")
         .withAutomaticReconnect()
         .build();
 
     const statusBadge = document.getElementById('connection-status');
     const detailsSection = document.getElementById('player-details-section');
     const searchInput = document.getElementById('player-search-input');
+    const authToken = localStorage.getItem('LudoAuthToken');
     let currentTab = 'overview';
 
     // --- PRETTY UI HELPERS ---
@@ -47,8 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.closeConfirm = () => document.getElementById('confirm-modal').classList.add('hidden');
 
-    // --- TAB NAVIGATION ---
-
     window.switchTab = function(tabName) {
         currentTab = tabName;
         document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
@@ -68,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- REAL-TIME BROADCAST LISTENERS ---
     connection.on("RefreshMatchCenter", () => {
         if (currentTab === 'matches') loadMatchCenter();
         if (currentTab === 'overview') loadStats();
@@ -87,6 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
     async function start() {
         try {
             await connection.start();
+            const isValid = await connection.invoke("ValidateSession", authToken, "Admin");
+            if (!isValid) { logout(); return; }
             updateStatus(true);
             loadAllData();
         } catch (err) {
@@ -96,6 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     start();
+
+    connection.on("AccountStatusUpdate", (status) => {
+        if (status === "ACCOUNT_BLOCKED") {
+            showToast("Your session has been terminated by an administrator.", 'error');
+            setTimeout(logout, 3000);
+        }
+    });
 
     // --- MATCH CENTER ---
     let allPastMatches = [];
@@ -257,6 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- PLAYER DIRECTORY & AUDIT ---
     let allPlayers = [];
+    let currentPlayerAuditData = null; // Store for local filtering
 
     window.loadPlayerList = async function() {
         try {
@@ -292,7 +300,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.loadPlayerAudit = async function(id) {
         try {
             const p = await connection.invoke("GetPlayerDashboard", id);
-            if (p) showPlayerDetails(p);
+            if (p) {
+                currentPlayerAuditData = p;
+                showPlayerDetails(p);
+            }
         } catch (err) { }
     };
 
@@ -309,7 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <!-- Header -->
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-center bg-white/5 p-8 rounded-3xl border border-white/5">
                     <div class="text-center lg:border-r border-white/5 lg:pr-8">
-                        <img src="${p.picture || 'player.webp'}" class="h-24 w-24 rounded-full border-4 border-purple-500 mx-auto mb-4 glow-purple">
+                        <img src="${p.picture || 'player.webp'}" class="h-24 w-24 rounded-full border-4 border-purple-500 mx-auto mb-4 glow-purple shadow-2xl">
                         <h3 class="text-xl font-black uppercase mb-1 truncate">${p.name}</h3>
                         <p class="text-[10px] text-gray-500 mb-4 font-bold tracking-widest">${p.email}</p>
                         <span class="text-[8px] font-black px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 uppercase tracking-widest">${p.role}</span>
@@ -340,24 +351,103 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
 
-                <!-- Dual Ledgers -->
+                <!-- Dual Ledgers with Filtering -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="glass-panel rounded-3xl overflow-hidden border border-white/5 flex flex-col h-[450px]">
-                        <div class="bg-white/5 px-6 py-4 border-b border-white/5 flex justify-between items-center"><span class="text-[10px] font-black uppercase text-gray-400">Match Record</span><i data-feather="play-circle" width="14"></i></div>
-                        <div class="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                            <table class="w-full text-left"><tbody>${p.recentGames.map(g => `<tr class="border-b border-white/5 hover:bg-white/5 cursor-pointer" onclick="loadPastMatchAuditById(${g.id})"><td class="py-4 px-2"><div><span class="text-[7px] font-black px-1.5 py-0.5 rounded bg-white/5 uppercase ${g.category==='Tournament'?'text-yellow-500':(g.category==='Private'?'text-purple-400':'text-gray-500')}">${g.category||'CASH'}</span> <span class="font-bold text-gray-300">${g.type}P</span></div><span class="text-[8px] text-gray-600 uppercase italic">VS: ${g.opponents}</span></td><td class="py-4 font-black ${g.isWin?'text-emerald-400':'text-red-400'}">${g.isWin?'WIN':'LOSS'}</td><td class="py-4 text-right pr-2 text-gray-500 text-[8px]">${new Date(g.date).toLocaleDateString()}</td></tr>`).join('')}</tbody></table>
+                    <div class="glass-panel rounded-3xl overflow-hidden border border-white/5 flex flex-col h-[500px]">
+                        <div class="bg-white/5 px-6 py-4 border-b border-white/5 flex justify-between items-center">
+                            <span class="text-[10px] font-black uppercase text-gray-400">Match Record</span>
+                            <i data-feather="play-circle" width="14"></i>
+                        </div>
+                        <div class="flex-1 overflow-y-auto p-4 custom-scrollbar" id="audit-matches-body">
+                            <!-- Table Rendered below -->
                         </div>
                     </div>
-                    <div class="glass-panel rounded-3xl overflow-hidden border border-white/5 flex flex-col h-[450px]">
-                        <div class="bg-emerald-500/5 px-6 py-4 border-b border-white/5 flex justify-between items-center"><span class="text-[10px] font-black uppercase text-emerald-400">Wallet Ledger</span><i data-feather="database" width="14"></i></div>
-                        <div class="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                            <table class="w-full text-left"><tbody>${p.transactions.map(t => `<tr class="border-b border-white/5 hover:bg-white/5 transition-all"><td class="py-4 px-2"><span class="px-2 py-0.5 rounded-full text-[7px] font-black uppercase ${t.amount>0?'bg-emerald-500/10 text-emerald-400':'bg-red-500/10 text-red-400'}">${t.type===1?'DEPOSIT':'SWEEP'}</span></td><td class="py-4 font-medium text-gray-300 leading-tight text-[10px]">${t.description}<br/><span class="text-[8px] text-gray-600">${new Date(t.date).toLocaleDateString()}</span></td><td class="py-4 text-right pr-2 font-black ${t.amount>0?'text-emerald-400':'text-yellow-500'} font-gamer">${t.amount>0?'+':''}${parseFloat(t.amount).toFixed(2)}</td></tr>`).join('')}</tbody></table>
+                    
+                    <div class="glass-panel rounded-3xl overflow-hidden border border-white/5 flex flex-col h-[500px]">
+                        <div class="bg-emerald-500/5 px-6 py-4 border-b border-white/5 flex flex-col gap-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] font-black uppercase text-emerald-400">Wallet Ledger</span>
+                                <i data-feather="database" width="14" class="text-emerald-600"></i>
+                            </div>
+                            <!-- LEDGER FILTERS -->
+                            <div class="flex gap-2">
+                                <select id="filter-audit-type" onchange="applyAuditLedgerFilters()" class="bg-black/40 border border-white/10 rounded px-2 py-1 text-[8px] uppercase font-black outline-none flex-1">
+                                    <option value="All">All Types</option>
+                                    <option value="1">Deposit</option>
+                                    <option value="2">Withdraw</option>
+                                    <option value="3">Game Win</option>
+                                    <option value="4">Game Loss</option>
+                                    <option value="6">Bonus</option>
+                                </select>
+                                <input type="date" id="filter-audit-start" onchange="applyAuditLedgerFilters()" class="bg-black/40 border border-white/10 rounded px-2 py-1 text-[8px] outline-none w-20">
+                            </div>
+                        </div>
+                        <div class="flex-1 overflow-y-auto p-4 custom-scrollbar" id="audit-ledger-body">
+                            <!-- Table Rendered below -->
                         </div>
                     </div>
                 </div>
             </div>`;
+        
+        applyAuditLedgerFilters(); // Initial render of tables
         modal.classList.remove('hidden');
         feather.replace();
+    };
+
+    window.applyAuditLedgerFilters = function() {
+        if (!currentPlayerAuditData) return;
+        const type = document.getElementById('filter-audit-type').value;
+        const start = document.getElementById('filter-audit-start').value;
+        
+        let filteredTrans = currentPlayerAuditData.transactions;
+        if (type !== 'All') filteredTrans = filteredTrans.filter(t => t.type === parseInt(type));
+        if (start) filteredTrans = filteredTrans.filter(t => new Date(t.date).getTime() >= new Date(start).getTime());
+
+        renderAuditTables(currentPlayerAuditData.recentGames, filteredTrans);
+    };
+
+    function renderAuditTables(games, trans) {
+        const mBody = document.getElementById('audit-matches-body');
+        const lBody = document.getElementById('audit-ledger-body');
+
+        // Render Matches
+        mBody.innerHTML = `<table class="w-full text-left"><tbody>${games.map(g => `<tr class="border-b border-white/5 hover:bg-white/5 cursor-pointer" onclick="loadPastMatchAuditById(${g.id})"><td class="py-4 px-2"><div><span class="text-[7px] font-black px-1.5 py-0.5 rounded bg-white/5 uppercase ${g.category==='Tournament'?'text-yellow-500':(g.category==='Private'?'text-purple-400':'text-gray-500')}">${g.category||'CASH'}</span> <span class="font-bold text-gray-300">${g.type}P</span></div><span class="text-[8px] text-gray-600 uppercase italic">VS: ${g.opponents}</span></td><td class="py-4 font-black ${g.isWin?'text-emerald-400':'text-red-400'}">${g.isWin?'WIN':'LOSS'}</td><td class="py-4 text-right pr-2 text-gray-500 text-[8px]">${new Date(g.date).toLocaleDateString()}</span><i data-feather="chevron-right" width="10" class="inline"></i></td></tr>`).join('')}</tbody></table>`;
+
+        // Render Ledger
+        lBody.innerHTML = `<table class="w-full text-left"><tbody>${trans.map(t => {
+            let typeLabel = "SWEEP", typeClass = "bg-red-500/10 text-red-400";
+            switch(t.type) {
+                case 1: typeLabel = "DEPOSIT"; typeClass = "bg-emerald-500/10 text-emerald-400"; break;
+                case 2: typeLabel = "WITHDRAW"; typeClass = "bg-orange-500/10 text-orange-400"; break;
+                case 3: typeLabel = "GAME WIN"; typeClass = "bg-emerald-500/10 text-emerald-400"; break;
+                case 4: typeLabel = "GAME LOSS"; typeClass = "bg-red-500/10 text-red-400"; break;
+                case 5: typeLabel = "SWEEP"; typeClass = "bg-gray-500/10 text-gray-400"; break;
+                case 6: typeLabel = "BONUS"; typeClass = "bg-purple-500/10 text-purple-400"; break;
+            }
+            return `
+                <tr class="border-b border-white/5 hover:bg-white/5 transition-all">
+                    <td class="py-4 px-2">
+                        <span class="px-2 py-0.5 rounded-full text-[7px] font-black uppercase ${typeClass}">${typeLabel}</span>
+                    </td>
+                    <td class="py-4 font-medium text-gray-300 leading-tight text-[10px]">
+                        ${t.description}<br/>
+                        ${t.roomCode ? `<button onclick="loadMatchDetailByRoom('${t.roomCode}')" class="text-[8px] font-black text-purple-400 hover:text-purple-300 uppercase mt-1 tracking-tighter">#${t.roomCode} &rarr;</button>` : ''}
+                        <span class="text-[8px] text-gray-600 block mt-1">${new Date(t.date).toLocaleDateString()}</span>
+                    </td>
+                    <td class="py-4 text-right pr-2 font-black ${t.amount > 0 ? 'text-emerald-400' : 'text-yellow-500'} font-gamer">
+                        ${t.amount > 0 ? '+' : ''}${parseFloat(t.amount).toFixed(2)}
+                    </td>
+                </tr>`;
+        }).join('')}</tbody></table>`;
+        feather.replace();
+    }
+
+    window.loadMatchDetailByRoom = async function(roomCode) {
+        try {
+            const g = await connection.invoke("GetGameAuditByRoom", roomCode);
+            if (g) loadPastMatchAudit(g);
+            else showToast("Match details not found.", 'error');
+        } catch (err) { console.error(err); }
     };
 
     window.loadPastMatchAuditById = async function(id) {
@@ -381,7 +471,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (result === "Success") { showToast("Balance updated."); loadPlayerAudit(playerId); } else showToast(result, 'error');
     };
 
-    // --- LOADERS ---
     window.loadAllData = function() { loadStats(); loadTopPlayers(); loadTournaments(); loadPendingDeposits(); };
     window.loadStats = async function() {
         try {
@@ -536,4 +625,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.approveDeposit = async function(id) { showConfirm("Approve deposit?", async () => { const res = await connection.invoke("ApproveDeposit", id, "Verified"); if (res === "Success") { showToast("Approved!"); loadAllData(); } else showToast(res, 'error'); }); };
     window.rejectDeposit = async function(id) { const note = prompt("Reason:"); if (note) { const res = await connection.invoke("RejectDeposit", id, note); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
+    window.logout = () => { localStorage.clear(); window.location.href = 'login.html'; };
 });

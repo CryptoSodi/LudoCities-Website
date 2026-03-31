@@ -328,6 +328,7 @@ class CustomNavbar extends HTMLElement {
           </ul>
           
           <div class="nav-actions">
+            <slot name="auth"></slot>
             <div class="social-links">
               <a href="#" class="social-link" aria-label="Discord">
                 <i data-feather="discord"></i>
@@ -336,7 +337,6 @@ class CustomNavbar extends HTMLElement {
                 <i data-feather="twitter"></i>
               </a>
             </div>
-           
           </div>
           
          <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Toggle menu">

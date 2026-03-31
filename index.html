@@ -29,6 +29,8 @@
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.4/lottie.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 </head>
 
 <body class="bg-gray-900 text-white">
@@ -100,7 +102,9 @@
         }
     </style>
 
-    <custom-navbar></custom-navbar>
+    <custom-navbar>
+        <div slot="auth" id="auth-container"></div>
+    </custom-navbar>
     <div id="hero">
         <div id="screen-height-container"
             class="py-32 md:py-20 mx-auto mb-12 flex max-h-[1200px] max-w-md items-center xl:mb-8 xl:mt-2 xl:h-[83vh] xl:min-h-[800px] xl:max-w-max">
@@ -1084,6 +1088,80 @@
     <script src="components/footer.js"></script>
     <script src="script.js"></script>
     <script>
+        // --- AUTH & REDIRECTION LOGIC ---
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("http://192.168.1.15:8085/DashboardHub")
+            .withAutomaticReconnect()
+            .build();
+
+        async function initAuth() {
+            try {
+                await connection.start();
+                console.log("SignalR Connected.");
+                
+                const playerId = localStorage.getItem('PlayerId');
+                const role = localStorage.getItem('PlayerRole');
+                const authToken = localStorage.getItem('LudoAuthToken');
+
+                const navbar = document.querySelector('custom-navbar');
+                if (!navbar || !navbar.shadowRoot) return;
+                const container = navbar.shadowRoot.getElementById('auth-container');
+
+                if (playerId && authToken) {
+                    // VALIDATE EXISTING SESSION
+                    const isValid = await connection.invoke("ValidateSession", authToken, (role === 'Admin' || role === 'Manager') ? 'Admin' : 'Player');
+                    
+                    if (isValid) {
+                        const dashUrl = (role === 'Admin' || role === 'Manager') ? 'dashboard.html' : 'user.html';
+                        container.innerHTML = `
+                            <a href="${dashUrl}" class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-purple-500/20 text-white no-underline">
+                                Go to Dashboard &rarr;
+                            </a>
+                        `;
+                        return;
+                    } else {
+                        localStorage.clear(); // Clear stale/blocked session
+                    }
+                }
+
+                // USER IS NOT LOGGED IN -> Initialize Google Button
+                const googleDiv = document.createElement('div');
+                googleDiv.id = "google-signin-btn";
+                container.appendChild(googleDiv);
+
+                google.accounts.id.initialize({
+                    client_id: "973406093603-t7b4fbs99ouvg6u4hud80s3b64eek5qt.apps.googleusercontent.com",
+                    callback: window.handleCredentialResponse
+                });
+                google.accounts.id.renderButton(googleDiv, { 
+                    theme: "filled_blue", 
+                    size: "medium",
+                    shape: "pill",
+                    text: "signin_with"
+                });
+                
+            } catch (err) { console.error("SignalR Connection Error:", err); }
+        }
+
+        window.handleCredentialResponse = async function(response) {
+            try {
+                const result = await connection.invoke("GoogleAuthentication", response.credential, "Web", "Web");
+                if (result && result.authToken) {
+                    localStorage.setItem('LudoAuthToken', result.authToken);
+                    localStorage.setItem('PlayerId', result.playerId);
+                    localStorage.setItem('PlayerRole', result.role);
+                    
+                    // Instant Redirect
+                    window.location.href = (result.role === 'Admin' || result.role === 'Manager') ? 'dashboard.html' : 'user.html';
+                }
+            } catch (err) { console.error("Login failed:", err); }
+        };
+
+        window.addEventListener('load', () => {
+            // Wait for custom elements to be ready
+            setTimeout(initAuth, 500);
+        });
+
         feather.replace();
 
         // Initialize Vanta.js background

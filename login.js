@@ -1,6 +1,6 @@
 // Initialize SignalR
 const connection = new signalR.HubConnectionBuilder()
-    .withUrl("http://192.168.1.13:8085/DashboardHub") // Updated to local IP
+    .withUrl("http://192.168.1.15:8085/DashboardHub") // Updated to local IP
     .withAutomaticReconnect()
     .build();
 
