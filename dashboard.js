@@ -1,8 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     feather.replace();
 
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    const hubUrl = isLocal ? "http://192.168.1.15:8085/DashboardHub" : "https://13.202.76.246:8086/DashboardHub";
+
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl("http://192.168.1.15:8085/DashboardHub")
+        .withUrl(hubUrl)
         .withAutomaticReconnect()
         .build();
 
@@ -322,13 +325,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="text-center lg:border-r border-white/5 lg:pr-8">
                         <img src="${p.picture || 'player.webp'}" class="h-24 w-24 rounded-full border-4 border-purple-500 mx-auto mb-4 glow-purple shadow-2xl">
                         <h3 class="text-xl font-black uppercase mb-1 truncate">${p.name}</h3>
-                        <p class="text-[10px] text-gray-500 mb-4 font-bold tracking-widest">${p.email}</p>
+                        <p class="text-[10px] text-purple-400 mb-2 font-black tracking-widest uppercase">${p.city || 'GLOBAL'}</p>
                         <span class="text-[8px] font-black px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 uppercase tracking-widest">${p.role}</span>
                     </div>
-                    <div class="lg:col-span-2 grid grid-cols-3 gap-4">
-                        <div class="text-center"><p class="text-[8px] text-gray-500 font-black uppercase">Rank</p><p class="text-2xl font-black text-yellow-400 font-gamer">#${p.rank}</p></div>
-                        <div class="text-center"><p class="text-[8px] text-gray-500 font-black uppercase">Wins</p><p class="text-2xl font-black text-emerald-400 font-gamer">${p.wins}</p></div>
-                        <div class="text-center"><p class="text-[8px] text-gray-500 font-black uppercase">Balance</p><p class="text-2xl font-black text-blue-400 font-gamer">${parseFloat(p.ludc).toFixed(2)}</p></div>
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Contact Info Hub -->
+                        <div class="flex flex-wrap justify-center gap-6 border-b border-white/5 pb-6">
+                            <div class="flex items-center gap-2">
+                                <i data-feather="mail" width="12" class="text-gray-500"></i>
+                                <span class="text-[10px] font-bold text-gray-300 uppercase tracking-tighter">${p.email}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i data-feather="phone" width="12" class="text-gray-500"></i>
+                                <span class="text-[10px] font-bold text-gray-300 tracking-tighter">${p.phoneNumber || 'NO PHONE'}</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                                <p class="text-[8px] text-gray-500 font-black uppercase tracking-widest mb-1">Global Rank</p>
+                                <p class="text-2xl font-black text-yellow-400 font-gamer">#${p.rank}</p>
+                            </div>
+                            <div class="text-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                                <p class="text-[8px] text-gray-500 font-black uppercase tracking-widest mb-1">Available LUDC</p>
+                                <p class="text-2xl font-black text-blue-400 font-gamer">${parseFloat(p.ludc).toFixed(2)}</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="space-y-2 ${isSystem || isManager ? 'hidden' : ''}">
                         <button onclick="blockPlayer(${adminId}, ${p.id}, ${!p.isBlocked})" class="w-full py-3 ${p.isBlocked ? 'bg-emerald-600' : 'bg-red-600'} rounded-xl font-black text-[10px] uppercase">${p.isBlocked ? 'Unblock' : 'Block User'}</button>

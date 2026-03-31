@@ -1089,8 +1089,11 @@
     <script src="script.js"></script>
     <script>
         // --- AUTH & REDIRECTION LOGIC ---
+        const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+        const hubUrl = isLocal ? "http://192.168.1.15:8085/DashboardHub" : "https://13.202.76.246:8086/DashboardHub";
+
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("http://192.168.1.15:8085/DashboardHub")
+            .withUrl(hubUrl)
             .withAutomaticReconnect()
             .build();
 
