@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Authenticating...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+    <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+        <h2 class="text-xl font-bold">Completing Login...</h2>
+        <p class="text-gray-400">Synchronizing with Ludo Server</p>
+    </div>
+
+    <script>
+        async function completeLogin() {
+            // Google sends the credential in the POST body or as a parameter depending on configuration
+            // For data-callback, it's handled in JS. For redirect_uri, it's a POST to this page.
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const credential = urlParams.get('credential'); // Standard param name
+
+            if (!credential) {
+                // If using data-callback (preferred for SPAs), this page shouldn't be reached
+                // but we handle it just in case.
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("http://localhost:5242/DashboardHub")
+                .build();
+
+            try {
+                await connection.start();
+                const result = await connection.invoke("GoogleAuthentication", credential, "Web", "Web");
+                
+                if (result && result.authToken) {
+                    localStorage.setItem('LudoAuthToken', result.authToken);
+                    localStorage.setItem('PlayerId', result.player.playerId);
+                    localStorage.setItem('PlayerRole', result.player.role);
+
+                    if (result.player.role === 'Admin') {
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        window.location.href = 'user.html';
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Auth failed: " + err.message);
+                window.location.href = 'login.html';
+            }
+        }
+
+        completeLogin();
+    </script>
+</body>
+</html>

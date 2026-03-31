@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ludo Cities | Admin Dashboard</title>
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;800&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; background-color: #05070a; color: #e2e8f0; overflow-x: hidden; }
+        h1, h2, h3, .font-gamer { font-family: 'Orbitron', sans-serif; letter-spacing: 0.05em; }
+        
+        /* High-Fidelity Glassmorphism */
+        .glass-panel { 
+            background: rgba(13, 17, 23, 0.7); 
+            backdrop-filter: blur(16px); 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+        
+        .sidebar-link { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-left: 3px solid transparent; }
+        .sidebar-link:hover { background: rgba(139, 92, 246, 0.1); color: #a78bfa; padding-left: 1.75rem; }
+        .sidebar-link.active { 
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0) 100%); 
+            border-left: 3px solid #8b5cf6; 
+            color: #fff; 
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+        }
+
+        /* Status Glows */
+        .glow-green { box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
+        .glow-purple { box-shadow: 0 0 15px rgba(139, 92, 246, 0.2); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(139, 92, 246, 0.5); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: tabFade 0.4s ease-out; }
+        
+        @keyframes tabFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .force-white { stroke: #ffffff !important; color: #ffffff !important; }
+        
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+
+        /* Interactive Table Rows */
+        tr.cursor-pointer { transition: background 0.2s ease; }
+        tr.cursor-pointer:hover { background: rgba(255, 255, 255, 0.03) !important; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 glass-panel border-r border-white/5 flex flex-col z-50">
+        <div class="p-6 mb-4">
+            <img src="images/logo.png" alt="Logo" class="h-12 mx-auto mb-2">
+            <p class="text-[10px] text-center text-purple-400 font-black tracking-[0.2em] uppercase">Control Center</p>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-2">
+            <button onclick="switchTab('overview')" id="nav-overview" class="sidebar-link active w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-widest">
+                <i data-feather="grid" width="16"></i> Overview
+            </button>
+            <button onclick="switchTab('players')" id="nav-players" class="sidebar-link w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-widest">
+                <i data-feather="users" width="16"></i> Players
+            </button>
+            <button onclick="switchTab('matches')" id="nav-matches" class="sidebar-link w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-widest text-blue-400">
+                <i data-feather="play-circle" width="16"></i> Match Center
+            </button>
+            <button onclick="switchTab('tournaments')" id="nav-tournaments" class="sidebar-link w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-widest text-yellow-400">
+                <i data-feather="award" width="16"></i> Tournaments
+            </button>
+            <button onclick="switchTab('finance')" id="nav-finance" class="sidebar-link w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-widest text-emerald-400">
+                <i data-feather="dollar-sign" width="16"></i> Finance
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-white/5">
+            <button onclick="window.location.href='index.html'" class="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">
+                Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN AREA -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- Header -->
+        <header class="h-16 glass-panel border-b border-white/5 px-8 flex justify-between items-center">
+            <div class="flex items-center gap-4 flex-1 max-w-xl">
+                <div class="relative w-full">
+                    <i data-feather="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" width="14"></i>
+                    <input type="text" id="player-search-input" placeholder="Quick Search (Email)..." class="w-full bg-black/40 border border-white/5 rounded-full py-2 pl-10 pr-4 outline-none focus:border-purple-500 transition-all text-xs">
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div id="connection-status" class="flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-black uppercase text-red-400 tracking-tighter">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Offline
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-black text-gray-500 uppercase">Admin</span>
+                    <img src="player.webp" class="h-8 w-8 rounded-full border border-purple-500/50">
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Container -->
+        <main class="flex-1 overflow-y-auto p-8">
+
+            <!-- OVERVIEW TAB -->
+            <div id="tab-overview" class="tab-content active space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="glass-panel p-6 rounded-2xl">
+                        <p class="text-gray-500 text-[10px] font-black uppercase mb-1">Total Players</p>
+                        <h3 id="stat-players" class="text-2xl font-bold text-blue-400">0</h3>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl">
+                        <p class="text-gray-500 text-[10px] font-black uppercase mb-1">Live Games</p>
+                        <h3 id="stat-active-games" class="text-2xl font-bold text-emerald-400">0</h3>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl">
+                        <p class="text-gray-500 text-[10px] font-black uppercase mb-1">Total Revenue</p>
+                        <h3 id="stat-ludc" class="text-2xl font-bold text-yellow-400">0.00</h3>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl">
+                        <p class="text-gray-500 text-[10px] font-black uppercase mb-1">Pending Cash</p>
+                        <h3 id="stat-pending-deposits" class="text-2xl font-bold text-pink-400">0</h3>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="glass-panel rounded-2xl overflow-hidden">
+                        <div class="bg-white/5 px-6 py-4 border-b border-white/5">
+                            <h2 class="text-[10px] font-black uppercase tracking-widest">Top Performers</h2>
+                        </div>
+                        <div class="p-6">
+                            <table class="w-full text-left text-xs">
+                                <tbody id="top-players-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="glass-panel rounded-2xl overflow-hidden">
+                        <div class="bg-white/5 px-6 py-4 border-b border-white/5">
+                            <h2 class="text-[10px] font-black uppercase tracking-widest">Active Tournaments</h2>
+                        </div>
+                        <div class="p-6 space-y-4" id="tournaments-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MATCH CENTER TAB -->
+            <div id="tab-matches" class="tab-content space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Live Monitor -->
+                    <div class="lg:col-span-2 glass-panel rounded-2xl overflow-hidden">
+                        <div class="bg-blue-500/10 px-6 py-4 border-b border-blue-500/20 flex justify-between items-center">
+                            <h2 class="text-[10px] font-black uppercase tracking-widest text-blue-400">Live Room Monitor</h2>
+                            <span class="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-[9px] font-bold animate-pulse">REAL-TIME</span>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="text-gray-500 text-[10px] uppercase tracking-widest border-b border-white/5">
+                                    <tr>
+                                        <th class="pb-4">Room</th>
+                                        <th class="pb-4">Stakes</th>
+                                        <th class="pb-4">Players</th>
+                                        <th class="pb-4">Status</th>
+                                        <th class="pb-4 text-right">Category</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="live-matches-table" class="text-xs font-medium">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Past Games -->
+                    <div class="glass-panel rounded-2xl overflow-hidden flex flex-col">
+                        <div class="bg-white/5 px-6 py-4 border-b border-white/5 flex justify-between items-center">
+                            <h2 class="text-[10px] font-black uppercase tracking-widest text-gray-400">Recent Results</h2>
+                            <div class="flex gap-2">
+                                <select id="filter-m-type" onchange="applyMatchFilters()" class="bg-black/40 border border-white/10 rounded px-2 py-1 text-[9px] outline-none">
+                                    <option value="All">All Types</option>
+                                    <option value="Tournament">Tournament</option>
+                                    <option value="Private">Private</option>
+                                    <option value="Normal">Cash</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="p-4 border-b border-white/5 grid grid-cols-2 gap-2">
+                            <input type="date" id="filter-m-start" onchange="applyMatchFilters()" class="bg-black/40 border border-white/10 rounded px-2 py-1 text-[9px] outline-none">
+                            <input type="date" id="filter-m-end" onchange="applyMatchFilters()" class="bg-black/40 border border-white/10 rounded px-2 py-1 text-[9px] outline-none">
+                        </div>
+                        <div class="p-6 overflow-y-auto max-h-[600px]">
+                            <div id="past-matches-container" class="space-y-4">
+                                <!-- Dynamic -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOURNAMENTS TAB -->
+            <div id="tab-tournaments" class="tab-content space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Create Form -->
+                    <div class="lg:col-span-1 glass-panel p-8 rounded-2xl">
+                        <h2 class="text-[10px] font-black uppercase tracking-widest text-yellow-400 mb-6">Create New Event</h2>
+                        <form id="create-tournament-form" class="space-y-4">
+                            <div>
+                                <label class="text-[9px] text-gray-500 uppercase block mb-1">Event Name</label>
+                                <input type="text" id="t-name" placeholder="e.g. Mega Weekend" required class="w-full bg-black/40 border border-white/5 rounded-lg px-4 py-2 text-xs outline-none focus:border-yellow-500">
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-gray-500 uppercase block mb-1">Region / City</label>
+                                <select id="t-city" class="w-full bg-black/40 border border-white/5 rounded-lg px-4 py-2 text-xs outline-none focus:border-yellow-500">
+                                    <option value="Global">Global</option>
+                                    <option value="Lahore">Lahore</option>
+                                    <option value="Karachi">Karachi</option>
+                                    <option value="Delhi">Delhi</option>
+                                    <option value="Mumbai">Delhi</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-gray-500 uppercase block mb-1">Entry Fee (LUDC)</label>
+                                <input type="number" id="t-fee" placeholder="10" required class="w-full bg-black/40 border border-white/5 rounded-lg px-4 py-2 text-xs outline-none focus:border-yellow-500">
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div>
+                                    <label class="text-[9px] text-gray-500 uppercase block mb-1">Prize 1</label>
+                                    <input type="number" id="t-p1" required class="w-full bg-black/40 border border-white/5 rounded-lg px-4 py-2 text-xs outline-none">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] text-gray-500 uppercase block mb-1">Prize 2</label>
+                                    <input type="number" id="t-p2" required class="w-full bg-black/40 border border-white/5 rounded-lg px-4 py-2 text-xs outline-none">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] text-gray-500 uppercase block mb-1">Prize 3</label>
+                                    <input type="number" id="t-p3" required class="w-full bg-black/40 border border-white/5 rounded-lg px-4 py-2 text-xs outline-none">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-[9px] text-gray-500 uppercase block mb-1">Start Date</label>
+                                    <input type="date" id="t-start" required class="w-full bg-black/40 border border-white/5 rounded-lg px-4 py-2 text-xs outline-none">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] text-gray-500 uppercase block mb-1">End Date</label>
+                                    <input type="date" id="t-end" required class="w-full bg-black/40 border border-white/5 rounded-lg px-4 py-2 text-xs outline-none">
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 bg-white/5 p-3 rounded-lg border border-white/5">
+                                <input type="checkbox" id="t-repeat" class="w-4 h-4 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500">
+                                <label for="t-repeat" class="text-[10px] font-bold uppercase tracking-widest text-gray-300">Repeatable Event</label>
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-yellow-600 hover:bg-yellow-500 text-black font-black text-[10px] uppercase tracking-widest rounded-xl transition-all mt-4">Launch Tournament</button>
+                        </form>
+                    </div>
+
+                    <!-- Master Table -->
+                    <div class="lg:col-span-2 glass-panel rounded-2xl overflow-hidden">
+                        <div class="bg-white/5 px-6 py-4 border-b border-white/5 flex justify-between items-center">
+                            <h2 class="text-[10px] font-black uppercase tracking-widest">Master Tournament Ledger</h2>
+                            <div class="flex gap-2">
+                                <select id="filter-t-category" onchange="applyTournamentFilters()" class="bg-black/40 border border-white/10 rounded px-2 py-1 text-[9px] outline-none">
+                                    <option value="All">All Categories</option>
+                                    <option value="Daily">Daily</option>
+                                    <option value="Weekly">Weekly</option>
+                                    <option value="Monthly">Monthly</option>
+                                </select>
+                                <select id="filter-t-status" onchange="applyTournamentFilters()" class="bg-black/40 border border-white/10 rounded px-2 py-1 text-[9px] outline-none">
+                                    <option value="All">All Status</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="text-gray-500 text-[10px] uppercase tracking-widest border-b border-white/5">
+                                    <tr>
+                                        <th class="pb-4">Name</th>
+                                        <th class="pb-4">State</th>
+                                        <th class="pb-4 text-right">Fee</th>
+                                        <th class="pb-4 text-right">Players</th>
+                                        <th class="pb-4 text-right">Games</th>
+                                        <th class="pb-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-tournaments-table" class="text-xs">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PLAYERS TAB -->
+            <div id="tab-players" class="tab-content space-y-8">
+                <!-- Detailed Audit Section (Shown when searching/clicking) -->
+                <div id="player-audit-section" class="hidden">
+                    <div class="glass-panel p-8 rounded-3xl border-purple-500/30 shadow-2xl">
+                        <!-- Content same as previous audit UI but bigger and better -->
+                        <div id="audit-content"></div>
+                    </div>
+                </div>
+                
+                <div class="glass-panel rounded-2xl overflow-hidden">
+                    <div class="bg-white/5 px-6 py-4 border-b border-white/5 flex flex-wrap justify-between items-center gap-4">
+                        <h2 class="text-[10px] font-black uppercase tracking-widest">Master Player Directory</h2>
+                        
+                        <div class="flex flex-wrap gap-2">
+                            <!-- Local Search -->
+                            <input type="text" id="filter-p-search" oninput="applyPlayerFilters()" placeholder="Filter name/email..." class="bg-black/40 border border-white/10 rounded px-3 py-1 text-[9px] outline-none focus:border-purple-500 w-40">
+                            
+                            <!-- City Filter -->
+                            <select id="filter-p-city" onchange="applyPlayerFilters()" class="bg-black/40 border border-white/10 rounded px-2 py-1 text-[9px] outline-none">
+                                <option value="All">All Cities</option>
+                                <option value="Global">Global</option>
+                                <option value="Lahore">Lahore</option>
+                                <option value="Karachi">Karachi</option>
+                                <option value="Delhi">Delhi</option>
+                            </select>
+
+                            <!-- Joined Date Range -->
+                            <div class="flex items-center gap-1 bg-black/20 rounded px-2 border border-white/5">
+                                <span class="text-[8px] text-gray-600 font-bold">JOINED:</span>
+                                <input type="date" id="filter-p-start" onchange="applyPlayerFilters()" class="bg-transparent border-none text-[9px] outline-none w-24">
+                                <span class="text-gray-700">-</span>
+                                <input type="date" id="filter-p-end" onchange="applyPlayerFilters()" class="bg-transparent border-none text-[9px] outline-none w-24">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6" id="player-list-container">
+                        <!-- Simple Table for browsing all players -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- FINANCE TAB -->
+            <div id="tab-finance" class="tab-content space-y-8">
+                <div class="glass-panel rounded-2xl overflow-hidden">
+                    <div class="bg-emerald-500/10 px-6 py-4 border-b border-emerald-500/20">
+                        <h2 class="text-[10px] font-black uppercase tracking-widest text-emerald-400">Cash Deposit Approvals</h2>
+                    </div>
+                    <div class="p-6 overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="text-gray-500 text-[10px] uppercase tracking-widest border-b border-white/5">
+                                <tr>
+                                    <th class="pb-4">Player</th>
+                                    <th class="pb-4">Amount</th>
+                                    <th class="pb-4">Method</th>
+                                    <th class="pb-4">Receipt</th>
+                                    <th class="pb-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pending-deposits-table" class="text-xs">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- PLAYER AUDIT MODAL (Overlays everything) -->
+    <div id="audit-modal" onclick="closeAuditModal(event)" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+        <div onclick="event.stopPropagation()" class="glass-panel w-full max-w-5xl max-h-[90vh] rounded-3xl overflow-hidden flex flex-col shadow-2xl border-purple-500/40">
+            <div class="flex justify-between items-center p-6 bg-white/5 border-b border-white/5">
+                <h2 class="text-sm font-black uppercase tracking-[0.2em] text-purple-400">Audit Detail View</h2>
+                <button onclick="closeAuditModal()" class="text-gray-500 hover:text-white transition-all"><i data-feather="x" width="24"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-10" id="audit-modal-body">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+
+    <!-- PRETTY NOTIFICATIONS (TOAST) -->
+    <div id="toast-container" class="fixed bottom-8 right-8 z-[200] flex flex-col gap-3"></div>
+
+    <!-- PRETTY CONFIRMATION DIALOG -->
+    <div id="confirm-modal" class="fixed inset-0 z-[150] hidden flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div class="glass-panel w-full max-w-sm p-8 rounded-3xl border-white/10 shadow-2xl text-center">
+            <div class="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i data-feather="help-circle" class="text-yellow-500" width="32"></i>
+            </div>
+            <h3 id="confirm-msg" class="text-sm font-bold text-gray-200 mb-8 leading-relaxed">---</h3>
+            <div class="flex gap-3">
+                <button id="confirm-yes" class="flex-1 py-3 bg-white text-black font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-gray-200 transition-all">Confirm</button>
+                <button onclick="closeConfirm()" class="flex-1 py-3 bg-white/5 text-gray-400 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-white/10 transition-all">Cancel</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
