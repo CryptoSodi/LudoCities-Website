@@ -1095,17 +1095,16 @@
             .build();
 
         async function initAuth() {
+            const container = document.getElementById('auth-container');
+            if (!container) return;
+
+            const playerId = localStorage.getItem('PlayerId');
+            const role = localStorage.getItem('PlayerRole');
+            const authToken = localStorage.getItem('LudoAuthToken');
+
             try {
                 await connection.start();
                 console.log("SignalR Connected.");
-                
-                const playerId = localStorage.getItem('PlayerId');
-                const role = localStorage.getItem('PlayerRole');
-                const authToken = localStorage.getItem('LudoAuthToken');
-
-                const navbar = document.querySelector('custom-navbar');
-                if (!navbar || !navbar.shadowRoot) return;
-                const container = navbar.shadowRoot.getElementById('auth-container');
 
                 if (playerId && authToken) {
                     // VALIDATE EXISTING SESSION
@@ -1114,51 +1113,52 @@
                     if (isValid) {
                         const dashUrl = (role === 'Admin' || role === 'Manager') ? 'dashboard.html' : 'user.html';
                         container.innerHTML = `
-                            <a href="${dashUrl}" class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-purple-500/20 text-white no-underline">
+                            <a href="${dashUrl}" class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-purple-500/20 text-white no-underline inline-block">
                                 Go to Dashboard &rarr;
                             </a>
                         `;
                         return;
                     } else {
-                        localStorage.clear(); // Clear stale/blocked session
+                        localStorage.clear();
                     }
                 }
+            } catch (err) { 
+                console.warn("SignalR Connection Pending/Failed, but initializing login...", err); 
+            }
 
-                // USER IS NOT LOGGED IN -> Initialize Google Button
-                const googleDiv = document.createElement('div');
-                googleDiv.id = "google-signin-btn";
-                container.appendChild(googleDiv);
-
+            // USER IS NOT LOGGED IN -> Initialize Google Button
+            container.innerHTML = '<div id="google-signin-btn"></div>';
+            
+            if (window.google) {
                 google.accounts.id.initialize({
                     client_id: "973406093603-t7b4fbs99ouvg6u4hud80s3b64eek5qt.apps.googleusercontent.com",
                     callback: window.handleCredentialResponse
                 });
-                google.accounts.id.renderButton(googleDiv, { 
+                google.accounts.id.renderButton(document.getElementById("google-signin-btn"), { 
                     theme: "filled_blue", 
                     size: "medium",
                     shape: "pill",
                     text: "signin_with"
                 });
-                
-            } catch (err) { console.error("SignalR Connection Error:", err); }
+            }
         }
 
         window.handleCredentialResponse = async function(response) {
             try {
+                // Ensure connection is up before invoking
+                if (connection.state !== "Connected") await connection.start();
+
                 const result = await connection.invoke("GoogleAuthentication", response.credential, "Web", "Web");
                 if (result && result.authToken) {
                     localStorage.setItem('LudoAuthToken', result.authToken);
                     localStorage.setItem('PlayerId', result.playerId);
                     localStorage.setItem('PlayerRole', result.role);
-                    
-                    // Instant Redirect
                     window.location.href = (result.role === 'Admin' || result.role === 'Manager') ? 'dashboard.html' : 'user.html';
                 }
             } catch (err) { console.error("Login failed:", err); }
         };
 
         window.addEventListener('load', () => {
-            // Wait for custom elements to be ready
             setTimeout(initAuth, 500);
         });
 

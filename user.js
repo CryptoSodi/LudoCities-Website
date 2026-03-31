@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const authToken = localStorage.getItem('LudoAuthToken');
 
     if (!playerId || !authToken) {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
         return;
     }
 
@@ -318,5 +318,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    window.logout = () => { localStorage.clear(); window.location.href = 'login.html'; };
+    window.logout = () => { localStorage.clear(); window.location.href = 'index.html'; };
 });

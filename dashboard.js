@@ -625,5 +625,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.approveDeposit = async function(id) { showConfirm("Approve deposit?", async () => { const res = await connection.invoke("ApproveDeposit", id, "Verified"); if (res === "Success") { showToast("Approved!"); loadAllData(); } else showToast(res, 'error'); }); };
     window.rejectDeposit = async function(id) { const note = prompt("Reason:"); if (note) { const res = await connection.invoke("RejectDeposit", id, note); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
-    window.logout = () => { localStorage.clear(); window.location.href = 'login.html'; };
+    window.logout = () => { localStorage.clear(); window.location.href = 'index.html'; };
 });
