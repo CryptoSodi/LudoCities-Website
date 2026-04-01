@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- DYNAMIC CONNECTION LOGIC ---
-    const hubUrl = isLocal ? "http://192.168.1.15:8085/DashboardHub" : "https://www.ludocities.com:8443/DashboardHub";
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    const hubUrl = isLocal ? "http://192.168.1.15:8085/DashboardHub" : "https://13.202.76.246:8443/DashboardHub";
 
     const connection = new signalR.HubConnectionBuilder()
         .withUrl(hubUrl)
