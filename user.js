@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let userTransactions = [];
     let internalWalletAddress = "";
 
+<<<<<<< HEAD
     // --- SOLANA CONFIG (Multi-RPC Fallback for Browser CORS) ---
     const LUDC_MINT = new solanaWeb3.PublicKey("JSXWEi4ZXJkrkqWQg4UjUPzpmpYYFxzLmBuADh5cyai");
     const TOKEN_2022_PROGRAM_ID = new solanaWeb3.PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
@@ -50,6 +51,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return null;
     }
+=======
+    // --- SOLANA CONFIG ---
+    const LUDC_MINT = "JSXWEi4ZXJkrkqWQg4UjUPzpmpYYFxzLmBuADh5cyai";
+    const TOKEN_2022_PROGRAM_ID = new solanaWeb3.PublicKey("TokenzQdBNbLqP5VEhdkXEhsnwt4mcUzndzUtNo5vUP");
+    const RPC_URL = "https://api.mainnet-beta.solana.com";
+    const solConnection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+
+    let phantomWallet = null;
+>>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
 
     // --- PRETTY UI HELPERS ---
 
@@ -123,13 +133,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.connectPhantom = async function() {
         try {
+<<<<<<< HEAD
             const provider = window.phantom?.solana || window.solana;
             if (!provider?.isPhantom) {
                 showToast("Phantom not found!", 'error');
+=======
+            const isPhantomInstalled = window.solana && window.solana.isPhantom;
+            if (!isPhantomInstalled) {
+                showToast("Phantom wallet not found!", 'error');
+>>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
                 window.open("https://phantom.app/", "_blank");
                 return;
             }
 
+<<<<<<< HEAD
             const resp = await provider.connect();
             phantomWallet = resp.publicKey.toString();
             
@@ -145,6 +162,18 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast("Wallet Linked!");
         } catch (err) {
             console.error("Phantom Error:", err);
+=======
+            const resp = await window.solana.connect();
+            phantomWallet = resp.publicKey.toString();
+            
+            document.getElementById('btn-phantom-connect').innerHTML = `<img src="https://phantom.app/favicon.ico" class="w-3 h-3 rounded-full"> Connected`;
+            document.getElementById('phantom-status-label').innerText = "Phantom Connected";
+            document.getElementById('phantom-status-label').className = "text-xs font-black uppercase text-purple-400";
+            document.getElementById('phantom-address-label').innerText = phantomWallet;
+            
+            showToast("Wallet Linked!");
+        } catch (err) {
+>>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
             showToast("Connection failed.", 'error');
         }
     };
@@ -162,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showConfirm(`Deposit ${amount} LUDC to your game wallet?`, async () => {
             try {
+<<<<<<< HEAD
                 showToast("Establishing Secure Connection...", 'success');
                 
                 // Use fallback connection logic
@@ -212,6 +242,52 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 console.error("Deposit Error:", err);
                 showToast(err.message || "Transfer failed.", 'error');
+=======
+                showToast("Requesting signature...", 'success');
+                
+                const fromWallet = new solanaWeb3.PublicKey(phantomWallet);
+                const toWallet = new solanaWeb3.PublicKey(internalWalletAddress);
+                const mintPublic = new solanaWeb3.PublicKey(LUDC_MINT);
+
+                // 1. Get associated token accounts
+                const fromTokenAccount = await getAssociatedTokenAddress(mintPublic, fromWallet, TOKEN_2022_PROGRAM_ID);
+                const toTokenAccount = await getAssociatedTokenAddress(mintPublic, toWallet, TOKEN_2022_PROGRAM_ID);
+
+                // 2. Build Transaction
+                const transaction = new solanaWeb3.Transaction();
+                
+                // Note: On Mainnet, we'd check if the 'to' account exists and add CreateAccount instruction if needed.
+                // But since ludcpaymentprovider ensures player wallets exist, it should be fine.
+                
+                const decimals = 9; // LUDC decimals
+                const amountInLamports = amount * Math.pow(10, decimals);
+
+                const transferInstruction = createTransferCheckedInstruction(
+                    fromTokenAccount,
+                    mintPublic,
+                    toTokenAccount,
+                    fromWallet,
+                    amountInLamports,
+                    decimals,
+                    [],
+                    TOKEN_2022_PROGRAM_ID
+                );
+
+                transaction.add(transferInstruction);
+                transaction.feePayer = fromWallet;
+                const { blockhash } = await solConnection.getLatestBlockhash();
+                transaction.recentBlockhash = blockhash;
+
+                // 3. Sign & Send
+                const { signature } = await window.solana.signAndSendTransaction(transaction);
+                showToast("Transaction sent! Verifying...");
+                console.log("Sig:", signature);
+                
+                // Scanner service will pick it up. No need to notify hub.
+            } catch (err) {
+                console.error(err);
+                showToast("Deposit failed or cancelled.", 'error');
+>>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
             }
         });
     };
@@ -219,6 +295,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.withdrawLUDC = async function() {
         const amount = parseFloat(document.getElementById('web3-withdraw-amount').value);
         const dest = document.getElementById('web3-withdraw-address').value.trim();
+<<<<<<< HEAD
+=======
+
+>>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
         if (!amount || amount <= 0) { showToast("Invalid amount.", 'error'); return; }
         if (!dest) { showToast("Destination required.", 'error'); return; }
 
@@ -249,6 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('profile-img').src = data.picture || 'player.webp';
             document.getElementById('main-profile-name').innerText = data.name;
             document.getElementById('main-profile-img').src = data.picture || 'player.webp';
+<<<<<<< HEAD
 
             const identityBadgeContainer = document.getElementById('identity-badge-container');
             if (identityBadgeContainer) {
@@ -289,6 +370,16 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('stat-total-win-hud').innerText = parseFloat(data.totalWin).toFixed(2);
             document.getElementById('stat-total-lost-hud').innerText = parseFloat(data.totalLost).toFixed(2);
 
+=======
+            
+            document.getElementById('stat-rank').innerText = data.rank;
+            document.getElementById('stat-wins').innerText = data.wins;
+            document.getElementById('stat-played').innerText = data.played;
+            document.getElementById('stat-ludc').innerText = parseFloat(data.ludc).toFixed(2);
+            document.getElementById('display-wallet-address').innerText = data.walletAddress ? `${data.walletAddress.substring(0,6)}...${data.walletAddress.substring(38)}` : "No Address";
+
+            // Table rendering...
+>>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
             applyTransactionFilters();
             renderMatches(data.recentGames);
             renderManualDeposits(data.manualDeposits);
@@ -299,15 +390,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderMatches(games) {
         const mTable = document.getElementById('matches-table');
+<<<<<<< HEAD
         if(!mTable) return;
+=======
+>>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
         mTable.innerHTML = '';
         if (games && games.length > 0) {
             games.forEach(g => {
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-white/5 hover:bg-white/5 transition-all cursor-pointer group";
                 tr.onclick = () => loadMatchDetail(g.id);
+<<<<<<< HEAD
                 const resClass = g.isWin ? 'text-emerald-400' : 'text-red-400';
                 tr.innerHTML = `<td class="py-4 px-2"><div><span class="font-bold text-gray-200 text-xs">${g.type}P</span></div><span class="text-[8px] text-gray-600 uppercase italic">VS: ${g.opponents}</span></td><td class="py-4 font-black text-[10px] ${resClass}">${g.isWin ? 'WIN' : 'LOSS'}</td><td class="py-4 font-bold text-yellow-500 text-xs">${g.bet}</td><td class="py-4 text-right pr-2"><span class="block text-gray-600 text-[8px]">${new Date(g.date).toLocaleDateString()}</span><i data-feather="chevron-right" width="10" class="inline text-gray-800 group-hover:text-white"></i></td>`;
+=======
+                const resultClass = g.isWin ? 'text-emerald-400' : 'text-red-400';
+                tr.innerHTML = `<td class="py-4 px-2"><div><span class="font-bold text-gray-200 text-xs">${g.type}P</span></div><span class="text-[8px] text-gray-600 uppercase italic">VS: ${g.opponents}</span></td><td class="py-4 font-black text-[10px] ${resultClass}">${g.isWin ? 'VICTORY' : 'DEFEAT'}</td><td class="py-4 font-bold text-yellow-500 text-xs">${g.bet}</td><td class="py-4 text-right pr-2"><span class="block text-gray-600 text-[8px]">${new Date(g.date).toLocaleDateString()}</span><i data-feather="chevron-right" width="10" class="inline text-gray-800 group-hover:text-white"></i></td>`;
+>>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
                 mTable.appendChild(tr);
             });
         }
@@ -315,7 +414,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderManualDeposits(deposits) {
         const dTable = document.getElementById('manual-deposits-table');
+<<<<<<< HEAD
         if(!dTable) return;
+=======
+>>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
         dTable.innerHTML = '';
         if (deposits && deposits.length > 0) {
             deposits.forEach(d => {
@@ -330,6 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.applyTransactionFilters = function() {
         const type = document.getElementById('filter-t-type')?.value || 'All';
+<<<<<<< HEAD
         const start = document.getElementById('filter-t-start')?.value;
         let filtered = userTransactions;
         if (type !== 'All') filtered = filtered.filter(t => t.type === parseInt(type));
@@ -337,6 +440,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const tTable = document.getElementById('transactions-table');
         if(!tTable) return;
+=======
+        let filtered = userTransactions;
+        if (type !== 'All') filtered = filtered.filter(t => t.type === parseInt(type));
+        
+        const tTable = document.getElementById('transactions-table');
+>>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
         tTable.innerHTML = '';
         filtered.forEach(t => {
             const tr = document.createElement('tr');
@@ -350,19 +459,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 5: typeLabel = "SWEEP"; typeClass = "bg-gray-500/10 text-gray-400"; break;
                 case 6: typeLabel = "BONUS"; typeClass = "bg-purple-500/10 text-purple-400"; break;
             }
+<<<<<<< HEAD
             tr.innerHTML = `<td class="py-4 px-2"><span class="px-2 py-0.5 rounded-full text-[7px] font-black uppercase ${typeClass}">${typeLabel}</span></td><td class="py-4"><span class="block text-gray-300 font-medium text-[10px] leading-tight">${t.description}</span>${t.roomCode ? `<button onclick="loadMatchDetailByRoom('${t.roomCode}')" class="text-[8px] font-black text-purple-400 hover:text-purple-300 uppercase mt-1">#${t.roomCode} &rarr;</button>` : ''}</td><td class="py-4 text-right pr-2 font-black ${t.amount > 0 ? 'text-emerald-400' : 'text-yellow-500'} text-xs">${parseFloat(t.amount).toFixed(2)}</td>`;
+=======
+            tr.innerHTML = `<td class="py-4 px-2"><span class="px-2 py-0.5 rounded-full text-[7px] font-black uppercase ${typeClass}">${typeLabel}</span></td><td class="py-4"><span class="block text-gray-300 font-medium text-[10px] leading-tight">${t.description}</span>${t.roomCode ? `<button onclick="loadMatchDetailByRoom('${t.roomCode}')" class="text-[8px] font-black text-purple-400 hover:text-purple-300 uppercase mt-1">#${t.roomCode} &rarr;</button>` : ''}</td><td class="py-4 text-right pr-2 font-black ${t.amount>0?'text-emerald-400':'text-yellow-500'} text-xs">${parseFloat(t.amount).toFixed(2)}</td>`;
+>>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
             tTable.appendChild(tr);
         });
     }
 
+<<<<<<< HEAD
     async function getAssociatedTokenAddress(mint, owner, programId) {
         const [address] = await solanaWeb3.PublicKey.findProgramAddress(
             [owner.toBytes(), ASSOCIATED_TOKEN_PROGRAM_ID.toBytes(), mint.toBytes()],
             ASSOCIATED_TOKEN_PROGRAM_ID
+=======
+    // --- HELPERS FOR TOKEN-2022 ---
+    async function getAssociatedTokenAddress(mint, owner, programId) {
+        const [address] = await solanaWeb3.PublicKey.findProgramAddress(
+            [owner.toBuffer(), programId.toBuffer(), mint.toBuffer()],
+            new solanaWeb3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL")
+>>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
         );
         return address;
     }
 
+<<<<<<< HEAD
+=======
+    function createTransferCheckedInstruction(from, mint, to, owner, amount, decimals, signers, programId) {
+        const keys = [
+            { pubkey: from, isSigner: false, isWritable: true },
+            { pubkey: mint, isSigner: false, isWritable: false },
+            { pubkey: to, isSigner: false, isWritable: true },
+            { pubkey: owner, isSigner: true, isWritable: false },
+        ];
+        signers.forEach(s => keys.push({ pubkey: s, isSigner: true, isWritable: false }));
+        
+        const data = Buffer.alloc(13);
+        data.writeUInt8(12, 0); // TransferChecked instruction index
+        data.writeBigUInt64LE(BigInt(amount), 1);
+        data.writeUInt8(decimals, 9);
+
+        return new solanaWeb3.TransactionInstruction({ keys, programId, data });
+    }
+
+>>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
     window.loadMatchDetail = async function(id) {
         const g = await connection.invoke("GetGameAudit", id);
         if (g) showBoxScore(g);
