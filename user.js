@@ -9,60 +9,29 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Standard port for local dev
+    // --- DYNAMIC CONNECTION LOGIC ---
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    const hubUrl = isLocal ? "http://192.168.1.15:8085/DashboardHub" : "https://13.202.76.246:8443/DashboardHub";
+
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl("http://192.168.1.15:8085/DashboardHub")
+        .withUrl(hubUrl)
         .withAutomaticReconnect()
         .build();
 
     const statusBadge = document.getElementById('connection-status');
     let currentTab = 'stats';
-    let userTransactions = [];
     let internalWalletAddress = "";
 
-<<<<<<< HEAD
-    // --- SOLANA CONFIG (Multi-RPC Fallback for Browser CORS) ---
+    // --- SOLANA CONFIG ---
     const LUDC_MINT = new solanaWeb3.PublicKey("JSXWEi4ZXJkrkqWQg4UjUPzpmpYYFxzLmBuADh5cyai");
     const TOKEN_2022_PROGRAM_ID = new solanaWeb3.PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
     const ASSOCIATED_TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
-    
-    // List of reliable RPCs to try in sequence
-    const RPC_ENDPOINTS = [
-        "https://api.mainnet-beta.solana.com",
-        "https://solana-mainnet.rpc.extrnode.com",
-        "https://rpc.ankr.com/solana"
-    ];
-    
-    let solConnection = new solanaWeb3.Connection(RPC_ENDPOINTS[0], "confirmed");
-    let phantomWallet = null;
-
-    // Helper to rotate RPC if one fails
-    async function getValidConnection() {
-        for (const url of RPC_ENDPOINTS) {
-            try {
-                console.log(`Testing RPC: ${url}`);
-                const conn = new solanaWeb3.Connection(url, "confirmed");
-                await conn.getLatestBlockhash('confirmed');
-                console.log(`RPC Valid: ${url}`);
-                return conn;
-            } catch (err) {
-                console.warn(`RPC Failed (${url}):`, err.message);
-            }
-        }
-        return null;
-    }
-=======
-    // --- SOLANA CONFIG ---
-    const LUDC_MINT = "JSXWEi4ZXJkrkqWQg4UjUPzpmpYYFxzLmBuADh5cyai";
-    const TOKEN_2022_PROGRAM_ID = new solanaWeb3.PublicKey("TokenzQdBNbLqP5VEhdkXEhsnwt4mcUzndzUtNo5vUP");
     const RPC_URL = "https://api.mainnet-beta.solana.com";
     const solConnection = new solanaWeb3.Connection(RPC_URL, "confirmed");
 
     let phantomWallet = null;
->>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
 
-    // --- PRETTY UI HELPERS ---
-
+    // --- UI HELPERS ---
     window.showToast = function(message, type = 'success') {
         const container = document.getElementById('toast-container');
         if (!container) return;
@@ -90,8 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.closeConfirm = () => document.getElementById('confirm-modal').classList.add('hidden');
 
-    // --- NAVIGATION ---
-
     window.switchTab = function(tabName) {
         currentTab = tabName;
         document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
@@ -106,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function start() {
         try {
             await connection.start();
+            console.log("SignalR Connected.");
             const isValid = await connection.invoke("ValidateSession", authToken, "Player");
             if (!isValid) { logout(); return; }
             updateStatus(true);
@@ -129,27 +97,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     start();
 
-    // --- WEB3 PHANTOM LOGIC ---
-
+    // --- WEB3 PHANTOM ---
     window.connectPhantom = async function() {
         try {
-<<<<<<< HEAD
             const provider = window.phantom?.solana || window.solana;
             if (!provider?.isPhantom) {
                 showToast("Phantom not found!", 'error');
-=======
-            const isPhantomInstalled = window.solana && window.solana.isPhantom;
-            if (!isPhantomInstalled) {
-                showToast("Phantom wallet not found!", 'error');
->>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
                 window.open("https://phantom.app/", "_blank");
                 return;
             }
-
-<<<<<<< HEAD
             const resp = await provider.connect();
             phantomWallet = resp.publicKey.toString();
-            
             document.getElementById('btn-phantom-connect').innerHTML = `<img src="https://phantom.app/favicon.ico" class="w-3 h-3 rounded-full"> Connected`;
             const statusLabel = document.getElementById('phantom-status-label');
             if (statusLabel) {
@@ -158,22 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const addressLabel = document.getElementById('phantom-address-label');
             if (addressLabel) addressLabel.innerText = phantomWallet;
-            
             showToast("Wallet Linked!");
         } catch (err) {
-            console.error("Phantom Error:", err);
-=======
-            const resp = await window.solana.connect();
-            phantomWallet = resp.publicKey.toString();
-            
-            document.getElementById('btn-phantom-connect').innerHTML = `<img src="https://phantom.app/favicon.ico" class="w-3 h-3 rounded-full"> Connected`;
-            document.getElementById('phantom-status-label').innerText = "Phantom Connected";
-            document.getElementById('phantom-status-label').className = "text-xs font-black uppercase text-purple-400";
-            document.getElementById('phantom-address-label').innerText = phantomWallet;
-            
-            showToast("Wallet Linked!");
-        } catch (err) {
->>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
             showToast("Connection failed.", 'error');
         }
     };
@@ -191,30 +135,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showConfirm(`Deposit ${amount} LUDC to your game wallet?`, async () => {
             try {
-<<<<<<< HEAD
-                showToast("Establishing Secure Connection...", 'success');
-                
-                // Use fallback connection logic
-                const activeConn = await getValidConnection();
-                if (!activeConn) {
-                    throw new Error("All Solana nodes rejected the connection. Your browser may be blocking the blockchain. Check Site Settings > Insecure Content.");
-                }
-
+                showToast("Building Transaction...", 'success');
                 const fromWallet = new solanaWeb3.PublicKey(phantomWallet);
                 const toWallet = new solanaWeb3.PublicKey(internalWalletAddress);
-
                 const fromAta = await getAssociatedTokenAddress(LUDC_MINT, fromWallet, TOKEN_2022_PROGRAM_ID);
                 const toAta = await getAssociatedTokenAddress(LUDC_MINT, toWallet, TOKEN_2022_PROGRAM_ID);
 
-                showToast("Fetching network data...");
-                const { blockhash } = await activeConn.getLatestBlockhash('confirmed');
+                const decimals = 9;
+                const amountInLamports = amount * Math.pow(10, decimals);
 
-                // 3. Build Instruction (Index 12 = TransferChecked)
                 const data = new Uint8Array(10);
                 const view = new DataView(data.buffer);
                 data[0] = 12; 
-                view.setBigUint64(1, BigInt(Math.round(amount * 1e9)), true);
-                data[9] = 9; 
+                view.setBigUint64(1, BigInt(Math.round(amountInLamports)), true);
+                data[9] = decimals;
 
                 const keys = [
                     { pubkey: fromAta, isSigner: false, isWritable: true },
@@ -223,71 +157,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     { pubkey: fromWallet, isSigner: true, isWritable: false }
                 ];
 
-                const transaction = new solanaWeb3.Transaction();
-                transaction.add(new solanaWeb3.TransactionInstruction({
-                    keys,
-                    programId: TOKEN_2022_PROGRAM_ID,
-                    data
+                const transaction = new solanaWeb3.Transaction().add(new solanaWeb3.TransactionInstruction({
+                    keys, programId: TOKEN_2022_PROGRAM_ID, data
                 }));
-                
                 transaction.feePayer = fromWallet;
+                const { blockhash } = await solConnection.getLatestBlockhash('confirmed');
                 transaction.recentBlockhash = blockhash;
 
-                showToast("Sign in Phantom...");
                 const provider = window.phantom?.solana || window.solana;
                 const { signature } = await provider.signAndSendTransaction(transaction);
-                showToast("Deposit Sent! Verifying...");
-                console.log("Deposit Signature:", signature);
-                
+                showToast("Deposit Signature: " + signature.substring(0,8) + "...");
             } catch (err) {
-                console.error("Deposit Error:", err);
                 showToast(err.message || "Transfer failed.", 'error');
-=======
-                showToast("Requesting signature...", 'success');
-                
-                const fromWallet = new solanaWeb3.PublicKey(phantomWallet);
-                const toWallet = new solanaWeb3.PublicKey(internalWalletAddress);
-                const mintPublic = new solanaWeb3.PublicKey(LUDC_MINT);
-
-                // 1. Get associated token accounts
-                const fromTokenAccount = await getAssociatedTokenAddress(mintPublic, fromWallet, TOKEN_2022_PROGRAM_ID);
-                const toTokenAccount = await getAssociatedTokenAddress(mintPublic, toWallet, TOKEN_2022_PROGRAM_ID);
-
-                // 2. Build Transaction
-                const transaction = new solanaWeb3.Transaction();
-                
-                // Note: On Mainnet, we'd check if the 'to' account exists and add CreateAccount instruction if needed.
-                // But since ludcpaymentprovider ensures player wallets exist, it should be fine.
-                
-                const decimals = 9; // LUDC decimals
-                const amountInLamports = amount * Math.pow(10, decimals);
-
-                const transferInstruction = createTransferCheckedInstruction(
-                    fromTokenAccount,
-                    mintPublic,
-                    toTokenAccount,
-                    fromWallet,
-                    amountInLamports,
-                    decimals,
-                    [],
-                    TOKEN_2022_PROGRAM_ID
-                );
-
-                transaction.add(transferInstruction);
-                transaction.feePayer = fromWallet;
-                const { blockhash } = await solConnection.getLatestBlockhash();
-                transaction.recentBlockhash = blockhash;
-
-                // 3. Sign & Send
-                const { signature } = await window.solana.signAndSendTransaction(transaction);
-                showToast("Transaction sent! Verifying...");
-                console.log("Sig:", signature);
-                
-                // Scanner service will pick it up. No need to notify hub.
-            } catch (err) {
-                console.error(err);
-                showToast("Deposit failed or cancelled.", 'error');
->>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
             }
         });
     };
@@ -295,18 +176,14 @@ document.addEventListener('DOMContentLoaded', () => {
     window.withdrawLUDC = async function() {
         const amount = parseFloat(document.getElementById('web3-withdraw-amount').value);
         const dest = document.getElementById('web3-withdraw-address').value.trim();
-<<<<<<< HEAD
-=======
-
->>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
         if (!amount || amount <= 0) { showToast("Invalid amount.", 'error'); return; }
         if (!dest) { showToast("Destination required.", 'error'); return; }
 
-        showConfirm(`Withdraw ${amount} LUDC to ${dest.substring(0,6)}...?`, async () => {
+        showConfirm(`Withdraw ${amount} LUDC?`, async () => {
             try {
                 const res = await connection.invoke("InitiateWithdrawal", authToken, dest, amount);
-                if (res.startsWith("Success") || res === "Success") {
-                    showToast("Withdrawal processed!");
+                if (res.startsWith("Success")) {
+                    showToast("Processed!");
                     loadPlayerData();
                 } else {
                     showToast(res, 'error');
@@ -316,20 +193,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- DATA HYDRATION ---
-
     async function loadPlayerData() {
         try {
             const data = await connection.invoke("GetPlayerDashboard", parseInt(playerId));
             if (!data) return;
 
-            userTransactions = data.transactions || [];
             internalWalletAddress = data.walletAddress;
 
             document.getElementById('profile-name').innerText = data.name;
             document.getElementById('profile-img').src = data.picture || 'player.webp';
             document.getElementById('main-profile-name').innerText = data.name;
             document.getElementById('main-profile-img').src = data.picture || 'player.webp';
-<<<<<<< HEAD
 
             const identityBadgeContainer = document.getElementById('identity-badge-container');
             if (identityBadgeContainer) {
@@ -360,6 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('stat-ludc').innerText = parseFloat(data.ludc).toFixed(2);
             document.getElementById('display-wallet-address').innerText = data.walletAddress ? `${data.walletAddress.substring(0,6)}...${data.walletAddress.substring(38)}` : "No Address";
 
+            // Highlights
             const ratio = data.played > 0 ? Math.round((data.wins / data.played) * 100) : 0;
             const ratioEl = document.getElementById('stat-ratio');
             if(ratioEl) ratioEl.innerText = ratio;
@@ -370,19 +245,13 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('stat-total-win-hud').innerText = parseFloat(data.totalWin).toFixed(2);
             document.getElementById('stat-total-lost-hud').innerText = parseFloat(data.totalLost).toFixed(2);
 
-=======
-            
-            document.getElementById('stat-rank').innerText = data.rank;
-            document.getElementById('stat-wins').innerText = data.wins;
-            document.getElementById('stat-played').innerText = data.played;
-            document.getElementById('stat-ludc').innerText = parseFloat(data.ludc).toFixed(2);
-            document.getElementById('display-wallet-address').innerText = data.walletAddress ? `${data.walletAddress.substring(0,6)}...${data.walletAddress.substring(38)}` : "No Address";
-
-            // Table rendering...
->>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
-            applyTransactionFilters();
+            // Tables
+            applyTransactionFilters(); // This will now use the Deep Audit logic
             renderMatches(data.recentGames);
             renderManualDeposits(data.manualDeposits);
+            
+            // Populate Tournament Archive (If available)
+            renderTournaments(data.tournamentHistory || []);
 
             feather.replace();
         } catch (err) { console.error(err); }
@@ -390,120 +259,112 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderMatches(games) {
         const mTable = document.getElementById('matches-table');
-<<<<<<< HEAD
         if(!mTable) return;
-=======
->>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
         mTable.innerHTML = '';
-        if (games && games.length > 0) {
-            games.forEach(g => {
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-white/5 hover:bg-white/5 transition-all cursor-pointer group";
-                tr.onclick = () => loadMatchDetail(g.id);
-<<<<<<< HEAD
-                const resClass = g.isWin ? 'text-emerald-400' : 'text-red-400';
-                tr.innerHTML = `<td class="py-4 px-2"><div><span class="font-bold text-gray-200 text-xs">${g.type}P</span></div><span class="text-[8px] text-gray-600 uppercase italic">VS: ${g.opponents}</span></td><td class="py-4 font-black text-[10px] ${resClass}">${g.isWin ? 'WIN' : 'LOSS'}</td><td class="py-4 font-bold text-yellow-500 text-xs">${g.bet}</td><td class="py-4 text-right pr-2"><span class="block text-gray-600 text-[8px]">${new Date(g.date).toLocaleDateString()}</span><i data-feather="chevron-right" width="10" class="inline text-gray-800 group-hover:text-white"></i></td>`;
-=======
-                const resultClass = g.isWin ? 'text-emerald-400' : 'text-red-400';
-                tr.innerHTML = `<td class="py-4 px-2"><div><span class="font-bold text-gray-200 text-xs">${g.type}P</span></div><span class="text-[8px] text-gray-600 uppercase italic">VS: ${g.opponents}</span></td><td class="py-4 font-black text-[10px] ${resultClass}">${g.isWin ? 'VICTORY' : 'DEFEAT'}</td><td class="py-4 font-bold text-yellow-500 text-xs">${g.bet}</td><td class="py-4 text-right pr-2"><span class="block text-gray-600 text-[8px]">${new Date(g.date).toLocaleDateString()}</span><i data-feather="chevron-right" width="10" class="inline text-gray-800 group-hover:text-white"></i></td>`;
->>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
-                mTable.appendChild(tr);
-            });
+        if (!games || games.length === 0) {
+            mTable.innerHTML = '<tr><td class="py-10 text-center text-gray-600 italic text-xs">No records found</td></tr>';
+            return;
         }
+        games.forEach(g => {
+            const tr = document.createElement('tr');
+            tr.className = "border-b border-white/5 hover:bg-white/5 transition-all cursor-pointer group";
+            tr.onclick = () => loadMatchDetail(g.id);
+            const resClass = g.isWin ? 'text-emerald-400' : 'text-red-400';
+            tr.innerHTML = `<td class="py-4 px-2"><div><span class="font-bold text-gray-200 text-xs">${g.type}P</span></div><span class="text-[8px] text-gray-600 uppercase italic">VS: ${g.opponents}</span></td><td class="py-4 font-black text-[10px] ${resClass}">${g.isWin ? 'VICTORY' : 'DEFEAT'}</td><td class="py-4 font-bold text-yellow-500 text-xs font-gamer">${g.bet}</td><td class="py-4 text-right pr-2"><span class="block text-gray-600 text-[8px]">${new Date(g.date).toLocaleDateString()}</span><i data-feather="chevron-right" width="10" class="inline text-gray-800 group-hover:text-white"></i></td>`;
+            mTable.appendChild(tr);
+        });
     }
 
-    function renderManualDeposits(deposits) {
-        const dTable = document.getElementById('manual-deposits-table');
-<<<<<<< HEAD
-        if(!dTable) return;
-=======
->>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
-        dTable.innerHTML = '';
-        if (deposits && deposits.length > 0) {
-            deposits.forEach(d => {
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-white/5";
-                const sClass = d.status === 'Approved' ? 'text-emerald-400' : (d.status === 'Pending' ? 'text-yellow-400' : 'text-red-400');
-                tr.innerHTML = `<td class="py-4 px-2 text-[9px] font-black uppercase text-gray-400">${d.paymentMethod}</td><td class="py-4"><a href="${d.receiptImageUrl}" target="_blank" class="text-blue-400 underline text-[8px] font-bold">RECEIPT</a></td><td class="py-4 font-bold text-emerald-400 text-xs">${d.amount}</td><td class="py-4 font-black text-[9px] uppercase ${sClass}">${d.status}</td><td class="py-4 text-right text-gray-600 text-[8px]">${new Date(d.createdDate).toLocaleDateString()}</td>`;
-                dTable.appendChild(tr);
-            });
-        }
-    }
-
-    window.applyTransactionFilters = function() {
-        const type = document.getElementById('filter-t-type')?.value || 'All';
-<<<<<<< HEAD
-        const start = document.getElementById('filter-t-start')?.value;
-        let filtered = userTransactions;
-        if (type !== 'All') filtered = filtered.filter(t => t.type === parseInt(type));
-        if (start) filtered = filtered.filter(t => new Date(t.date).getTime() >= new Date(start).getTime());
-        
-        const tTable = document.getElementById('transactions-table');
+    function renderTournaments(data) {
+        const tTable = document.getElementById('tournaments-table');
         if(!tTable) return;
-=======
-        let filtered = userTransactions;
-        if (type !== 'All') filtered = filtered.filter(t => t.type === parseInt(type));
-        
-        const tTable = document.getElementById('transactions-table');
->>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
         tTable.innerHTML = '';
-        filtered.forEach(t => {
+        if (data.length === 0) {
+            tTable.innerHTML = '<tr><td class="py-10 text-center text-gray-600 italic text-xs">No tournament history</td></tr>';
+            return;
+        }
+        data.forEach(t => {
             const tr = document.createElement('tr');
             tr.className = "border-b border-white/5 hover:bg-white/5 transition-all";
-            let typeLabel = "SWEEP", typeClass = "bg-red-500/10 text-red-400";
-            switch(t.type) {
-                case 1: typeLabel = "DEPOSIT"; typeClass = "bg-emerald-500/10 text-emerald-400"; break;
-                case 2: typeLabel = "WITHDRAW"; typeClass = "bg-orange-500/10 text-orange-400"; break;
-                case 3: typeLabel = "GAME WIN"; typeClass = "bg-emerald-500/10 text-emerald-400"; break;
-                case 4: typeLabel = "GAME LOSS"; typeClass = "bg-red-500/10 text-red-400"; break;
-                case 5: typeLabel = "SWEEP"; typeClass = "bg-gray-500/10 text-gray-400"; break;
-                case 6: typeLabel = "BONUS"; typeClass = "bg-purple-500/10 text-purple-400"; break;
-            }
-<<<<<<< HEAD
-            tr.innerHTML = `<td class="py-4 px-2"><span class="px-2 py-0.5 rounded-full text-[7px] font-black uppercase ${typeClass}">${typeLabel}</span></td><td class="py-4"><span class="block text-gray-300 font-medium text-[10px] leading-tight">${t.description}</span>${t.roomCode ? `<button onclick="loadMatchDetailByRoom('${t.roomCode}')" class="text-[8px] font-black text-purple-400 hover:text-purple-300 uppercase mt-1">#${t.roomCode} &rarr;</button>` : ''}</td><td class="py-4 text-right pr-2 font-black ${t.amount > 0 ? 'text-emerald-400' : 'text-yellow-500'} text-xs">${parseFloat(t.amount).toFixed(2)}</td>`;
-=======
-            tr.innerHTML = `<td class="py-4 px-2"><span class="px-2 py-0.5 rounded-full text-[7px] font-black uppercase ${typeClass}">${typeLabel}</span></td><td class="py-4"><span class="block text-gray-300 font-medium text-[10px] leading-tight">${t.description}</span>${t.roomCode ? `<button onclick="loadMatchDetailByRoom('${t.roomCode}')" class="text-[8px] font-black text-purple-400 hover:text-purple-300 uppercase mt-1">#${t.roomCode} &rarr;</button>` : ''}</td><td class="py-4 text-right pr-2 font-black ${t.amount>0?'text-emerald-400':'text-yellow-500'} text-xs">${parseFloat(t.amount).toFixed(2)}</td>`;
->>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
+            tr.innerHTML = `<td class="py-4 px-2"><span class="block text-purple-400 font-bold text-[10px] uppercase">${t.name}</span><span class="text-[8px] text-gray-600 uppercase font-black tracking-widest">${new Date(t.date).toLocaleDateString()}</span></td><td class="py-4 font-black text-[9px] text-gray-400 uppercase">${t.status}</td><td class="py-4 text-right pr-2 font-black text-emerald-400 font-gamer text-xs">#${t.rank}</td>`;
             tTable.appendChild(tr);
         });
     }
 
-<<<<<<< HEAD
+    function renderManualDeposits(deposits) {
+        const dTable = document.getElementById('manual-deposits-table');
+        if(!dTable) return;
+        dTable.innerHTML = '';
+        if (!deposits || deposits.length === 0) {
+            dTable.innerHTML = '<tr><td class="py-10 text-center text-gray-600 italic text-[9px]">No pending requests</td></tr>';
+            return;
+        }
+        deposits.forEach(d => {
+            const tr = document.createElement('tr');
+            tr.className = "border-b border-white/5";
+            const sClass = d.status === 'Approved' ? 'text-emerald-400' : (d.status === 'Pending' ? 'text-yellow-400' : 'text-red-400');
+            tr.innerHTML = `<td class="py-4 px-2 text-[9px] font-black uppercase text-gray-400">${d.paymentMethod}</td><td class="py-4"><a href="${d.receiptImageUrl}" target="_blank" class="text-blue-400 underline text-[8px] font-bold">RECEIPT</a></td><td class="py-4 font-bold text-emerald-400 text-xs">${d.amount}</td><td class="py-4 font-black text-[9px] uppercase ${sClass}">${d.status}</td><td class="py-4 text-right text-gray-600 text-[8px]">${new Date(d.createdDate).toLocaleDateString()}</td>`;
+            dTable.appendChild(tr);
+        });
+    }
+
+    // --- DEEP TRANSACTION AUDIT ---
+    window.applyTransactionFilters = async function() {
+        const type = document.getElementById('filter-t-type')?.value || 'All';
+        const start = document.getElementById('filter-t-start')?.value || null;
+        const tTable = document.getElementById('transactions-table');
+        if(!tTable) return;
+
+        try {
+            // Call the new Hub method for DEEP historical auditing
+            const filtered = await connection.invoke("GetTransactionsFiltered", parseInt(playerId), type, start);
+            tTable.innerHTML = '';
+            
+            if (!filtered || filtered.length === 0) {
+                tTable.innerHTML = '<tr><td class="py-10 text-center text-gray-600 italic text-xs">No records found</td></tr>';
+                return;
+            }
+
+            filtered.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-white/5 hover:bg-white/5 transition-all";
+                let typeLabel = "SWEEP", typeClass = "bg-red-500/10 text-red-400";
+                switch(t.type) {
+                    case 1: typeLabel = "DEPOSIT"; typeClass = "bg-emerald-500/10 text-emerald-400"; break;
+                    case 2: typeLabel = "WITHDRAW"; typeClass = "bg-orange-500/10 text-orange-400"; break;
+                    case 3: typeLabel = "GAME WIN"; typeClass = "bg-emerald-500/10 text-emerald-400"; break;
+                    case 4: typeLabel = "GAME LOSS"; typeClass = "bg-red-500/10 text-red-400"; break;
+                    case 5: typeLabel = "SWEEP"; typeClass = "bg-gray-500/10 text-gray-400"; break;
+                    case 6: typeLabel = "BONUS"; typeClass = "bg-purple-500/10 text-purple-400"; break;
+                }
+                tr.innerHTML = `<td class="py-4 px-2"><span class="px-2 py-0.5 rounded-full text-[7px] font-black uppercase ${typeClass}">${typeLabel}</span></td><td class="py-4"><span class="block text-gray-300 font-medium text-[10px] leading-tight">${t.description}</span>${t.roomCode ? `<button onclick="loadMatchDetailByRoom('${t.roomCode}')" class="text-[8px] font-black text-purple-400 hover:text-purple-300 uppercase mt-1">#${t.roomCode} &rarr;</button>` : ''}</td><td class="py-4 text-right pr-2 font-black ${t.amount > 0 ? 'text-emerald-400' : 'text-yellow-500'} font-gamer text-xs">${parseFloat(t.amount).toFixed(2)}</td>`;
+                tTable.appendChild(tr);
+            });
+        } catch (err) { console.error("Filter error:", err); }
+    };
+
+    const dForm = document.getElementById('deposit-form');
+    if (dForm) {
+        dForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('deposit-amount').value);
+            const method = document.getElementById('deposit-method').value;
+            const receipt = document.getElementById('deposit-receipt').value.trim();
+            showConfirm(`Deposit ${amount} LUDC?`, async () => {
+                const res = await connection.invoke("SubmitManualDeposit", parseInt(playerId), amount, method, receipt);
+                if (res === "Success") { showToast("Submitted!"); dForm.reset(); loadPlayerData(); } else showToast(res, 'error');
+            });
+        });
+    }
+
     async function getAssociatedTokenAddress(mint, owner, programId) {
         const [address] = await solanaWeb3.PublicKey.findProgramAddress(
             [owner.toBytes(), ASSOCIATED_TOKEN_PROGRAM_ID.toBytes(), mint.toBytes()],
             ASSOCIATED_TOKEN_PROGRAM_ID
-=======
-    // --- HELPERS FOR TOKEN-2022 ---
-    async function getAssociatedTokenAddress(mint, owner, programId) {
-        const [address] = await solanaWeb3.PublicKey.findProgramAddress(
-            [owner.toBuffer(), programId.toBuffer(), mint.toBuffer()],
-            new solanaWeb3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL")
->>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
         );
         return address;
     }
 
-<<<<<<< HEAD
-=======
-    function createTransferCheckedInstruction(from, mint, to, owner, amount, decimals, signers, programId) {
-        const keys = [
-            { pubkey: from, isSigner: false, isWritable: true },
-            { pubkey: mint, isSigner: false, isWritable: false },
-            { pubkey: to, isSigner: false, isWritable: true },
-            { pubkey: owner, isSigner: true, isWritable: false },
-        ];
-        signers.forEach(s => keys.push({ pubkey: s, isSigner: true, isWritable: false }));
-        
-        const data = Buffer.alloc(13);
-        data.writeUInt8(12, 0); // TransferChecked instruction index
-        data.writeBigUInt64LE(BigInt(amount), 1);
-        data.writeUInt8(decimals, 9);
-
-        return new solanaWeb3.TransactionInstruction({ keys, programId, data });
-    }
-
->>>>>>> c28cc60c7a7e8700a4ef9c2ae979615c356ca5fa
     window.loadMatchDetail = async function(id) {
         const g = await connection.invoke("GetGameAudit", id);
         if (g) showBoxScore(g);
