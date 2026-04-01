@@ -182,8 +182,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     keys, programId: TOKEN_2022_PROGRAM_ID, data
                 }));
                 transaction.feePayer = fromWallet;
-                const { blockhash } = await solConnection.getLatestBlockhash('confirmed');
-                transaction.recentBlockhash = blockhash;
+
+                // 🛑 FIX: Use fallback logic instead of missing solConnection
+                const result = await getBlockhashWithFallback();
+                if (!result) throw new Error("Could not connect to Solana network. Check Site Settings > Insecure Content.");
+                
+                transaction.recentBlockhash = result.blockhash;
 
                 const provider = window.phantom?.solana || window.solana;
                 const { signature } = await provider.signAndSendTransaction(transaction);
