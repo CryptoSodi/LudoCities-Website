@@ -99,6 +99,26 @@
                 </div>
             </div>
 
+            <div class="mt-8 rounded-[28px] border border-white/10 bg-black/20 p-6">
+                <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-2">RPC Configuration</p>
+                        <h2 class="text-2xl font-black text-white">Active Solana RPC</h2>
+                        <p class="mt-2 max-w-2xl text-sm text-slate-300">
+                            The page uses the URL below first. You can paste your FluxRPC endpoint here to test browser access directly.
+                        </p>
+                    </div>
+                    <button id="btn-test-rpc" class="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-slate-200 transition hover:bg-white/10">
+                        Test RPC
+                    </button>
+                </div>
+
+                <div class="mt-5">
+                    <label class="mb-2 block text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">RPC URL</label>
+                    <input id="rpc-url" type="text" value="https://eu.fluxrpc.com/?key=PASTE_YOUR_KEY_HERE" class="mono w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 text-sm text-slate-100 outline-none">
+                </div>
+            </div>
+
             <div class="mt-8 rounded-[28px] border border-cyan-500/20 bg-cyan-500/10 p-6">
                 <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                     <div>
@@ -155,12 +175,14 @@
         const logEl = document.getElementById('log');
         const transferDestination = document.getElementById('transfer-destination');
         const transferAmount = document.getElementById('transfer-amount');
+        const rpcUrlInput = document.getElementById('rpc-url');
 
         const LUDC_MINT = new solanaWeb3.PublicKey("JSXWEi4ZXJkrkqWQg4UjUPzpmpYYFxzLmBuADh5cyai");
         const TOKEN_2022_PROGRAM_ID = new solanaWeb3.PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
         const ASSOCIATED_TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
         const LUDC_DECIMALS = 9;
         const RPC_ENDPOINTS = [
+            "https://eu.fluxrpc.com/?key=PASTE_YOUR_KEY_HERE",
             "https://api.mainnet-beta.solana.com",
             "https://solana-rpc.publicnode.com",
             "https://solana-mainnet.rpc.extrnode.com"
@@ -189,7 +211,13 @@
         }
 
         async function getConnectionWithFallback() {
-            for (const url of RPC_ENDPOINTS) {
+            const primaryUrl = rpcUrlInput?.value?.trim();
+            const urls = [
+                ...(primaryUrl ? [primaryUrl] : []),
+                ...RPC_ENDPOINTS.filter(url => url !== primaryUrl)
+            ];
+
+            for (const url of urls) {
                 try {
                     const connection = new solanaWeb3.Connection(url, "confirmed");
                     const latestBlockhash = await connection.getLatestBlockhash("confirmed");
@@ -202,6 +230,18 @@
                 }
             }
             throw new Error('Could not reach a Solana RPC endpoint.');
+        }
+
+        async function testRpcOnly() {
+            try {
+                const { connection, url } = await getConnectionWithFallback();
+                const blockHeight = await connection.getBlockHeight("confirmed");
+                setResult(`RPC OK: ${url}`, true);
+                log('rpc health success', { url, blockHeight });
+            } catch (err) {
+                setResult(err?.message || 'RPC test failed.', false);
+                log('rpc health failed', { message: err?.message });
+            }
         }
 
         async function findAssociatedTokenAddress(owner, mint, tokenProgramId = TOKEN_2022_PROGRAM_ID) {
@@ -475,6 +515,7 @@
         document.getElementById('btn-trusted').addEventListener('click', () => connectPhantom(true));
         document.getElementById('btn-disconnect').addEventListener('click', disconnectPhantom);
         document.getElementById('btn-sign').addEventListener('click', signMessage);
+        document.getElementById('btn-test-rpc').addEventListener('click', testRpcOnly);
         document.getElementById('btn-transfer').addEventListener('click', transferLudc);
         document.getElementById('btn-fill-address').addEventListener('click', () => {
             const provider = refreshProviderState();
