@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phantom Connectivity Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(168, 85, 247, 0.18), transparent 24%),
+                radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.14), transparent 24%),
+                #070b12;
+            color: #e5eefc;
+        }
+        .panel {
+            background: rgba(10, 14, 24, 0.82);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+        }
+        .mono {
+            font-family: Consolas, Monaco, monospace;
+        }
+    </style>
+</head>
+<body class="min-h-screen px-6 py-10">
+    <div class="mx-auto max-w-4xl">
+        <div class="panel rounded-[32px] p-8 md:p-10">
+            <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div>
+                    <p class="text-[11px] font-bold uppercase tracking-[0.3em] text-fuchsia-300 mb-3">Standalone Wallet Test</p>
+                    <h1 class="text-3xl md:text-5xl font-black text-white">Phantom connectivity check</h1>
+                    <p class="mt-4 max-w-2xl text-sm text-slate-400">
+                        This page does not use SignalR, your game wallet, or any backend. It only verifies Phantom injection,
+                        connect/disconnect state, account changes, and optional message signing.
+                    </p>
+                </div>
+                <div id="secure-badge" class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                    Checking Context
+                </div>
+            </div>
+
+            <div class="mt-8 grid gap-6 md:grid-cols-3">
+                <div class="rounded-[24px] border border-white/10 bg-white/5 p-5">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 mb-2">Provider</p>
+                    <p id="provider-state" class="text-lg font-black text-amber-300">Checking</p>
+                </div>
+                <div class="rounded-[24px] border border-white/10 bg-white/5 p-5">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 mb-2">Connection</p>
+                    <p id="connection-state" class="text-lg font-black text-slate-200">Disconnected</p>
+                </div>
+                <div class="rounded-[24px] border border-white/10 bg-white/5 p-5">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 mb-2">Current Account</p>
+                    <p id="short-address" class="text-lg font-black text-cyan-300">None</p>
+                </div>
+            </div>
+
+            <div class="mt-8 grid gap-4 md:grid-cols-4">
+                <button id="btn-connect" class="rounded-2xl bg-fuchsia-500 px-5 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-white transition hover:bg-fuchsia-400">
+                    Connect
+                </button>
+                <button id="btn-trusted" class="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-slate-200 transition hover:bg-white/10">
+                    Trusted Connect
+                </button>
+                <button id="btn-disconnect" class="rounded-2xl border border-red-500/20 bg-red-500/10 px-5 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-red-300 transition hover:bg-red-500/20">
+                    Disconnect
+                </button>
+                <button id="btn-sign" class="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 px-5 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-300 transition hover:bg-cyan-500/20">
+                    Sign Message
+                </button>
+            </div>
+
+            <div class="mt-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+                <div class="rounded-[28px] border border-white/10 bg-black/20 p-6">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-3">Wallet Details</p>
+                    <div class="space-y-4 text-sm">
+                        <div>
+                            <p class="text-slate-500 mb-1">Full Address</p>
+                            <div id="full-address" class="mono break-all rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-slate-200">
+                                Not connected
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 mb-1">Last Result</p>
+                            <div id="result-box" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-slate-300">
+                                No action yet
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-[28px] border border-white/10 bg-black/20 p-6">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-3">Debug Log</p>
+                    <div id="log" class="mono h-[280px] overflow-y-auto rounded-2xl border border-white/10 bg-[#05070c] p-4 text-xs text-slate-300">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 rounded-[28px] border border-cyan-500/20 bg-cyan-500/10 p-6">
+                <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300 mb-2">LUDC Transfer Test</p>
+                        <h2 class="text-2xl font-black text-white">Send LUDC with Phantom</h2>
+                        <p class="mt-2 max-w-2xl text-sm text-slate-300">
+                            This uses Token-2022 on Solana mainnet, derives both associated token accounts, creates the recipient ATA if needed,
+                            and asks Phantom to sign the transfer transaction.
+                        </p>
+                    </div>
+                    <div class="rounded-full border border-white/10 bg-black/20 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-200">
+                        Mint: JSXW...cyai
+                    </div>
+                </div>
+
+                <div class="mt-6 grid gap-4 md:grid-cols-2">
+                    <div>
+                        <label class="mb-2 block text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Recipient Owner Address</label>
+                        <input id="transfer-destination" type="text" placeholder="Enter Solana wallet address" class="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 text-sm text-slate-100 outline-none">
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Amount (LUDC)</label>
+                        <input id="transfer-amount" type="number" min="0" step="0.000000001" placeholder="0.00" class="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 text-sm text-slate-100 outline-none">
+                    </div>
+                </div>
+
+                <div class="mt-4 flex flex-wrap gap-3">
+                    <button id="btn-transfer" class="rounded-2xl bg-cyan-400 px-5 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-slate-950 transition hover:bg-cyan-300">
+                        Send LUDC
+                    </button>
+                    <button id="btn-fill-address" class="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-slate-200 transition hover:bg-white/10">
+                        Use My Address
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-8 rounded-[28px] border border-amber-500/20 bg-amber-500/10 p-6">
+                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-300 mb-2">Requirements</p>
+                <p class="text-sm text-slate-300">
+                    Phantom injects reliably on <span class="mono">https://</span> or <span class="mono">localhost</span>.
+                    If this page says provider not found, the issue is browser context or extension injection, not your app backend.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const providerState = document.getElementById('provider-state');
+        const connectionState = document.getElementById('connection-state');
+        const shortAddress = document.getElementById('short-address');
+        const fullAddress = document.getElementById('full-address');
+        const resultBox = document.getElementById('result-box');
+        const secureBadge = document.getElementById('secure-badge');
+        const logEl = document.getElementById('log');
+        const transferDestination = document.getElementById('transfer-destination');
+        const transferAmount = document.getElementById('transfer-amount');
+
+        const LUDC_MINT = new solanaWeb3.PublicKey("JSXWEi4ZXJkrkqWQg4UjUPzpmpYYFxzLmBuADh5cyai");
+        const TOKEN_2022_PROGRAM_ID = new solanaWeb3.PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
+        const ASSOCIATED_TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
+        const LUDC_DECIMALS = 9;
+        const RPC_ENDPOINTS = [
+            "https://api.mainnet-beta.solana.com",
+            "https://solana-rpc.publicnode.com",
+            "https://solana-mainnet.rpc.extrnode.com"
+        ];
+
+        function log(message, data) {
+            const row = document.createElement('div');
+            const stamp = new Date().toLocaleTimeString();
+            row.className = 'mb-2';
+            const suffix = data === undefined ? '' : ' ' + JSON.stringify(data, null, 2);
+            row.textContent = `[${stamp}] ${message}${suffix}`;
+            logEl.prepend(row);
+        }
+
+        function setResult(text, ok = true) {
+            resultBox.textContent = text;
+            resultBox.className = ok
+                ? 'rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-emerald-200'
+                : 'rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-red-200';
+        }
+
+        function getProvider() {
+            const provider = window.phantom?.solana || window.solana;
+            if (!provider || !provider.isPhantom) return null;
+            return provider;
+        }
+
+        async function getConnectionWithFallback() {
+            for (const url of RPC_ENDPOINTS) {
+                try {
+                    const connection = new solanaWeb3.Connection(url, "confirmed");
+                    const latestBlockhash = await connection.getLatestBlockhash("confirmed");
+                    if (latestBlockhash?.blockhash) {
+                        log('rpc selected', { url });
+                        return { connection, latestBlockhash, url };
+                    }
+                } catch (err) {
+                    log('rpc failed', { url, message: err?.message });
+                }
+            }
+            throw new Error('Could not reach a Solana RPC endpoint.');
+        }
+
+        async function findAssociatedTokenAddress(owner, mint, tokenProgramId = TOKEN_2022_PROGRAM_ID) {
+            const [address] = await solanaWeb3.PublicKey.findProgramAddress(
+                [owner.toBytes(), tokenProgramId.toBytes(), mint.toBytes()],
+                ASSOCIATED_TOKEN_PROGRAM_ID
+            );
+            return address;
+        }
+
+        function createAssociatedTokenAccountInstruction(payer, associatedToken, owner, mint, tokenProgramId = TOKEN_2022_PROGRAM_ID) {
+            return new solanaWeb3.TransactionInstruction({
+                programId: ASSOCIATED_TOKEN_PROGRAM_ID,
+                keys: [
+                    { pubkey: payer, isSigner: true, isWritable: true },
+                    { pubkey: associatedToken, isSigner: false, isWritable: true },
+                    { pubkey: owner, isSigner: false, isWritable: false },
+                    { pubkey: mint, isSigner: false, isWritable: false },
+                    { pubkey: solanaWeb3.SystemProgram.programId, isSigner: false, isWritable: false },
+                    { pubkey: tokenProgramId, isSigner: false, isWritable: false }
+                ],
+                data: new Uint8Array([])
+            });
+        }
+
+        function shorten(address) {
+            if (!address) return 'None';
+            return `${address.slice(0, 4)}...${address.slice(-4)}`;
+        }
+
+        function updateSecureContext() {
+            const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            const ok = window.isSecureContext || isLocalhost;
+            secureBadge.textContent = ok ? 'Secure Context OK' : 'HTTPS Required';
+            secureBadge.className = ok
+                ? 'rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-300'
+                : 'rounded-full border border-red-500/20 bg-red-500/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-red-300';
+        }
+
+        function refreshProviderState() {
+            const provider = getProvider();
+            if (!provider) {
+                providerState.textContent = 'Not Found';
+                providerState.className = 'text-lg font-black text-red-300';
+                connectionState.textContent = 'Disconnected';
+                connectionState.className = 'text-lg font-black text-slate-200';
+                shortAddress.textContent = 'None';
+                fullAddress.textContent = 'Not connected';
+                return null;
+            }
+
+            providerState.textContent = 'Injected';
+            providerState.className = 'text-lg font-black text-emerald-300';
+
+            if (provider.isConnected && provider.publicKey) {
+                const address = provider.publicKey.toString();
+                connectionState.textContent = 'Connected';
+                connectionState.className = 'text-lg font-black text-emerald-300';
+                shortAddress.textContent = shorten(address);
+                fullAddress.textContent = address;
+            } else {
+                connectionState.textContent = 'Disconnected';
+                connectionState.className = 'text-lg font-black text-slate-200';
+                shortAddress.textContent = 'None';
+                fullAddress.textContent = 'Not connected';
+            }
+
+            return provider;
+        }
+
+        function bindProviderEvents(provider) {
+            if (!provider || provider.__phantomTestBound) return;
+
+            provider.on?.('connect', (publicKey) => {
+                const address = publicKey?.toString?.() || provider.publicKey?.toString?.() || '';
+                refreshProviderState();
+                setResult(`Connected: ${address}`, true);
+                log('connect event', { address });
+            });
+
+            provider.on?.('disconnect', () => {
+                refreshProviderState();
+                setResult('Disconnected from Phantom', true);
+                log('disconnect event');
+            });
+
+            provider.on?.('accountChanged', (publicKey) => {
+                const address = publicKey?.toString?.() || '';
+                refreshProviderState();
+                setResult(address ? `Account changed: ${address}` : 'Account cleared', true);
+                log('accountChanged event', { address });
+            });
+
+            provider.__phantomTestBound = true;
+        }
+
+        async function connectPhantom(onlyIfTrusted) {
+            const provider = refreshProviderState();
+            if (!provider) {
+                setResult('Phantom provider not found in this browser context.', false);
+                log('provider missing');
+                return;
+            }
+
+            bindProviderEvents(provider);
+
+            try {
+                const response = onlyIfTrusted
+                    ? await provider.connect({ onlyIfTrusted: true })
+                    : await provider.connect();
+                const address = response?.publicKey?.toString?.() || provider.publicKey?.toString?.() || '';
+                refreshProviderState();
+                setResult(`Connected successfully: ${address}`, true);
+                log(onlyIfTrusted ? 'trusted connect success' : 'connect success', { address });
+            } catch (err) {
+                refreshProviderState();
+                setResult(err?.message || 'Connection failed', false);
+                log(onlyIfTrusted ? 'trusted connect failed' : 'connect failed', {
+                    code: err?.code,
+                    message: err?.message
+                });
+            }
+        }
+
+        async function disconnectPhantom() {
+            const provider = refreshProviderState();
+            if (!provider) {
+                setResult('Phantom provider not found.', false);
+                return;
+            }
+
+            try {
+                await provider.disconnect();
+                refreshProviderState();
+                setResult('Disconnected cleanly.', true);
+                log('manual disconnect');
+            } catch (err) {
+                setResult(err?.message || 'Disconnect failed', false);
+                log('disconnect failed', { message: err?.message });
+            }
+        }
+
+        async function signMessage() {
+            const provider = refreshProviderState();
+            if (!provider) {
+                setResult('Phantom provider not found.', false);
+                return;
+            }
+
+            if (!provider.isConnected || !provider.publicKey) {
+                setResult('Connect Phantom first.', false);
+                return;
+            }
+
+            if (!provider.signMessage) {
+                setResult('This Phantom provider does not expose signMessage.', false);
+                return;
+            }
+
+            try {
+                const text = `Ludo Cities Phantom test at ${new Date().toISOString()}`;
+                const encoded = new TextEncoder().encode(text);
+                const signed = await provider.signMessage(encoded, 'utf8');
+                const sig = Array.from(signed.signature || []).slice(0, 12).join(',');
+                setResult('Message signed successfully.', true);
+                log('signMessage success', {
+                    address: provider.publicKey.toString(),
+                    preview: text,
+                    signaturePreview: sig
+                });
+            } catch (err) {
+                setResult(err?.message || 'Signing failed', false);
+                log('signMessage failed', { code: err?.code, message: err?.message });
+            }
+        }
+
+        async function transferLudc() {
+            const provider = refreshProviderState();
+            if (!provider) {
+                setResult('Phantom provider not found.', false);
+                return;
+            }
+
+            if (!provider.isConnected || !provider.publicKey) {
+                setResult('Connect Phantom first.', false);
+                return;
+            }
+
+            const destinationText = transferDestination.value.trim();
+            const amount = parseFloat(transferAmount.value);
+
+            if (!destinationText) {
+                setResult('Recipient owner address is required.', false);
+                return;
+            }
+
+            if (!amount || amount <= 0) {
+                setResult('Enter a valid LUDC amount.', false);
+                return;
+            }
+
+            try {
+                const sender = provider.publicKey;
+                const recipientOwner = new solanaWeb3.PublicKey(destinationText);
+                const senderAta = await findAssociatedTokenAddress(sender, LUDC_MINT);
+                const recipientAta = await findAssociatedTokenAddress(recipientOwner, LUDC_MINT);
+
+                const { connection, latestBlockhash, url } = await getConnectionWithFallback();
+                const senderAtaInfo = await connection.getAccountInfo(senderAta, "confirmed");
+                if (!senderAtaInfo) {
+                    throw new Error('Sender ATA not found. This wallet may not hold LUDC.');
+                }
+
+                const recipientAtaInfo = await connection.getAccountInfo(recipientAta, "confirmed");
+                const amountRaw = BigInt(Math.round(amount * Math.pow(10, LUDC_DECIMALS)));
+                const transferData = new Uint8Array(10);
+                const view = new DataView(transferData.buffer);
+                transferData[0] = 12;
+                view.setBigUint64(1, amountRaw, true);
+                transferData[9] = LUDC_DECIMALS;
+
+                const transaction = new solanaWeb3.Transaction();
+                if (!recipientAtaInfo) {
+                    transaction.add(
+                        createAssociatedTokenAccountInstruction(sender, recipientAta, recipientOwner, LUDC_MINT)
+                    );
+                }
+
+                transaction.add(new solanaWeb3.TransactionInstruction({
+                    programId: TOKEN_2022_PROGRAM_ID,
+                    keys: [
+                        { pubkey: senderAta, isSigner: false, isWritable: true },
+                        { pubkey: LUDC_MINT, isSigner: false, isWritable: false },
+                        { pubkey: recipientAta, isSigner: false, isWritable: true },
+                        { pubkey: sender, isSigner: true, isWritable: false }
+                    ],
+                    data: transferData
+                }));
+
+                transaction.feePayer = sender;
+                transaction.recentBlockhash = latestBlockhash.blockhash;
+
+                log('transfer prepared', {
+                    rpc: url,
+                    sender: sender.toString(),
+                    senderAta: senderAta.toString(),
+                    recipientOwner: recipientOwner.toString(),
+                    recipientAta: recipientAta.toString(),
+                    recipientAtaExists: !!recipientAtaInfo,
+                    amount
+                });
+
+                const response = await provider.signAndSendTransaction(transaction);
+                const signature = response?.signature || response;
+
+                await connection.confirmTransaction({
+                    signature,
+                    blockhash: latestBlockhash.blockhash,
+                    lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+                }, "confirmed");
+
+                setResult(`Transfer confirmed: ${signature}`, true);
+                log('transfer success', { signature });
+            } catch (err) {
+                setResult(err?.message || 'LUDC transfer failed.', false);
+                log('transfer failed', { code: err?.code, message: err?.message });
+            }
+        }
+
+        document.getElementById('btn-connect').addEventListener('click', () => connectPhantom(false));
+        document.getElementById('btn-trusted').addEventListener('click', () => connectPhantom(true));
+        document.getElementById('btn-disconnect').addEventListener('click', disconnectPhantom);
+        document.getElementById('btn-sign').addEventListener('click', signMessage);
+        document.getElementById('btn-transfer').addEventListener('click', transferLudc);
+        document.getElementById('btn-fill-address').addEventListener('click', () => {
+            const provider = refreshProviderState();
+            if (provider?.publicKey) {
+                transferDestination.value = provider.publicKey.toString();
+            }
+        });
+
+        updateSecureContext();
+        const initialProvider = refreshProviderState();
+        bindProviderEvents(initialProvider);
+        log('page loaded', {
+            secureContext: window.isSecureContext,
+            hostname: location.hostname,
+            providerFound: !!initialProvider
+        });
+    </script>
+</body>
+</html>
