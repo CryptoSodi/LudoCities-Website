@@ -35,21 +35,44 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let phantomWallet = null;
 
-    async function getBlockhashWithFallback() {
+    async function getConnectionWithFallback() {
         for (const url of RPC_ENDPOINTS) {
             try {
-                console.log(`Trying RPC for Blockhash: ${url}`);
+                console.log(`Trying RPC: ${url}`);
                 const conn = new solanaWeb3.Connection(url, "confirmed");
-                const result = await conn.getLatestBlockhash('confirmed');
-                if (result && result.blockhash) {
+                const result = await conn.getLatestBlockhash("confirmed");
+                if (result?.blockhash) {
                     console.log(`Success with: ${url}`);
-                    return { blockhash: result.blockhash, connection: conn };
+                    return { connection: conn, latestBlockhash: result };
                 }
             } catch (err) {
-                console.warn(`RPC Blockhash Failed (${url}):`, err.message);
+                console.warn(`RPC failed (${url}):`, err.message);
             }
         }
         return null;
+    }
+
+    async function findAssociatedTokenAddress(owner, mint, tokenProgramId = TOKEN_2022_PROGRAM_ID) {
+        const [address] = await solanaWeb3.PublicKey.findProgramAddress(
+            [owner.toBytes(), tokenProgramId.toBytes(), mint.toBytes()],
+            ASSOCIATED_TOKEN_PROGRAM_ID
+        );
+        return address;
+    }
+
+    function createAssociatedTokenAccountInstruction(payer, associatedToken, owner, mint, tokenProgramId = TOKEN_2022_PROGRAM_ID) {
+        return new solanaWeb3.TransactionInstruction({
+            programId: ASSOCIATED_TOKEN_PROGRAM_ID,
+            keys: [
+                { pubkey: payer, isSigner: true, isWritable: true },
+                { pubkey: associatedToken, isSigner: false, isWritable: true },
+                { pubkey: owner, isSigner: false, isWritable: false },
+                { pubkey: mint, isSigner: false, isWritable: false },
+                { pubkey: solanaWeb3.SystemProgram.programId, isSigner: false, isWritable: false },
+                { pubkey: tokenProgramId, isSigner: false, isWritable: false }
+            ],
+            data: new Uint8Array([])
+        });
     }
 
     // --- UI HELPERS ---
@@ -159,8 +182,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast("Building Transaction...", 'success');
                 const fromWallet = new solanaWeb3.PublicKey(phantomWallet);
                 const toWallet = new solanaWeb3.PublicKey(internalWalletAddress);
-                const fromAta = await getAssociatedTokenAddress(LUDC_MINT, fromWallet, TOKEN_2022_PROGRAM_ID);
-                const toAta = await getAssociatedTokenAddress(LUDC_MINT, toWallet, TOKEN_2022_PROGRAM_ID);
+                const fromAta = await findAssociatedTokenAddress(fromWallet, LUDC_MINT);
+                const toAta = await findAssociatedTokenAddress(toWallet, LUDC_MINT);
+                const rpcResult = await getConnectionWithFallback();
+                if (!rpcResult) throw new Error("Could not connect to Solana network. Check Site Settings > Insecure Content.");
+
+                const { connection, latestBlockhash } = rpcResult;
+                const fromAtaInfo = await connection.getAccountInfo(fromAta, "confirmed");
+                if (!fromAtaInfo) throw new Error("Your Phantom wallet does not have an LUDC token account.");
+
+                const toAtaInfo = await connection.getAccountInfo(toAta, "confirmed");
 
                 const decimals = 9;
                 const amountInLamports = amount * Math.pow(10, decimals);
@@ -178,19 +209,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     { pubkey: fromWallet, isSigner: true, isWritable: false }
                 ];
 
-                const transaction = new solanaWeb3.Transaction().add(new solanaWeb3.TransactionInstruction({
+                const transaction = new solanaWeb3.Transaction();
+                if (!toAtaInfo) {
+                    transaction.add(createAssociatedTokenAccountInstruction(fromWallet, toAta, toWallet, LUDC_MINT));
+                }
+                transaction.add(new solanaWeb3.TransactionInstruction({
                     keys, programId: TOKEN_2022_PROGRAM_ID, data
                 }));
                 transaction.feePayer = fromWallet;
 
                 // 🛑 FIX: Use fallback logic instead of missing solConnection
-                const result = await getBlockhashWithFallback();
-                if (!result) throw new Error("Could not connect to Solana network. Check Site Settings > Insecure Content.");
-                
-                transaction.recentBlockhash = result.blockhash;
+                transaction.recentBlockhash = latestBlockhash.blockhash;
 
                 const provider = window.phantom?.solana || window.solana;
                 const { signature } = await provider.signAndSendTransaction(transaction);
+                await connection.confirmTransaction({
+                    signature,
+                    blockhash: latestBlockhash.blockhash,
+                    lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+                }, "confirmed");
                 showToast("Deposit Signature: " + signature.substring(0,8) + "...");
             } catch (err) {
                 showToast(err.message || "Transfer failed.", 'error');
@@ -380,14 +417,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (res === "Success") { showToast("Submitted!"); dForm.reset(); loadPlayerData(); } else showToast(res, 'error');
             });
         });
-    }
-
-    async function getAssociatedTokenAddress(mint, owner, programId) {
-        const [address] = await solanaWeb3.PublicKey.findProgramAddress(
-            [owner.toBytes(), ASSOCIATED_TOKEN_PROGRAM_ID.toBytes(), mint.toBytes()],
-            ASSOCIATED_TOKEN_PROGRAM_ID
-        );
-        return address;
     }
 
     window.loadMatchDetail = async function(id) {
