@@ -10,8 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- DYNAMIC CONNECTION LOGIC ---
-    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-    const hubUrl = isLocal ? "http://192.168.1.15:8085/DashboardHub" : "https://13.202.76.246:8443/DashboardHub";
+    const hubUrl = isLocal ? "http://192.168.1.15:8085/DashboardHub" : "https://www.ludocities.com:8443/DashboardHub";
 
     const connection = new signalR.HubConnectionBuilder()
         .withUrl(hubUrl)
@@ -22,14 +21,35 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTab = 'stats';
     let internalWalletAddress = "";
 
-    // --- SOLANA CONFIG ---
+    // --- SOLANA CONFIG (Robust Fallback for Browser CORS/403) ---
     const LUDC_MINT = new solanaWeb3.PublicKey("JSXWEi4ZXJkrkqWQg4UjUPzpmpYYFxzLmBuADh5cyai");
     const TOKEN_2022_PROGRAM_ID = new solanaWeb3.PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
     const ASSOCIATED_TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
-    const RPC_URL = "https://api.mainnet-beta.solana.com";
-    const solConnection = new solanaWeb3.Connection(RPC_URL, "confirmed");
-
+    
+    const RPC_ENDPOINTS = [
+        "https://api.mainnet-beta.solana.com",
+        "https://solana-rpc.publicnode.com",
+        "https://solana-mainnet.rpc.extrnode.com"
+    ];
+    
     let phantomWallet = null;
+
+    async function getBlockhashWithFallback() {
+        for (const url of RPC_ENDPOINTS) {
+            try {
+                console.log(`Trying RPC for Blockhash: ${url}`);
+                const conn = new solanaWeb3.Connection(url, "confirmed");
+                const result = await conn.getLatestBlockhash('confirmed');
+                if (result && result.blockhash) {
+                    console.log(`Success with: ${url}`);
+                    return { blockhash: result.blockhash, connection: conn };
+                }
+            } catch (err) {
+                console.warn(`RPC Blockhash Failed (${url}):`, err.message);
+            }
+        }
+        return null;
+    }
 
     // --- UI HELPERS ---
     window.showToast = function(message, type = 'success') {
