@@ -28,6 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const ASSOCIATED_TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
     
     let phantomWallet = null;
+    let currentSwapPreview = null;
+    let swapBalances = {
+        phantomSol: 0,
+        phantomUsdc: 0,
+        phantomLudc: 0,
+        internalLudc: 0
+    };
 
     function getPhantomProvider() {
         const provider = window.phantom?.solana || window.solana;
@@ -64,16 +71,19 @@ document.addEventListener('DOMContentLoaded', () => {
         provider.on?.('connect', (publicKey) => {
             phantomWallet = publicKey?.toString?.() || provider.publicKey?.toString?.() || null;
             updatePhantomUi(true, phantomWallet || "");
+            loadSwapBalances().catch(() => {});
         });
 
         provider.on?.('disconnect', () => {
             phantomWallet = null;
             updatePhantomUi(false);
+            loadSwapBalances().catch(() => {});
         });
 
         provider.on?.('accountChanged', (publicKey) => {
             phantomWallet = publicKey?.toString?.() || null;
             updatePhantomUi(!!phantomWallet, phantomWallet || "");
+            loadSwapBalances().catch(() => {});
         });
 
         provider.__ludcBound = true;
@@ -91,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (provider.isConnected && provider.publicKey) {
             phantomWallet = provider.publicKey.toString();
             updatePhantomUi(true, phantomWallet);
+            await loadSwapBalances();
             return;
         }
 
@@ -98,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const resp = await provider.connect({ onlyIfTrusted: true });
             phantomWallet = resp?.publicKey?.toString() || provider.publicKey?.toString?.() || null;
             updatePhantomUi(!!phantomWallet, phantomWallet || "");
+            await loadSwapBalances();
         } catch {
             updatePhantomUi(false);
         }
@@ -124,6 +136,150 @@ document.addEventListener('DOMContentLoaded', () => {
             ],
             data: new Uint8Array([])
         });
+    }
+
+    function setSwapStatus(message, tone = 'neutral') {
+        const el = document.getElementById('swap-status-text');
+        if (!el) return;
+        el.innerText = message;
+        el.className =
+            tone === 'error'
+                ? 'font-black text-[10px] text-red-400'
+                : tone === 'success'
+                    ? 'font-black text-[10px] text-emerald-400'
+                    : 'font-black text-[10px] text-gray-300';
+    }
+
+    function setSwapEstimate(rawAmount) {
+        const el = document.getElementById('swap-output-estimate');
+        if (!el) return;
+        const outputAsset = document.getElementById('swap-output-asset')?.value || 'LUDC';
+        const decimals = outputAsset === 'USDC' ? 1_000_000 : 1_000_000_000;
+        const amount = Number(rawAmount || 0) / decimals;
+        el.innerText = Number.isFinite(amount) ? amount.toFixed(4) : '0.00';
+    }
+
+    function updateSwapUi() {
+        const inputAsset = document.getElementById('swap-input-asset')?.value || 'SOL';
+        const outputAsset = document.getElementById('swap-output-asset')?.value || 'LUDC';
+        const routeLabel = document.getElementById('swap-route-label');
+        const estimateLabel = document.getElementById('swap-estimate-label');
+        const destinationText = document.getElementById('swap-destination-text');
+        const submitBtn = document.getElementById('swap-submit-btn');
+        const statusText = document.getElementById('swap-status-text');
+        const balanceLabel = document.getElementById('swap-balance-label');
+        const balanceValue = document.getElementById('swap-balance-value');
+        const flowNote = document.getElementById('swap-flow-note');
+        const amountInput = document.getElementById('swap-input-amount');
+
+        const availableBalance = inputAsset === 'SOL'
+            ? swapBalances.phantomSol
+            : inputAsset === 'USDC'
+                ? swapBalances.phantomUsdc
+                : swapBalances.phantomLudc;
+
+        if (routeLabel) routeLabel.innerText = `${inputAsset} -> ${outputAsset}`;
+        if (estimateLabel) estimateLabel.innerText = `Estimated ${outputAsset}`;
+        if (destinationText) {
+            destinationText.innerText = outputAsset === 'LUDC'
+                ? 'Internal LUDC wallet'
+                : 'Connected Phantom wallet';
+        }
+        if (submitBtn) submitBtn.innerText = `Swap to ${outputAsset}`;
+        if (balanceLabel) balanceLabel.innerText = `Available ${inputAsset}`;
+        if (balanceValue) balanceValue.innerText = Number(availableBalance || 0).toFixed(4);
+        if (flowNote) {
+            flowNote.innerText = inputAsset === 'LUDC'
+                ? `This route uses LUDC held in Phantom. Internal game balance: ${Number(swapBalances.internalLudc || 0).toFixed(4)} LUDC.`
+                : `${inputAsset} input uses Phantom wallet balance. LUDC output goes to the ${outputAsset === 'LUDC' ? 'internal game wallet' : 'connected Phantom wallet'}.`;
+        }
+        if (amountInput) {
+            amountInput.max = String(availableBalance || 0);
+            const currentValue = parseFloat(amountInput.value || '0');
+            if (currentValue > availableBalance && availableBalance > 0) {
+                amountInput.value = String(availableBalance);
+            }
+        }
+
+        if (!statusText || statusText.innerText !== 'Idle') return;
+        if (inputAsset === outputAsset) {
+            setSwapStatus('Choose two different assets.', 'error');
+        } else if (inputAsset !== 'LUDC' && outputAsset !== 'LUDC') {
+            setSwapStatus('One side of the route must be LUDC.', 'error');
+        } else {
+            setSwapStatus('Choose route and amount.');
+        }
+    }
+
+    function toBase64(bytes) {
+        let binary = '';
+        const chunk = 0x8000;
+        for (let i = 0; i < bytes.length; i += chunk) {
+            binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+        }
+        return btoa(binary);
+    }
+
+    function fromBase64(base64) {
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+        }
+        return bytes;
+    }
+
+    async function loadSwapBalances() {
+        if (!phantomWallet) {
+            swapBalances = { phantomSol: 0, phantomUsdc: 0, phantomLudc: 0, internalLudc: 0 };
+            updateSwapUi();
+            return;
+        }
+
+        const result = await connection.invoke("GetSwapBalances", authToken, phantomWallet);
+        if (!result?.success) {
+            throw new Error(result?.error || "Could not load swap balances.");
+        }
+
+        swapBalances = {
+            phantomSol: Number(result.phantomSol || 0),
+            phantomUsdc: Number(result.phantomUsdc || 0),
+            phantomLudc: Number(result.phantomLudc || 0),
+            internalLudc: Number(result.internalLudc || 0)
+        };
+        updateSwapUi();
+    }
+
+    function setDepositMax() {
+        const amountInput = document.getElementById('web3-deposit-amount');
+        if (!amountInput) return;
+        amountInput.value = String(swapBalances.phantomLudc || 0);
+    }
+
+    function setWithdrawMax() {
+        const amountInput = document.getElementById('web3-withdraw-amount');
+        if (!amountInput) return;
+        amountInput.value = String(swapBalances.internalLudc || 0);
+    }
+
+    async function suggestRoutableAmount(inputAsset, outputAsset, startingAmount) {
+        let candidate = startingAmount;
+        for (let attempt = 0; attempt < 6; attempt++) {
+            candidate = candidate / 2;
+            if (candidate <= 0) break;
+
+            const prep = await connection.invoke("PrepareAssetSwap", authToken, phantomWallet, inputAsset, outputAsset, candidate, 100);
+            if (prep?.success) {
+                return candidate;
+            }
+
+            const error = (prep?.error || '').toLowerCase();
+            if (!error.includes('route') && !error.includes('quote')) {
+                break;
+            }
+        }
+
+        return null;
     }
 
     // --- UI HELPERS ---
@@ -224,6 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const resp = await provider.connect();
             phantomWallet = resp.publicKey.toString();
             updatePhantomUi(true, phantomWallet);
+            await loadSwapBalances();
             showToast("Wallet Linked!");
         } catch (err) {
             const message =
@@ -239,9 +396,189 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('web3-withdraw-address').value = phantomWallet;
     };
 
+    async function prepareSwap(previewOnly = false) {
+        const inputAsset = document.getElementById('swap-input-asset')?.value || 'SOL';
+        const outputAsset = document.getElementById('swap-output-asset')?.value || 'LUDC';
+        const amount = parseFloat(document.getElementById('swap-input-amount')?.value || '0');
+        const availableBalance = inputAsset === 'SOL'
+            ? swapBalances.phantomSol
+            : inputAsset === 'USDC'
+                ? swapBalances.phantomUsdc
+                : swapBalances.phantomLudc;
+
+        if (!amount || amount <= 0) {
+            throw new Error("Invalid swap amount.");
+        }
+        if (amount > availableBalance) {
+            throw new Error(`Amount exceeds available ${inputAsset} balance.`);
+        }
+        if (!phantomWallet) {
+            throw new Error("Connect Phantom first!");
+        }
+        if (!internalWalletAddress) {
+            throw new Error("Internal wallet not ready.");
+        }
+
+        setSwapStatus(previewOnly ? 'Preparing preview...' : 'Preparing swap...');
+        const prep = await connection.invoke("PrepareAssetSwap", authToken, phantomWallet, inputAsset, outputAsset, amount, 100);
+        if (!prep?.success) {
+            throw new Error(prep?.error || "Server could not prepare the swap.");
+        }
+        if (!prep?.transaction || !prep?.requestId) {
+            throw new Error("Server returned an incomplete swap transaction.");
+        }
+
+        currentSwapPreview = prep;
+        setSwapEstimate(prep.outputAmountRaw);
+        setSwapStatus(
+            `${inputAsset} → ${outputAsset}${prep.router ? ` via ${prep.router}` : ''}`,
+            'success'
+        );
+        const routeLabel = document.getElementById('swap-route-label');
+        if (routeLabel) {
+            routeLabel.innerText = `${inputAsset} → ${outputAsset}`;
+        }
+        return prep;
+    }
+
+    window.previewLudcSwap = async function() {
+        try {
+            await prepareSwap(true);
+            showToast("Swap preview ready.");
+        } catch (err) {
+            currentSwapPreview = null;
+            setSwapEstimate(0);
+            const message = err.message || 'Preview failed.';
+            if (message.toLowerCase().includes('route') || message.toLowerCase().includes('quote')) {
+                const inputAsset = document.getElementById('swap-input-asset')?.value || 'SOL';
+                const outputAsset = document.getElementById('swap-output-asset')?.value || 'LUDC';
+                const amountInput = document.getElementById('swap-input-amount');
+                const currentAmount = parseFloat(amountInput?.value || '0');
+                const suggestion = await suggestRoutableAmount(inputAsset, outputAsset, currentAmount);
+                if (suggestion && amountInput) {
+                    amountInput.value = suggestion.toFixed(6).replace(/\.?0+$/, '');
+                    setSwapStatus(`No route at ${currentAmount}. Try ${suggestion.toFixed(6)} ${inputAsset}.`, 'error');
+                    showToast(`No route found. Suggested ${suggestion.toFixed(6)} ${inputAsset}.`, 'error');
+                    updateSwapUi();
+                    return;
+                }
+            }
+            setSwapStatus(message, 'error');
+            showToast(message, 'error');
+        }
+    };
+
+    window.swapToLudc = async function() {
+        try {
+            const inputAsset = document.getElementById('swap-input-asset')?.value || 'SOL';
+            const outputAsset = document.getElementById('swap-output-asset')?.value || 'LUDC';
+            const amount = parseFloat(document.getElementById('swap-input-amount')?.value || '0');
+            if (!amount || amount <= 0) {
+                showToast("Invalid swap amount.", 'error');
+                return;
+            }
+            if (!phantomWallet) {
+                showToast("Connect Phantom first!", 'error');
+                return;
+            }
+
+            showConfirm(`Swap ${amount} ${inputAsset} into ${outputAsset}?`, async () => {
+                try {
+                    const prep = await prepareSwap(false);
+                    const provider = getPhantomProvider();
+                    if (!provider) throw new Error("Phantom not found.");
+
+                    const txBytes = fromBase64(prep.transaction);
+                    const versionedTx = solanaWeb3.VersionedTransaction.deserialize(txBytes);
+                    const signedTx = await provider.signTransaction(versionedTx);
+                    const signedBase64 = toBase64(signedTx.serialize());
+
+                    setSwapStatus('Submitting signed swap...');
+                    const result = await connection.invoke("ExecutePreparedSwap", authToken, prep.requestId, signedBase64);
+                    if (!result?.success) {
+                        throw new Error(result?.error || "Swap execution failed.");
+                    }
+                    if (!result?.signature) {
+                        throw new Error("Swap execution did not return a signature.");
+                    }
+
+                    const pendingMessage = outputAsset === 'LUDC'
+                        ? 'Swap submitted. Awaiting wallet credit.'
+                        : 'Swap submitted to Phantom wallet.';
+                    setSwapStatus(pendingMessage, 'success');
+                    showToast(`Swap sent ${result.signature.slice(0, 8)}...`);
+                    loadPlayerData();
+                } catch (err) {
+                    const message = err.message || 'Swap failed.';
+                    if (message.toLowerCase().includes('route') || message.toLowerCase().includes('quote')) {
+                        const amountInput = document.getElementById('swap-input-amount');
+                        const currentAmount = parseFloat(amountInput?.value || '0');
+                        const suggestion = await suggestRoutableAmount(inputAsset, outputAsset, currentAmount);
+                        if (suggestion && amountInput) {
+                            amountInput.value = suggestion.toFixed(6).replace(/\.?0+$/, '');
+                            setSwapStatus(`No route at ${currentAmount}. Try ${suggestion.toFixed(6)} ${inputAsset}.`, 'error');
+                            showToast(`No route found. Suggested ${suggestion.toFixed(6)} ${inputAsset}.`, 'error');
+                            updateSwapUi();
+                            return;
+                        }
+                    }
+                    setSwapStatus(message, 'error');
+                    showToast(message, 'error');
+                }
+            });
+        } catch (err) {
+            setSwapStatus(err.message || 'Swap failed.', 'error');
+            showToast(err.message || "Swap failed.", 'error');
+        }
+    };
+
+    document.getElementById('swap-input-asset')?.addEventListener('change', () => {
+        currentSwapPreview = null;
+        setSwapEstimate(0);
+        setSwapStatus('Choose route and amount.');
+        updateSwapUi();
+    });
+    document.getElementById('swap-output-asset')?.addEventListener('change', () => {
+        currentSwapPreview = null;
+        setSwapEstimate(0);
+        setSwapStatus('Choose route and amount.');
+        updateSwapUi();
+    });
+    document.getElementById('swap-input-amount')?.addEventListener('input', () => {
+        currentSwapPreview = null;
+        setSwapEstimate(0);
+        updateSwapUi();
+    });
+    document.getElementById('swap-max-btn')?.addEventListener('click', () => {
+        const inputAsset = document.getElementById('swap-input-asset')?.value || 'SOL';
+        const availableBalance = inputAsset === 'SOL'
+            ? swapBalances.phantomSol
+            : inputAsset === 'USDC'
+                ? swapBalances.phantomUsdc
+                : swapBalances.phantomLudc;
+        const amountInput = document.getElementById('swap-input-amount');
+        if (amountInput) {
+            amountInput.value = String(availableBalance || 0);
+        }
+        currentSwapPreview = null;
+        setSwapEstimate(0);
+        updateSwapUi();
+    });
+    document.getElementById('deposit-max-btn')?.addEventListener('click', () => {
+        setDepositMax();
+        setSwapStatus('Deposit amount set to max available LUDC.');
+    });
+    document.getElementById('withdraw-max-btn')?.addEventListener('click', () => {
+        setWithdrawMax();
+        setSwapStatus('Withdraw amount set to max internal balance.');
+    });
+    updateSwapUi();
+
     window.depositLUDC = async function() {
         const amount = parseFloat(document.getElementById('web3-deposit-amount').value);
+        const available = swapBalances.phantomLudc;
         if (!amount || amount <= 0) { showToast("Invalid amount", 'error'); return; }
+        if (amount > available) { showToast("Amount exceeds available Phantom LUDC balance", 'error'); return; }
         if (!phantomWallet) { showToast("Connect Phantom first!", 'error'); return; }
         if (!internalWalletAddress) { showToast("Internal wallet not ready.", 'error'); return; }
 
@@ -300,6 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const amount = parseFloat(document.getElementById('web3-withdraw-amount').value);
         const dest = document.getElementById('web3-withdraw-address').value.trim();
         if (!amount || amount <= 0) { showToast("Invalid amount.", 'error'); return; }
+        if (amount > swapBalances.internalLudc) { showToast("Amount exceeds internal LUDC balance.", 'error'); return; }
         if (!dest) { showToast("Destination required.", 'error'); return; }
 
         showConfirm(`Withdraw ${amount} LUDC?`, async () => {
@@ -322,6 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!data) return;
 
             internalWalletAddress = data.walletAddress;
+            swapBalances.internalLudc = Number(data.ludc || 0);
 
             document.getElementById('profile-name').innerText = data.name;
             document.getElementById('profile-img').src = data.picture || 'player.webp';
@@ -375,6 +714,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Populate Tournament Archive (If available)
             renderTournaments(data.tournamentHistory || []);
+            updateSwapUi();
 
             feather.replace();
         } catch (err) { console.error(err); }
