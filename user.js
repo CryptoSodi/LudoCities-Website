@@ -27,29 +27,80 @@ document.addEventListener('DOMContentLoaded', () => {
     const TOKEN_2022_PROGRAM_ID = new solanaWeb3.PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
     const ASSOCIATED_TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
     
-    const RPC_ENDPOINTS = [
-        "https://api.mainnet-beta.solana.com",
-        "https://solana-rpc.publicnode.com",
-        "https://solana-mainnet.rpc.extrnode.com"
-    ];
-    
     let phantomWallet = null;
 
-    async function getConnectionWithFallback() {
-        for (const url of RPC_ENDPOINTS) {
-            try {
-                console.log(`Trying RPC: ${url}`);
-                const conn = new solanaWeb3.Connection(url, "confirmed");
-                const result = await conn.getLatestBlockhash("confirmed");
-                if (result?.blockhash) {
-                    console.log(`Success with: ${url}`);
-                    return { connection: conn, latestBlockhash: result };
-                }
-            } catch (err) {
-                console.warn(`RPC failed (${url}):`, err.message);
-            }
+    function getPhantomProvider() {
+        const provider = window.phantom?.solana || window.solana;
+        if (!provider?.isPhantom) return null;
+        return provider;
+    }
+
+    function updatePhantomUi(connected, address = "") {
+        const connectBtn = document.getElementById('btn-phantom-connect');
+        const statusLabel = document.getElementById('phantom-status-label');
+        const addressLabel = document.getElementById('phantom-address-label');
+
+        if (connectBtn) {
+            connectBtn.innerHTML = connected
+                ? `<img src="https://phantom.app/favicon.ico" class="w-3 h-3 rounded-full"> ${address ? `${address.slice(0, 4)}...${address.slice(-4)}` : 'Connected'}`
+                : `<img src="https://phantom.app/favicon.ico" class="w-3 h-3 rounded-full"> Connect Phantom`;
         }
-        return null;
+
+        if (statusLabel) {
+            statusLabel.innerText = connected ? "Phantom Connected" : "Phantom Disconnected";
+            statusLabel.className = connected
+                ? "text-xs font-black uppercase text-purple-400"
+                : "text-xs font-black uppercase text-gray-500";
+        }
+
+        if (addressLabel) {
+            addressLabel.innerText = connected && address ? address : "No Wallet Linked";
+        }
+    }
+
+    function bindPhantomEvents(provider) {
+        if (!provider || provider.__ludcBound) return;
+
+        provider.on?.('connect', (publicKey) => {
+            phantomWallet = publicKey?.toString?.() || provider.publicKey?.toString?.() || null;
+            updatePhantomUi(true, phantomWallet || "");
+        });
+
+        provider.on?.('disconnect', () => {
+            phantomWallet = null;
+            updatePhantomUi(false);
+        });
+
+        provider.on?.('accountChanged', (publicKey) => {
+            phantomWallet = publicKey?.toString?.() || null;
+            updatePhantomUi(!!phantomWallet, phantomWallet || "");
+        });
+
+        provider.__ludcBound = true;
+    }
+
+    async function syncExistingPhantomSession() {
+        const provider = getPhantomProvider();
+        if (!provider) {
+            updatePhantomUi(false);
+            return;
+        }
+
+        bindPhantomEvents(provider);
+
+        if (provider.isConnected && provider.publicKey) {
+            phantomWallet = provider.publicKey.toString();
+            updatePhantomUi(true, phantomWallet);
+            return;
+        }
+
+        try {
+            const resp = await provider.connect({ onlyIfTrusted: true });
+            phantomWallet = resp?.publicKey?.toString() || provider.publicKey?.toString?.() || null;
+            updatePhantomUi(!!phantomWallet, phantomWallet || "");
+        } catch {
+            updatePhantomUi(false);
+        }
     }
 
     async function findAssociatedTokenAddress(owner, mint, tokenProgramId = TOKEN_2022_PROGRAM_ID) {
@@ -120,6 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("SignalR Connected.");
             const isValid = await connection.invoke("ValidateSession", authToken, "Player");
             if (!isValid) { logout(); return; }
+            await loadRpcConfig();
             updateStatus(true);
             loadPlayerData();
         } catch (err) {
@@ -140,29 +192,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     start();
+    syncExistingPhantomSession();
+
+    async function loadRpcConfig() {
+        try {
+            const rpc = await connection.invoke("GetClientRpcConfig", authToken, "Player");
+            const display = document.getElementById('display-rpc-url');
+            if (display) {
+                display.innerText = rpc?.hasRpc
+                    ? (rpc.displayLabel || rpc.provider || 'Configured RPC')
+                    : "No RPC Configured";
+            }
+        } catch (err) {
+            const display = document.getElementById('display-rpc-url');
+            if (display) display.innerText = "RPC Load Failed";
+        }
+    }
 
     // --- WEB3 PHANTOM ---
     window.connectPhantom = async function() {
         try {
-            const provider = window.phantom?.solana || window.solana;
-            if (!provider?.isPhantom) {
-                showToast("Phantom not found!", 'error');
+            const provider = getPhantomProvider();
+            if (!provider) {
+                const insecure = !window.isSecureContext && !isLocal;
+                showToast(insecure ? "Phantom needs HTTPS or localhost." : "Phantom not found!", 'error');
                 window.open("https://phantom.app/", "_blank");
                 return;
             }
+
+            bindPhantomEvents(provider);
             const resp = await provider.connect();
             phantomWallet = resp.publicKey.toString();
-            document.getElementById('btn-phantom-connect').innerHTML = `<img src="https://phantom.app/favicon.ico" class="w-3 h-3 rounded-full"> Connected`;
-            const statusLabel = document.getElementById('phantom-status-label');
-            if (statusLabel) {
-                statusLabel.innerText = "Phantom Connected";
-                statusLabel.className = "text-xs font-black uppercase text-purple-400";
-            }
-            const addressLabel = document.getElementById('phantom-address-label');
-            if (addressLabel) addressLabel.innerText = phantomWallet;
+            updatePhantomUi(true, phantomWallet);
             showToast("Wallet Linked!");
         } catch (err) {
-            showToast("Connection failed.", 'error');
+            const message =
+                err?.code === 4001 ? "Phantom connection rejected." :
+                err?.message?.includes("secure") ? "Phantom needs HTTPS or localhost." :
+                err?.message || "Connection failed.";
+            showToast(message, 'error');
         }
     };
 
@@ -179,56 +247,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showConfirm(`Deposit ${amount} LUDC to your game wallet?`, async () => {
             try {
-                showToast("Building Transaction...", 'success');
-                const fromWallet = new solanaWeb3.PublicKey(phantomWallet);
-                const toWallet = new solanaWeb3.PublicKey(internalWalletAddress);
-                const fromAta = await findAssociatedTokenAddress(fromWallet, LUDC_MINT);
-                const toAta = await findAssociatedTokenAddress(toWallet, LUDC_MINT);
-                const rpcResult = await getConnectionWithFallback();
-                if (!rpcResult) throw new Error("Could not connect to Solana network. Check Site Settings > Insecure Content.");
+                showToast("Preparing Transaction...", 'success');
+                const prep = await connection.invoke("PrepareLudcDeposit", authToken, phantomWallet, amount);
+                if (!prep) throw new Error("Server could not prepare the deposit transaction.");
+                if (!prep.senderAtaExists) throw new Error("Your Phantom wallet does not have an LUDC token account.");
 
-                const { connection, latestBlockhash } = rpcResult;
-                const fromAtaInfo = await connection.getAccountInfo(fromAta, "confirmed");
-                if (!fromAtaInfo) throw new Error("Your Phantom wallet does not have an LUDC token account.");
-
-                const toAtaInfo = await connection.getAccountInfo(toAta, "confirmed");
-
-                const decimals = 9;
-                const amountInLamports = amount * Math.pow(10, decimals);
+                const fromWallet = new solanaWeb3.PublicKey(prep.senderOwner);
+                const toWallet = new solanaWeb3.PublicKey(prep.destinationOwner);
+                const fromAta = new solanaWeb3.PublicKey(prep.senderAta);
+                const toAta = new solanaWeb3.PublicKey(prep.destinationAta);
 
                 const data = new Uint8Array(10);
                 const view = new DataView(data.buffer);
-                data[0] = 12; 
-                view.setBigUint64(1, BigInt(Math.round(amountInLamports)), true);
-                data[9] = decimals;
-
-                const keys = [
-                    { pubkey: fromAta, isSigner: false, isWritable: true },
-                    { pubkey: LUDC_MINT, isSigner: false, isWritable: false },
-                    { pubkey: toAta, isSigner: false, isWritable: true },
-                    { pubkey: fromWallet, isSigner: true, isWritable: false }
-                ];
+                data[0] = 12;
+                view.setBigUint64(1, BigInt(prep.amountRaw), true);
+                data[9] = prep.decimals;
 
                 const transaction = new solanaWeb3.Transaction();
-                if (!toAtaInfo) {
+                if (!prep.destinationAtaExists) {
                     transaction.add(createAssociatedTokenAccountInstruction(fromWallet, toAta, toWallet, LUDC_MINT));
                 }
                 transaction.add(new solanaWeb3.TransactionInstruction({
-                    keys, programId: TOKEN_2022_PROGRAM_ID, data
+                    keys: [
+                        { pubkey: fromAta, isSigner: false, isWritable: true },
+                        { pubkey: LUDC_MINT, isSigner: false, isWritable: false },
+                        { pubkey: toAta, isSigner: false, isWritable: true },
+                        { pubkey: fromWallet, isSigner: true, isWritable: false }
+                    ],
+                    programId: TOKEN_2022_PROGRAM_ID,
+                    data
                 }));
                 transaction.feePayer = fromWallet;
-
-                // 🛑 FIX: Use fallback logic instead of missing solConnection
-                transaction.recentBlockhash = latestBlockhash.blockhash;
+                transaction.recentBlockhash = prep.blockhash;
 
                 const provider = window.phantom?.solana || window.solana;
-                const { signature } = await provider.signAndSendTransaction(transaction);
-                await connection.confirmTransaction({
-                    signature,
-                    blockhash: latestBlockhash.blockhash,
-                    lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
-                }, "confirmed");
-                showToast("Deposit Signature: " + signature.substring(0,8) + "...");
+                const result = await provider.signAndSendTransaction(transaction);
+                const signature = result?.signature || result;
+                const confirmed = await connection.invoke("ConfirmSolanaTransaction", authToken, "Player", signature);
+                showToast(
+                    confirmed
+                        ? "Deposit Signature: " + signature.substring(0,8) + "..."
+                        : "Signed. Confirmation pending.",
+                    'success'
+                );
             } catch (err) {
                 showToast(err.message || "Transfer failed.", 'error');
             }

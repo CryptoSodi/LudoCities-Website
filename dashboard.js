@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .build();
 
     const statusBadge = document.getElementById('connection-status');
+    const rpcStatusBadge = document.getElementById('rpc-status');
     const detailsSection = document.getElementById('player-details-section');
     const searchInput = document.getElementById('player-search-input');
     const authToken = localStorage.getItem('LudoAuthToken');
@@ -90,11 +91,30 @@ document.addEventListener('DOMContentLoaded', () => {
             await connection.start();
             const isValid = await connection.invoke("ValidateSession", authToken, "Admin");
             if (!isValid) { logout(); return; }
+            await loadRpcConfig();
             updateStatus(true);
             loadAllData();
         } catch (err) {
             updateStatus(false);
             setTimeout(start, 5000);
+        }
+    }
+
+    async function loadRpcConfig() {
+        if (!rpcStatusBadge) return;
+
+        try {
+            const rpc = await connection.invoke("GetClientRpcConfig", authToken, "Admin");
+            if (rpc?.hasRpc) {
+                rpcStatusBadge.className = 'max-w-[420px] truncate px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[10px] font-black uppercase text-cyan-300 tracking-tighter';
+                rpcStatusBadge.innerText = rpc.displayLabel || rpc.provider || 'Configured RPC';
+            } else {
+                rpcStatusBadge.className = 'max-w-[420px] truncate px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-[10px] font-black uppercase text-yellow-300 tracking-tighter';
+                rpcStatusBadge.innerText = 'RPC Not Configured';
+            }
+        } catch (err) {
+            rpcStatusBadge.className = 'max-w-[420px] truncate px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-black uppercase text-red-300 tracking-tighter';
+            rpcStatusBadge.innerText = 'RPC Load Failed';
         }
     }
 
