@@ -8,27 +8,27 @@
 <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
     <div class="text-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-        <h2 class="text-xl font-bold">Completing Login...</h2>
-        <p class="text-gray-400">Synchronizing with Ludo Server</p>
+        <h2 class="text-xl font-bold uppercase tracking-widest">Completing Login...</h2>
+        <p class="text-gray-400 text-sm">Synchronizing with Ludo Cities Server</p>
     </div>
 
     <script>
         async function completeLogin() {
-            // Google sends the credential in the POST body or as a parameter depending on configuration
-            // For data-callback, it's handled in JS. For redirect_uri, it's a POST to this page.
-            
             const urlParams = new URLSearchParams(window.location.search);
-            const credential = urlParams.get('credential'); // Standard param name
+            const credential = urlParams.get('credential');
 
             if (!credential) {
-                // If using data-callback (preferred for SPAs), this page shouldn't be reached
-                // but we handle it just in case.
-                window.location.href = 'login.html';
+                window.location.href = 'index.html';
                 return;
             }
 
+            // --- DYNAMIC CONNECTION LOGIC ---
+            
+            const hubUrl = "https://signal.ludocities.com/DashboardHub";
+
             const connection = new signalR.HubConnectionBuilder()
-                .withUrl("http://localhost:5242/DashboardHub")
+                .withUrl(hubUrl)
+                .withAutomaticReconnect()
                 .build();
 
             try {
@@ -36,20 +36,23 @@
                 const result = await connection.invoke("GoogleAuthentication", credential, "Web", "Web");
                 
                 if (result && result.authToken) {
+                    // Sync with standard storage keys
                     localStorage.setItem('LudoAuthToken', result.authToken);
-                    localStorage.setItem('PlayerId', result.player.playerId);
-                    localStorage.setItem('PlayerRole', result.player.role);
+                    localStorage.setItem('PlayerId', result.playerId);
+                    localStorage.setItem('PlayerRole', result.role);
 
-                    if (result.player.role === 'Admin') {
+                    // Route based on role
+                    if (result.role === 'Admin' || result.role === 'Manager') {
                         window.location.href = 'dashboard.html';
                     } else {
                         window.location.href = 'user.html';
                     }
+                } else {
+                    throw new Error("Invalid server response");
                 }
             } catch (err) {
-                console.error(err);
-                alert("Auth failed: " + err.message);
-                window.location.href = 'login.html';
+                console.error("Auth Callback Error:", err);
+                window.location.href = 'index.html';
             }
         }
 

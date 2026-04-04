@@ -1,6 +1,8 @@
 // Initialize SignalR
+const hubUrl = "https://signal.ludocities.com/DashboardHub";
+
 const connection = new signalR.HubConnectionBuilder()
-    .withUrl("http://192.168.1.15:8085/DashboardHub") // Updated to local IP
+    .withUrl(hubUrl)
     .withAutomaticReconnect()
     .build();
 
