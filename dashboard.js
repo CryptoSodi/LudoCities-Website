@@ -388,6 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="flex justify-end gap-3 mt-8">
                         <button onclick="toggleAdjustmentForm()" class="px-6 py-3 bg-white/5 rounded-xl text-[10px] font-black">CANCEL</button>
+                        <button type="button" onclick="setAdjustmentMax()" class="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] font-black uppercase tracking-widest">Use Max</button>
                         <button onclick="submitAdjustment(${p.id})" class="px-8 py-3 bg-blue-600 rounded-xl text-[10px] font-black">APPLY</button>
                     </div>
                 </div>
@@ -503,14 +504,21 @@ document.addEventListener('DOMContentLoaded', () => {
     window.blockPlayer = async function(adminId, id, status) { showConfirm(`Confirm ${status?'BLOCK':'UNBLOCK'}?`, async () => { const result = await connection.invoke("BlockPlayer", adminId, id, status); if (result === "Success") { showToast("Updated."); loadPlayerAudit(id); } else showToast(result, 'error'); }); };
     window.promotePlayer = async function(adminId, id, newRole) { showConfirm(`Set to ${newRole.toUpperCase()}?`, async () => { const result = await connection.invoke("UpdatePlayerRole", adminId, id, newRole); if (result === "Success") { showToast("Role updated."); loadPlayerAudit(id); } else showToast(result, 'error'); }); };
     window.toggleAdjustmentForm = () => document.getElementById('adjustment-form').classList.toggle('hidden');
-    window.submitAdjustment = async function(playerId) {
-        const adminId = parseInt(localStorage.getItem('PlayerId'));
-        const amount = parseFloat(document.getElementById('adj-amount').value);
-        const reason = document.getElementById('adj-reason').value.trim();
-        if (!amount || isNaN(amount)) return;
-        const result = await connection.invoke("AdjustPlayerBalance", adminId, playerId, amount, reason || "Manual Adjustment");
-        if (result === "Success") { showToast("Balance updated."); loadPlayerAudit(playerId); } else showToast(result, 'error');
-    };
+window.submitAdjustment = async function(playerId) {
+  const adminId = parseInt(localStorage.getItem('PlayerId'));
+  const amount = parseFloat(document.getElementById('adj-amount').value);
+  const reason = document.getElementById('adj-reason').value.trim();
+  if (!amount || isNaN(amount)) return;
+  const result = await connection.invoke("AdjustPlayerBalance", adminId, playerId, amount, reason || "Manual Adjustment");
+  if (result === "Success") { showToast("Balance updated."); loadPlayerAudit(playerId); } else showToast(result, 'error');
+};
+
+window.setAdjustmentMax = function() {
+    const amountInput = document.getElementById('adj-amount');
+    if (!amountInput || !currentPlayerAuditData) return;
+    amountInput.value = String(currentPlayerAuditData.ludc || 0);
+    showToast("Amount set to current balance.", 'success');
+};
 
     window.loadAllData = function() { loadStats(); loadTopPlayers(); loadTournaments(); loadPendingDeposits(); };
     window.loadStats = async function() {
