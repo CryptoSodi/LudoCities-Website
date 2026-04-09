@@ -80,17 +80,20 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1;
+            renderer.toneMappingExposure = 1.2;
             document.body.appendChild(renderer.domElement);
 
             controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
 
-            // Lights
-            const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+            // Brightened Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 2.5);
             scene.add(ambientLight);
 
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+            const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 2);
+            scene.add(hemisphereLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
             directionalLight.position.set(5, 10, 7.5);
             scene.add(directionalLight);
 
@@ -118,7 +121,14 @@
         function clearModel() {
             if (currentModel) {
                 scene.remove(currentModel);
-                // Dispose resources if necessary
+                if (currentModel.geometry) currentModel.geometry.dispose();
+                if (currentModel.material) {
+                    if (Array.isArray(currentModel.material)) {
+                        currentModel.material.forEach(m => m.dispose());
+                    } else {
+                        currentModel.material.dispose();
+                    }
+                }
             }
         }
 
@@ -134,9 +144,10 @@
             const maxDim = Math.max(size.x, size.y, size.z);
             const fov = camera.fov * (Math.PI / 180);
             let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-            cameraZ *= 1.5; // Zoom out a bit
+            cameraZ *= 1.8; // Increased buffer for zoom
             camera.position.z = cameraZ;
             
+            controls.target.set(0, 0, 0);
             controls.update();
         }
 
@@ -159,12 +170,23 @@
             loadingEl.style.display = 'block';
             loaderPLY.load('sample.ply', (geometry) => {
                 geometry.computeVertexNormals();
-                const material = new THREE.MeshStandardMaterial({ color: 0x00aaff, flatShading: true });
+                
+                const hasColors = geometry.hasAttribute('color');
+                const material = new THREE.MeshStandardMaterial({ 
+                    vertexColors: hasColors,
+                    color: hasColors ? 0xffffff : 0x00aaff, 
+                    roughness: 0.6,
+                    metalness: 0.1
+                });
+                
                 currentModel = new THREE.Mesh(geometry, material);
                 
                 // If it's a point cloud (no faces), use points instead
-                if (geometry.index === null && geometry.attributes.position.count > 0) {
-                     const pointsMaterial = new THREE.PointsMaterial({ size: 0.01, vertexColors: geometry.hasAttribute('color') });
+                if (geometry.index === null && (!geometry.attributes.index || geometry.attributes.index.count === 0)) {
+                     const pointsMaterial = new THREE.PointsMaterial({ 
+                         size: 0.05, 
+                         vertexColors: hasColors 
+                     });
                      currentModel = new THREE.Points(geometry, pointsMaterial);
                 }
 
