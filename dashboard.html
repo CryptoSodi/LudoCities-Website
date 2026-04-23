@@ -367,6 +367,7 @@
                             <thead class="text-gray-500 text-[10px] uppercase tracking-widest border-b border-white/5">
                                 <tr>
                                     <th class="pb-4">Player</th>
+                                    <th class="pb-4">Reference</th>
                                     <th class="pb-4">Amount</th>
                                     <th class="pb-4">Method</th>
                                     <th class="pb-4">Receipt</th>
@@ -374,6 +375,27 @@
                                 </tr>
                             </thead>
                             <tbody id="pending-deposits-table" class="text-xs">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="glass-panel rounded-2xl overflow-hidden">
+                    <div class="bg-orange-500/10 px-6 py-4 border-b border-orange-500/20">
+                        <h2 class="text-[10px] font-black uppercase tracking-widest text-orange-400">Manual Withdrawal Requests</h2>
+                    </div>
+                    <div class="p-6 overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="text-gray-500 text-[10px] uppercase tracking-widest border-b border-white/5">
+                                <tr>
+                                    <th class="pb-4">Player</th>
+                                    <th class="pb-4">Amount</th>
+                                    <th class="pb-4">Method</th>
+                                    <th class="pb-4">Destination</th>
+                                    <th class="pb-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pending-withdrawals-table" class="text-xs">
                                 <!-- Dynamic -->
                             </tbody>
                         </table>

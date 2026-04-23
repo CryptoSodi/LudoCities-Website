@@ -231,12 +231,31 @@
                                 <input type="number" id="deposit-amount" placeholder="Amount" required class="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm outline-none font-gamer">
                                 <select id="deposit-method" class="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm outline-none font-bold uppercase"><option value="JazzCash">JazzCash</option><option value="PayTM">PayTM</option><option value="EasyPaisa">EasyPaisa</option></select>
                             </div>
-                            <input type="text" id="deposit-receipt" placeholder="Receipt Image URL" required class="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-xs outline-none text-gray-400">
+                            <input type="text" id="deposit-reference" placeholder="TXID / Reference No" required class="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm outline-none font-gamer uppercase">
+                            <input type="file" id="deposit-receipt" accept="image/*" required class="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-xs outline-none text-gray-400 file:mr-4 file:border-0 file:bg-transparent file:text-cyan-300 file:font-bold">
                             <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] transition-all">Submit Receipt &rarr;</button>
                         </form>
                         <div class="mt-8 grid grid-cols-2 gap-4 text-center">
                             <div class="p-4 bg-white/5 rounded-2xl border border-white/5"><p class="text-[8px] font-black text-emerald-400 uppercase">JazzCash</p><p class="text-[10px] font-mono">0345-XXXXXXX</p></div>
                             <div class="p-4 bg-white/5 rounded-2xl border border-white/5"><p class="text-[8px] font-black text-blue-400 uppercase">PayTM</p><p class="text-[10px] font-mono">+91 XXXXX XXXXX</p></div>
+                        </div>
+                        <div class="mt-8 border-t border-white/5 pt-8">
+                            <h4 class="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400 mb-4">Manual Withdrawal Request</h4>
+                            <form id="manual-withdraw-form" class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <input type="number" id="manual-withdraw-amount" placeholder="Amount" required class="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm outline-none font-gamer">
+                                    <select id="manual-withdraw-method" class="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm outline-none font-bold uppercase">
+                                        <option value="">Select Payout Method</option>
+                                        <option value="JazzCash">JazzCash</option>
+                                        <option value="PayTM">PayTM</option>
+                                        <option value="EasyPaisa">EasyPaisa</option>
+                                        <option value="Bank Account">Bank Account</option>
+                                        <option value="Binance Pay">Binance Pay</option>
+                                    </select>
+                                </div>
+                                <input type="text" id="manual-withdraw-destination" placeholder="Account / Wallet / Payout Details" required class="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm outline-none font-mono">
+                                <button type="submit" class="w-full bg-orange-600 hover:bg-orange-500 text-white py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] transition-all">Submit Withdrawal Request &rarr;</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -258,7 +277,16 @@
                     </div>
                     <div class="glass-panel rounded-3xl overflow-hidden border-white/5 flex flex-col h-[450px]">
                         <div class="bg-pink-500/5 px-8 py-5 border-b border-white/5"><h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-pink-400">Manual Cash History</h2></div>
-                        <div class="flex-1 overflow-y-auto p-4 custom-scrollbar"><table class="w-full text-left"><tbody id="manual-deposits-table"></tbody></table></div>
+                        <div class="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-6">
+                            <div>
+                                <p class="text-[8px] font-black uppercase tracking-[0.2em] text-cyan-300 mb-3">Deposits</p>
+                                <table class="w-full text-left"><tbody id="manual-deposits-table"></tbody></table>
+                            </div>
+                            <div>
+                                <p class="text-[8px] font-black uppercase tracking-[0.2em] text-orange-300 mb-3">Withdrawals</p>
+                                <table class="w-full text-left"><tbody id="manual-withdrawals-table"></tbody></table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

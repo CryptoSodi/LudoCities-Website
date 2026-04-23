@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'overview': loadAllData(); break;
             case 'players': loadPlayerList(); break;
             case 'matches': loadMatchCenter(); break;
-            case 'finance': loadPendingDeposits(); break;
+            case 'finance': loadFinanceData(); break;
             case 'tournaments': loadTournaments(); break;
         }
     };
@@ -518,7 +518,8 @@ window.setAdjustmentMax = function() {
     showToast("Amount set to current balance.", 'success');
 };
 
-    window.loadAllData = function() { loadStats(); loadTopPlayers(); loadTournaments(); loadPendingDeposits(); };
+    window.loadAllData = function() { loadStats(); loadTopPlayers(); loadTournaments(); loadFinanceData(); };
+    window.loadFinanceData = function() { loadPendingDeposits(); loadPendingWithdrawals(); };
     window.loadStats = async function() {
         try {
             const s = await connection.invoke("GetDashboardStats");
@@ -660,17 +661,34 @@ window.setAdjustmentMax = function() {
             const d = await connection.invoke("GetPendingDeposits");
             const tbody = document.getElementById('pending-deposits-table');
             tbody.innerHTML = '';
-            if (!d || d.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-gray-600 italic">No pending requests</td></tr>'; return; }
+            if (!d || d.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="py-10 text-center text-gray-600 italic">No pending requests</td></tr>'; return; }
             d.forEach(x => {
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-white/5 hover:bg-white/5";
-                tr.innerHTML = `<td class="py-4 px-4 font-bold cursor-pointer text-purple-400" onclick="loadPlayerAudit(${x.playerId})">${x.playerName}</td><td class="font-gamer text-emerald-400">${x.amount}</td><td class="text-[10px] text-gray-500 uppercase font-black">${x.method}</td><td><a href="${x.receiptUrl}" target="_blank" class="text-blue-400 underline text-[10px]">VIEW</a></td><td class="text-right pr-4"><button onclick="approveDeposit(${x.id})" class="bg-emerald-600 px-3 py-1 rounded text-[9px] font-black uppercase">OK</button><button onclick="rejectDeposit(${x.id})" class="bg-red-600 px-3 py-1 rounded text-[9px] font-black uppercase ml-2">NO</button></td>`;
+                tr.innerHTML = `<td class="py-4 px-4 font-bold cursor-pointer text-purple-400" onclick="loadPlayerAudit(${x.playerId})">${x.playerName}</td><td class="py-4 font-mono text-cyan-300">${x.referenceNumber || '---'}</td><td class="font-gamer text-emerald-400">${x.amount}</td><td class="text-[10px] text-gray-500 uppercase font-black">${x.method}</td><td><a href="${x.receiptUrl}" target="_blank" class="text-blue-400 underline text-[10px]">VIEW</a></td><td class="text-right pr-4"><button onclick="approveDeposit(${x.id})" class="bg-emerald-600 px-3 py-1 rounded text-[9px] font-black uppercase">OK</button><button onclick="rejectDeposit(${x.id})" class="bg-red-600 px-3 py-1 rounded text-[9px] font-black uppercase ml-2">NO</button></td>`;
                 tbody.appendChild(tr);
             });
         } catch (err) { }
     };
 
-    window.approveDeposit = async function(id) { showConfirm("Approve deposit?", async () => { const res = await connection.invoke("ApproveDeposit", id, "Verified"); if (res === "Success") { showToast("Approved!"); loadAllData(); } else showToast(res, 'error'); }); };
-    window.rejectDeposit = async function(id) { const note = prompt("Reason:"); if (note) { const res = await connection.invoke("RejectDeposit", id, note); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
+    window.loadPendingWithdrawals = async function() {
+        try {
+            const rows = await connection.invoke("GetPendingWithdrawals");
+            const tbody = document.getElementById('pending-withdrawals-table');
+            tbody.innerHTML = '';
+            if (!rows || rows.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-gray-600 italic">No pending requests</td></tr>'; return; }
+            rows.forEach(x => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-white/5 hover:bg-white/5";
+                tr.innerHTML = `<td class="py-4 px-4 font-bold cursor-pointer text-purple-400" onclick="loadPlayerAudit(${x.playerId})">${x.playerName}</td><td class="py-4 font-gamer text-orange-300">${x.amount}</td><td class="text-[10px] text-gray-500 uppercase font-black">${x.method}</td><td class="py-4 text-[10px] text-cyan-300 font-mono break-all">${x.destinationDetails}</td><td class="text-right pr-4"><button onclick="approveWithdrawal(${x.id})" class="bg-emerald-600 px-3 py-1 rounded text-[9px] font-black uppercase">OK</button><button onclick="rejectWithdrawal(${x.id})" class="bg-red-600 px-3 py-1 rounded text-[9px] font-black uppercase ml-2">NO</button></td>`;
+                tbody.appendChild(tr);
+            });
+        } catch (err) { }
+    };
+
+    window.approveDeposit = async function(id) { showConfirm("Approve deposit?", async () => { const res = await connection.invoke("ProcessDeposit", authToken, id, "Approved", "Verified"); if (res === "Success") { showToast("Approved!"); loadAllData(); } else showToast(res, 'error'); }); };
+    window.rejectDeposit = async function(id) { const note = prompt("Reason:"); if (note) { const res = await connection.invoke("ProcessDeposit", authToken, id, "Rejected", note); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
+    window.approveWithdrawal = async function(id) { showConfirm("Approve withdrawal?", async () => { const res = await connection.invoke("ProcessWithdrawal", authToken, id, "Approved", "Verified"); if (res === "Success") { showToast("Approved!"); loadAllData(); } else showToast(res, 'error'); }); };
+    window.rejectWithdrawal = async function(id) { const note = prompt("Reason:"); if (note) { const res = await connection.invoke("ProcessWithdrawal", authToken, id, "Rejected", note); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
     window.logout = () => { localStorage.clear(); window.location.href = 'index.html'; };
 });

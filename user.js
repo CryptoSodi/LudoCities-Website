@@ -710,6 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
             applyTransactionFilters(); // This will now use the Deep Audit logic
             renderMatches(data.recentGames);
             renderManualDeposits(data.manualDeposits);
+            renderManualWithdrawals(data.manualWithdrawals);
             
             // Populate Tournament Archive (If available)
             renderTournaments(data.tournamentHistory || []);
@@ -765,8 +766,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const tr = document.createElement('tr');
             tr.className = "border-b border-white/5";
             const sClass = d.status === 'Approved' ? 'text-emerald-400' : (d.status === 'Pending' ? 'text-yellow-400' : 'text-red-400');
-            tr.innerHTML = `<td class="py-4 px-2 text-[9px] font-black uppercase text-gray-400">${d.paymentMethod}</td><td class="py-4"><a href="${d.receiptImageUrl}" target="_blank" class="text-blue-400 underline text-[8px] font-bold">RECEIPT</a></td><td class="py-4 font-bold text-emerald-400 text-xs">${d.amount}</td><td class="py-4 font-black text-[9px] uppercase ${sClass}">${d.status}</td><td class="py-4 text-right text-gray-600 text-[8px]">${new Date(d.createdDate).toLocaleDateString()}</td>`;
+            tr.innerHTML = `<td class="py-4 px-2 text-[9px] font-black uppercase text-gray-400">${d.paymentMethod}</td><td class="py-4 text-[8px] font-mono text-cyan-300 uppercase">${d.referenceNumber || '---'}</td><td class="py-4"><a href="${d.receiptImageUrl}" target="_blank" class="text-blue-400 underline text-[8px] font-bold">RECEIPT</a></td><td class="py-4 font-bold text-emerald-400 text-xs">${d.amount}</td><td class="py-4 font-black text-[9px] uppercase ${sClass}">${d.status}</td><td class="py-4 text-right text-gray-600 text-[8px]">${new Date(d.createdDate).toLocaleDateString()}</td>`;
             dTable.appendChild(tr);
+        });
+    }
+
+    function renderManualWithdrawals(withdrawals) {
+        const wTable = document.getElementById('manual-withdrawals-table');
+        if(!wTable) return;
+        wTable.innerHTML = '';
+        if (!withdrawals || withdrawals.length === 0) {
+            wTable.innerHTML = '<tr><td class="py-10 text-center text-gray-600 italic text-[9px]">No pending requests</td></tr>';
+            return;
+        }
+        withdrawals.forEach(w => {
+            const tr = document.createElement('tr');
+            tr.className = "border-b border-white/5";
+            const sClass = w.status === 'Approved' ? 'text-emerald-400' : (w.status === 'Pending' ? 'text-yellow-400' : 'text-red-400');
+            tr.innerHTML = `<td class="py-4 px-2 text-[9px] font-black uppercase text-gray-400">${w.payoutMethod}</td><td class="py-4 text-[8px] font-mono text-orange-300 break-all">${w.destinationDetails}</td><td class="py-4 font-bold text-orange-300 text-xs">${w.amount}</td><td class="py-4 font-black text-[9px] uppercase ${sClass}">${w.status}</td><td class="py-4 text-right text-gray-600 text-[8px]">${new Date(w.createdDate).toLocaleDateString()}</td>`;
+            wTable.appendChild(tr);
         });
     }
 
@@ -811,10 +829,69 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const amount = parseFloat(document.getElementById('deposit-amount').value);
             const method = document.getElementById('deposit-method').value;
-            const receipt = document.getElementById('deposit-receipt').value.trim();
-            showConfirm(`Deposit ${amount} LUDC?`, async () => {
-                const res = await connection.invoke("SubmitManualDeposit", parseInt(playerId), amount, method, receipt);
-                if (res === "Success") { showToast("Submitted!"); dForm.reset(); loadPlayerData(); } else showToast(res, 'error');
+            const reference = document.getElementById('deposit-reference').value.trim().toUpperCase();
+            const receiptInput = document.getElementById('deposit-receipt');
+            const receiptFile = receiptInput?.files?.[0];
+
+            if (!receiptFile) {
+                showToast("Attach a receipt image first.", 'error');
+                return;
+            }
+
+            const receipt = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error("Failed to read receipt image."));
+                reader.readAsDataURL(receiptFile);
+            });
+
+            showConfirm(`Deposit ${amount} LUDC with ref ${reference}?`, async () => {
+                try {
+                    const res = await connection.invoke("SubmitManualDeposit", parseInt(playerId), amount, method, reference, receipt);
+                    if (res === "Success") { showToast("Submitted!"); dForm.reset(); loadPlayerData(); } else showToast(res, 'error');
+                } catch (err) {
+                    showToast(err?.message || "Failed to submit receipt.", 'error');
+                }
+            });
+        });
+    }
+
+    const mwForm = document.getElementById('manual-withdraw-form');
+    if (mwForm) {
+        mwForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('manual-withdraw-amount').value);
+            const method = document.getElementById('manual-withdraw-method').value;
+            const destination = document.getElementById('manual-withdraw-destination').value.trim();
+
+            if (!amount || amount <= 0) {
+                showToast("Enter a valid amount.", 'error');
+                return;
+            }
+
+            if (!method) {
+                showToast("Select a payout method.", 'error');
+                return;
+            }
+
+            if (!destination) {
+                showToast("Enter payout details.", 'error');
+                return;
+            }
+
+            showConfirm(`Request ${amount} LUDC via ${method}?`, async () => {
+                try {
+                    const res = await connection.invoke("SubmitManualWithdrawal", authToken, amount, method, destination);
+                    if (res === "Success") {
+                        showToast("Withdrawal request submitted!");
+                        mwForm.reset();
+                        loadPlayerData();
+                    } else {
+                        showToast(res, 'error');
+                    }
+                } catch (err) {
+                    showToast(err?.message || "Failed to submit withdrawal request.", 'error');
+                }
             });
         });
     }
