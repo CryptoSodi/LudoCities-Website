@@ -53,14 +53,24 @@
             letter-spacing: 0.5px;
         }
         .image-container {
-            text-align: center;
             margin-top: 30px;
             background: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .image-container img {
+        .image-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+            background: #fafafa;
+        }
+        .image-item:last-child {
+            margin-bottom: 0;
+        }
+        .image-item img {
             max-width: 100%;
             height: auto;
             border-radius: 4px;
@@ -104,10 +114,18 @@
         </li>
     </ul>
     <div class="image-container">
-        <img src="4cc0c7de-f7f4-4ebb-98df-4c42f17083f7.jpg" alt="Therapeutic Illustration">
-        <img src="f/1.jpeg" alt="Therapeutic Illustration 1">
-        <img src="f/2.jpeg" alt="Therapeutic Illustration 2">
-        <img src="f/3.png" alt="Therapeutic Illustration 3">
+        <div class="image-item">
+            <img src="4cc0c7de-f7f4-4ebb-98df-4c42f17083f7.jpg" alt="Therapeutic Illustration">
+        </div>
+        <div class="image-item">
+            <img src="f/1.jpeg" alt="Therapeutic Illustration 1">
+        </div>
+        <div class="image-item">
+            <img src="f/2.jpeg" alt="Therapeutic Illustration 2">
+        </div>
+        <div class="image-item">
+            <img src="f/3.png" alt="Therapeutic Illustration 3">
+        </div>
     </div>
 </body>
 </html>
