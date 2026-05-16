@@ -1,23 +1,3 @@
-// Initialize SignalR
-const hubUrl = "https://signal.ludocities.com/DashboardHub";
-
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl(hubUrl)
-    .withAutomaticReconnect()
-    .build();
-
-async function startConnection() {
-    try {
-        await connection.start();
-        console.log("SignalR Connected.");
-    } catch (err) {
-        console.log(err);
-        setTimeout(startConnection, 5000);
-    }
-}
-
-startConnection();
-
 // ✅ Google Login Callback
 window.handleCredentialResponse = async function(response) {
     const errorEl = document.getElementById('error-message');

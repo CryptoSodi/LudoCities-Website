@@ -3,13 +3,12 @@
 <head>
     <title>Authenticating...</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
     <div class="text-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
         <h2 class="text-xl font-bold uppercase tracking-widest">Completing Login...</h2>
-        <p class="text-gray-400 text-sm">Synchronizing with Ludo Cities Server</p>
+        <p class="text-gray-400 text-sm">Synchronizing with Ludo Cities API</p>
     </div>
 
     <script>
@@ -22,17 +21,7 @@
                 return;
             }
 
-            // --- DYNAMIC CONNECTION LOGIC ---
-            
-            const hubUrl = "https://signal.ludocities.com/DashboardHub";
-
-            const connection = new signalR.HubConnectionBuilder()
-                .withUrl(hubUrl)
-                .withAutomaticReconnect()
-                .build();
-
             try {
-                await connection.start();
                 const authResponse = await fetch("https://api.ludocities.com/api/auth/google", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
