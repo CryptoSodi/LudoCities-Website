@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     feather.replace();
-    const hubUrl = "https://signal.ludocities.com/DashboardHub";
+    const hubUrl = "https://api.ludocities.com/DashboardHub";
 
     const connection = new signalR.HubConnectionBuilder()
         .withUrl(hubUrl)

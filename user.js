@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- DYNAMIC CONNECTION LOGIC ---    
-    const hubUrl = "https://signal.ludocities.com/DashboardHub";
+    const hubUrl = "https://api.ludocities.com/DashboardHub";
 
     const connection = new signalR.HubConnectionBuilder()
         .withUrl(hubUrl)
