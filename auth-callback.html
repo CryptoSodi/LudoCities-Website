@@ -33,7 +33,17 @@
 
             try {
                 await connection.start();
-                const result = await connection.invoke("GoogleAuthentication", credential, "Web", "Web");
+                const authResponse = await fetch("https://api.ludocities.com/api/auth/google", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ idToken: credential })
+                });
+
+                if (!authResponse.ok) {
+                    throw new Error("Authentication failed.");
+                }
+
+                const result = await authResponse.json();
                 
                 if (result && result.authToken) {
                     // Sync with standard storage keys

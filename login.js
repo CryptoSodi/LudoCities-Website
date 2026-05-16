@@ -27,10 +27,20 @@ window.handleCredentialResponse = async function(response) {
     loadingEl.classList.remove('hidden');
 
     try {
-        console.log("Google response received, authenticating with LudoHub...");
-        
-        // 1. Send id_token to LudoServer via SignalR
-        const result = await connection.invoke("GoogleAuthentication", response.credential, "Web", "Web");
+        console.log("Google response received, authenticating via Auth API...");
+
+        // 1. Send id_token to Ludo.Api HTTP endpoint
+        const authResponse = await fetch("https://api.ludocities.com/api/auth/google", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken: response.credential })
+        });
+
+        if (!authResponse.ok) {
+            throw new Error("Authentication failed.");
+        }
+
+        const result = await authResponse.json();
         
         if (result && result.authToken) {
             console.log("Authentication successful! Role:", result.role);
