@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hubUrl = "https://api.ludocities.com/DashboardHub";
 
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl(hubUrl)
+        .withUrl(hubUrl, { accessTokenFactory: () => localStorage.getItem("LudoAuthToken") || "", headers: { "X-Auth-Token": localStorage.getItem("LudoAuthToken") || "" } })
         .withAutomaticReconnect()
         .build();
 
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const result = await connection.invoke("GetSwapBalances", authToken, phantomWallet);
+        const result = await connection.invoke("GetSwapBalances", phantomWallet);
         if (!result?.success) {
             throw new Error(result?.error || "Could not load swap balances.");
         }
@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
             candidate = candidate / 2;
             if (candidate <= 0) break;
 
-            const prep = await connection.invoke("PrepareAssetSwap", authToken, phantomWallet, inputAsset, outputAsset, candidate, 100);
+            const prep = await connection.invoke("PrepareAssetSwap", phantomWallet, inputAsset, outputAsset, candidate, 100);
             if (prep?.success) {
                 return candidate;
             }
@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await connection.start();
             console.log("SignalR Connected.");
-            const isValid = await connection.invoke("ValidateSession", authToken, "Player");
+            const isValid = await connection.invoke("ValidateSession", "Player");
             if (!isValid) { logout(); return; }
             await loadRpcConfig();
             updateStatus(true);
@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadRpcConfig() {
         try {
-            const rpc = await connection.invoke("GetClientRpcConfig", authToken, "Player");
+            const rpc = await connection.invoke("GetClientRpcConfig", "Player");
             const display = document.getElementById('display-rpc-url');
             if (display) {
                 display.innerText = rpc?.hasRpc
@@ -419,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         setSwapStatus(previewOnly ? 'Preparing preview...' : 'Preparing swap...');
-        const prep = await connection.invoke("PrepareAssetSwap", authToken, phantomWallet, inputAsset, outputAsset, amount, 100);
+        const prep = await connection.invoke("PrepareAssetSwap", phantomWallet, inputAsset, outputAsset, amount, 100);
         if (!prep?.success) {
             throw new Error(prep?.error || "Server could not prepare the swap.");
         }
@@ -493,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const signedBase64 = toBase64(signedTx.serialize());
 
                     setSwapStatus('Submitting signed swap...');
-                    const result = await connection.invoke("ExecutePreparedSwap", authToken, prep.requestId, signedBase64);
+                    const result = await connection.invoke("ExecutePreparedSwap", prep.requestId, signedBase64);
                     if (!result?.success) {
                         throw new Error(result?.error || "Swap execution failed.");
                     }
@@ -584,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showConfirm(`Deposit ${amount} LUDC to your game wallet?`, async () => {
             try {
                 showToast("Preparing Transaction...", 'success');
-                const prep = await connection.invoke("PrepareLudcDeposit", authToken, phantomWallet, amount);
+                const prep = await connection.invoke("PrepareLudcDeposit", phantomWallet, amount);
                 if (!prep) throw new Error("Server could not prepare the deposit transaction.");
                 if (!prep.senderAtaExists) throw new Error("Your Phantom wallet does not have an LUDC token account.");
 
@@ -619,7 +619,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const provider = window.phantom?.solana || window.solana;
                 const result = await provider.signAndSendTransaction(transaction);
                 const signature = result?.signature || result;
-                const confirmed = await connection.invoke("ConfirmSolanaTransaction", authToken, "Player", signature);
+                const confirmed = await connection.invoke("ConfirmSolanaTransaction", "Player", signature);
                 showToast(
                     confirmed
                         ? "Deposit Signature: " + signature.substring(0,8) + "..."
@@ -641,7 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showConfirm(`Withdraw ${amount} LUDC?`, async () => {
             try {
-                const res = await connection.invoke("InitiateWithdrawal", authToken, dest, amount);
+                const res = await connection.invoke("InitiateWithdrawal", dest, amount);
                 if (res.startsWith("Success")) {
                     showToast("Processed!");
                     loadPlayerData();
@@ -881,7 +881,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             showConfirm(`Request ${amount} LUDC via ${method}?`, async () => {
                 try {
-                    const res = await connection.invoke("SubmitManualWithdrawal", authToken, amount, method, destination);
+                    const res = await connection.invoke("SubmitManualWithdrawal", amount, method, destination);
                     if (res === "Success") {
                         showToast("Withdrawal request submitted!");
                         mwForm.reset();
@@ -918,3 +918,4 @@ document.addEventListener('DOMContentLoaded', () => {
     window.closeAuditModal = (e) => { if (e && e.target !== e.currentTarget) return; document.getElementById('audit-modal').classList.add('hidden'); };
     window.logout = () => { localStorage.clear(); window.location.href = 'index.html'; };
 });
+

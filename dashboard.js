@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hubUrl = "https://api.ludocities.com/DashboardHub";
 
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl(hubUrl)
+        .withUrl(hubUrl, { accessTokenFactory: () => localStorage.getItem("LudoAuthToken") || "", headers: { "X-Auth-Token": localStorage.getItem("LudoAuthToken") || "" } })
         .withAutomaticReconnect()
         .build();
 
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function start() {
         try {
             await connection.start();
-            const isValid = await connection.invoke("ValidateSession", authToken, "Admin");
+            const isValid = await connection.invoke("ValidateSession", "Admin");
             if (!isValid) { logout(); return; }
             await loadRpcConfig();
             updateStatus(true);
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!rpcStatusBadge) return;
 
         try {
-            const rpc = await connection.invoke("GetClientRpcConfig", authToken, "Admin");
+            const rpc = await connection.invoke("GetClientRpcConfig", "Admin");
             if (rpc?.hasRpc) {
                 rpcStatusBadge.className = 'max-w-[420px] truncate px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[10px] font-black uppercase text-cyan-300 tracking-tighter';
                 rpcStatusBadge.innerText = rpc.displayLabel || rpc.provider || 'Configured RPC';
@@ -686,9 +686,10 @@ window.setAdjustmentMax = function() {
         } catch (err) { }
     };
 
-    window.approveDeposit = async function(id) { showConfirm("Approve deposit?", async () => { const res = await connection.invoke("ProcessDeposit", authToken, id, "Approved", "Verified"); if (res === "Success") { showToast("Approved!"); loadAllData(); } else showToast(res, 'error'); }); };
-    window.rejectDeposit = async function(id) { const note = prompt("Reason:"); if (note) { const res = await connection.invoke("ProcessDeposit", authToken, id, "Rejected", note); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
-    window.approveWithdrawal = async function(id) { showConfirm("Approve withdrawal?", async () => { const res = await connection.invoke("ProcessWithdrawal", authToken, id, "Approved", "Verified"); if (res === "Success") { showToast("Approved!"); loadAllData(); } else showToast(res, 'error'); }); };
-    window.rejectWithdrawal = async function(id) { const note = prompt("Reason:"); if (note) { const res = await connection.invoke("ProcessWithdrawal", authToken, id, "Rejected", note); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
+    window.approveDeposit = async function(id) { showConfirm("Approve deposit?", async () => { const res = await connection.invoke("ProcessDeposit", id, "Approved", "Verified"); if (res === "Success") { showToast("Approved!"); loadAllData(); } else showToast(res, 'error'); }); };
+    window.rejectDeposit = async function(id) { const note = prompt("Reason:"); if (note) { const res = await connection.invoke("ProcessDeposit", id, "Rejected", note); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
+    window.approveWithdrawal = async function(id) { showConfirm("Approve withdrawal?", async () => { const res = await connection.invoke("ProcessWithdrawal", id, "Approved", "Verified"); if (res === "Success") { showToast("Approved!"); loadAllData(); } else showToast(res, 'error'); }); };
+    window.rejectWithdrawal = async function(id) { const note = prompt("Reason:"); if (note) { const res = await connection.invoke("ProcessWithdrawal", id, "Rejected", note); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
     window.logout = () => { localStorage.clear(); window.location.href = 'index.html'; };
 });
+
