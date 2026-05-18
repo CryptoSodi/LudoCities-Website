@@ -12,7 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailsSection = document.getElementById('player-details-section');
     const searchInput = document.getElementById('player-search-input');
     const authToken = localStorage.getItem('LudoAuthToken');
+    const apiBase = "https://api.ludocities.com";
     let currentTab = 'overview';
+    let livePollTimer = null;
+
+    async function apiGet(path) {
+        const response = await fetch(`${apiBase}${path}`, {
+            method: 'GET',
+            headers: { 'X-Auth-Token': authToken }
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+    }
 
     // --- PRETTY UI HELPERS ---
 
@@ -69,10 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    connection.on("RefreshMatchCenter", () => {
-        if (currentTab === 'matches') loadMatchCenter();
-        if (currentTab === 'overview') loadStats();
-    });
+    function startLivePolling() {
+        if (livePollTimer) clearInterval(livePollTimer);
+        livePollTimer = setInterval(() => {
+            if (currentTab === 'matches') loadMatchCenter();
+            if (currentTab === 'overview') loadStats();
+        }, 5000);
+    }
 
     function updateStatus(isConnected) {
         if (isConnected) {
@@ -92,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await loadRpcConfig();
             updateStatus(true);
             loadAllData();
+            startLivePolling();
         } catch (err) {
             updateStatus(false);
             setTimeout(start, 5000);
@@ -135,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadLiveMatches() {
         try {
-            const rooms = await connection.invoke("GetActiveMatches");
+            const rooms = await apiGet("/api/dashboard/live/active-matches");
             const tbody = document.getElementById('live-matches-table');
             tbody.innerHTML = '';
             if (!rooms || rooms.length === 0) {
@@ -207,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadPastMatches() {
         try {
-            allPastMatches = await connection.invoke("GetPastMatches", 50);
+            allPastMatches = await apiGet("/api/dashboard/live/past-matches?count=50");
             applyMatchFilters();
         } catch (err) { }
     }
@@ -522,7 +537,7 @@ window.setAdjustmentMax = function() {
     window.loadFinanceData = function() { loadPendingDeposits(); loadPendingWithdrawals(); };
     window.loadStats = async function() {
         try {
-            const s = await connection.invoke("GetDashboardStats");
+            const s = await apiGet("/api/dashboard/live/stats");
             if (s) {
                 document.getElementById('stat-players').innerText = s.totalPlayers;
                 document.getElementById('stat-active-games').innerText = s.activeGames;
