@@ -702,6 +702,6 @@ window.setAdjustmentMax = function() {
     window.rejectDeposit = async function(id) { const note = prompt("Reason:"); if (note) { const res = await apiPost(`/api/admin-portal/finance/deposits/${id}/process`, { action: "Rejected", note }); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
     window.approveWithdrawal = async function(id) { showConfirm("Approve withdrawal?", async () => { const res = await apiPost(`/api/admin-portal/finance/withdrawals/${id}/process`, { action: "Approved", note: "Verified" }); if (res === "Success") { showToast("Approved!"); loadAllData(); } else showToast(res, 'error'); }); };
     window.rejectWithdrawal = async function(id) { const note = prompt("Reason:"); if (note) { const res = await apiPost(`/api/admin-portal/finance/withdrawals/${id}/process`, { action: "Rejected", note }); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
-    window.logout = () => { localStorage.clear(); window.location.href = 'index.html'; };
+    window.logout = () => { localStorage.clear(); window.location.href = '/'; };
 });
 

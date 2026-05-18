@@ -923,7 +923,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.closeAuditModal = (e) => { if (e && e.target !== e.currentTarget) return; document.getElementById('audit-modal').classList.add('hidden'); };
-    window.logout = () => { localStorage.clear(); window.location.href = 'index.html'; };
+    window.logout = () => { localStorage.clear(); window.location.href = '/'; };
 });
 
 
