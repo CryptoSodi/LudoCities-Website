@@ -1,11 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     feather.replace();
-    const hubUrl = "https://api.ludocities.com/DashboardHub";
-
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl(hubUrl, { accessTokenFactory: () => localStorage.getItem("LudoAuthToken") || "", headers: { "X-Auth-Token": localStorage.getItem("LudoAuthToken") || "" } })
-        .withAutomaticReconnect()
-        .build();
 
     const statusBadge = document.getElementById('connection-status');
     const rpcStatusBadge = document.getElementById('rpc-status');
@@ -20,6 +14,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch(`${apiBase}${path}`, {
             method: 'GET',
             headers: { 'X-Auth-Token': authToken }
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+    }
+
+    async function apiPost(path, body) {
+        const response = await fetch(`${apiBase}${path}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': authToken },
+            body: JSON.stringify(body || {})
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.json();
@@ -100,8 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function start() {
         try {
-            await connection.start();
-            const isValid = await connection.invoke("ValidateSession", "Admin");
+            const session = await apiGet("/api/auth/session");
+            const isValid = session?.role === "Admin" || session?.role === "Manager";
             if (!isValid) { logout(); return; }
             await loadRpcConfig();
             updateStatus(true);
@@ -117,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!rpcStatusBadge) return;
 
         try {
-            const rpc = await connection.invoke("GetClientRpcConfig", "Admin");
+            const rpc = await apiGet("/api/admin-portal/rpc-config");
             if (rpc?.hasRpc) {
                 rpcStatusBadge.className = 'max-w-[420px] truncate px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[10px] font-black uppercase text-cyan-300 tracking-tighter';
                 rpcStatusBadge.innerText = rpc.displayLabel || rpc.provider || 'Configured RPC';
@@ -132,13 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     start();
-
-    connection.on("AccountStatusUpdate", (status) => {
-        if (status === "ACCOUNT_BLOCKED") {
-            showToast("Your session has been terminated by an administrator.", 'error');
-            setTimeout(logout, 3000);
-        }
-    });
 
     // --- MATCH CENTER ---
     let allPastMatches = [];
@@ -304,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.loadPlayerList = async function() {
         try {
-            allPlayers = await connection.invoke("GetAllPlayers");
+            allPlayers = await apiGet("/api/admin-portal/players");
             applyPlayerFilters();
         } catch (err) { }
     };
@@ -335,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.loadPlayerAudit = async function(id) {
         try {
-            const p = await connection.invoke("GetPlayerDashboard", id);
+            const p = await apiGet(`/api/admin-portal/players/${id}/dashboard`);
             if (p) {
                 currentPlayerAuditData = p;
                 showPlayerDetails(p);
@@ -499,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.loadMatchDetailByRoom = async function(roomCode) {
         try {
-            const g = await connection.invoke("GetGameAuditByRoom", roomCode);
+            const g = await apiGet(`/api/admin-portal/game-audit-room/${encodeURIComponent(roomCode)}`);
             if (g) loadPastMatchAudit(g);
             else showToast("Match details not found.", 'error');
         } catch (err) { console.error(err); }
@@ -507,22 +504,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.loadPastMatchAuditById = async function(id) {
         try {
-            const g = await connection.invoke("GetGameAudit", id);
+            const g = await apiGet(`/api/admin-portal/game-audit/${id}`);
             if (g) loadPastMatchAudit(g);
             else showToast("Details not found.", 'error');
         } catch (err) { console.error(err); }
     };
 
     window.closeAuditModal = function(e) { if (e && e.target !== e.currentTarget) return; document.getElementById('audit-modal').classList.add('hidden'); };
-    window.blockPlayer = async function(adminId, id, status) { showConfirm(`Confirm ${status?'BLOCK':'UNBLOCK'}?`, async () => { const result = await connection.invoke("BlockPlayer", adminId, id, status); if (result === "Success") { showToast("Updated."); loadPlayerAudit(id); } else showToast(result, 'error'); }); };
-    window.promotePlayer = async function(adminId, id, newRole) { showConfirm(`Set to ${newRole.toUpperCase()}?`, async () => { const result = await connection.invoke("UpdatePlayerRole", adminId, id, newRole); if (result === "Success") { showToast("Role updated."); loadPlayerAudit(id); } else showToast(result, 'error'); }); };
+    window.blockPlayer = async function(adminId, id, status) { showConfirm(`Confirm ${status?'BLOCK':'UNBLOCK'}?`, async () => { const result = await apiPost(`/api/admin-portal/players/${id}/block`, { isBlocked: status }); if (result === "Success") { showToast("Updated."); loadPlayerAudit(id); } else showToast(result, 'error'); }); };
+    window.promotePlayer = async function(adminId, id, newRole) { showConfirm(`Set to ${newRole.toUpperCase()}?`, async () => { const result = await apiPost(`/api/admin-portal/players/${id}/role`, { newRole }); if (result === "Success") { showToast("Role updated."); loadPlayerAudit(id); } else showToast(result, 'error'); }); };
     window.toggleAdjustmentForm = () => document.getElementById('adjustment-form').classList.toggle('hidden');
 window.submitAdjustment = async function(playerId) {
   const adminId = parseInt(localStorage.getItem('PlayerId'));
   const amount = parseFloat(document.getElementById('adj-amount').value);
   const reason = document.getElementById('adj-reason').value.trim();
   if (!amount || isNaN(amount)) return;
-  const result = await connection.invoke("AdjustPlayerBalance", adminId, playerId, amount, reason || "Manual Adjustment");
+  const result = await apiPost(`/api/admin-portal/players/${playerId}/adjust-balance`, { amount, reason: reason || "Manual Adjustment" });
   if (result === "Success") { showToast("Balance updated."); loadPlayerAudit(playerId); } else showToast(result, 'error');
 };
 
@@ -549,7 +546,7 @@ window.setAdjustmentMax = function() {
 
     window.loadTopPlayers = async function() {
         try {
-            const p = await connection.invoke("GetTopPlayers");
+            const p = await apiGet("/api/admin-portal/players/top");
             const tbody = document.getElementById('top-players-table');
             tbody.innerHTML = '';
             p.forEach((x, i) => {
@@ -565,7 +562,7 @@ window.setAdjustmentMax = function() {
     let allTournaments = [];
     window.loadTournaments = async function() {
         try {
-            allTournaments = await connection.invoke("GetAllTournamentsAdmin");
+            allTournaments = await apiGet("/api/admin-portal/tournaments");
             applyTournamentFilters();
             const container = document.getElementById('tournaments-container');
             container.innerHTML = '';
@@ -603,7 +600,7 @@ window.setAdjustmentMax = function() {
 
     window.loadTournamentAudit = async function(id) {
         try {
-            const data = await connection.invoke("GetTournamentAudit", id);
+            const data = await apiGet(`/api/admin-portal/tournaments/${id}/audit`);
             if (data) {
                 const modal = document.getElementById('audit-modal');
                 const body = document.getElementById('audit-modal-body');
@@ -663,17 +660,17 @@ window.setAdjustmentMax = function() {
             const end = document.getElementById('t-end').value;
             const isRepeatable = document.getElementById('t-repeat').checked;
             showConfirm(`Launch ${name}?`, async () => {
-                const res = await connection.invoke("CreateTournament", name, city, fee, p1, p2, p3, new Date(start), new Date(end), isRepeatable);
+                const res = await apiPost("/api/admin-portal/tournaments", { name, city, entryFee: fee, p1, p2, p3, start: new Date(start), end: new Date(end), isRepeatable });
                 if (res === "Success") { showToast("Launched!"); tForm.reset(); loadTournaments(); } else showToast(res, 'error');
             });
         });
     }
 
-    window.closeTournament = async function(id) { showConfirm("End tournament?", async () => { const res = await connection.invoke("CloseTournamentManually", id); if (res === "Success") { showToast("Closed."); loadTournaments(); } else showToast(res, 'error'); }); };
+    window.closeTournament = async function(id) { showConfirm("End tournament?", async () => { const res = await apiPost(`/api/admin-portal/tournaments/${id}/close`, {}); if (res === "Success") { showToast("Closed."); loadTournaments(); } else showToast(res, 'error'); }); };
 
     window.loadPendingDeposits = async function() {
         try {
-            const d = await connection.invoke("GetPendingDeposits");
+            const d = await apiGet("/api/admin-portal/finance/pending-deposits");
             const tbody = document.getElementById('pending-deposits-table');
             tbody.innerHTML = '';
             if (!d || d.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="py-10 text-center text-gray-600 italic">No pending requests</td></tr>'; return; }
@@ -688,7 +685,7 @@ window.setAdjustmentMax = function() {
 
     window.loadPendingWithdrawals = async function() {
         try {
-            const rows = await connection.invoke("GetPendingWithdrawals");
+            const rows = await apiGet("/api/admin-portal/finance/pending-withdrawals");
             const tbody = document.getElementById('pending-withdrawals-table');
             tbody.innerHTML = '';
             if (!rows || rows.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-gray-600 italic">No pending requests</td></tr>'; return; }
@@ -701,10 +698,10 @@ window.setAdjustmentMax = function() {
         } catch (err) { }
     };
 
-    window.approveDeposit = async function(id) { showConfirm("Approve deposit?", async () => { const res = await connection.invoke("ProcessDeposit", id, "Approved", "Verified"); if (res === "Success") { showToast("Approved!"); loadAllData(); } else showToast(res, 'error'); }); };
-    window.rejectDeposit = async function(id) { const note = prompt("Reason:"); if (note) { const res = await connection.invoke("ProcessDeposit", id, "Rejected", note); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
-    window.approveWithdrawal = async function(id) { showConfirm("Approve withdrawal?", async () => { const res = await connection.invoke("ProcessWithdrawal", id, "Approved", "Verified"); if (res === "Success") { showToast("Approved!"); loadAllData(); } else showToast(res, 'error'); }); };
-    window.rejectWithdrawal = async function(id) { const note = prompt("Reason:"); if (note) { const res = await connection.invoke("ProcessWithdrawal", id, "Rejected", note); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
+    window.approveDeposit = async function(id) { showConfirm("Approve deposit?", async () => { const res = await apiPost(`/api/admin-portal/finance/deposits/${id}/process`, { action: "Approved", note: "Verified" }); if (res === "Success") { showToast("Approved!"); loadAllData(); } else showToast(res, 'error'); }); };
+    window.rejectDeposit = async function(id) { const note = prompt("Reason:"); if (note) { const res = await apiPost(`/api/admin-portal/finance/deposits/${id}/process`, { action: "Rejected", note }); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
+    window.approveWithdrawal = async function(id) { showConfirm("Approve withdrawal?", async () => { const res = await apiPost(`/api/admin-portal/finance/withdrawals/${id}/process`, { action: "Approved", note: "Verified" }); if (res === "Success") { showToast("Approved!"); loadAllData(); } else showToast(res, 'error'); }); };
+    window.rejectWithdrawal = async function(id) { const note = prompt("Reason:"); if (note) { const res = await apiPost(`/api/admin-portal/finance/withdrawals/${id}/process`, { action: "Rejected", note }); if (res === "Success") { showToast("Rejected."); loadAllData(); } else showToast(res, 'error'); } };
     window.logout = () => { localStorage.clear(); window.location.href = 'index.html'; };
 });
 

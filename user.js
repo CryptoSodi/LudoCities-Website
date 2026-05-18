@@ -8,14 +8,23 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'index.html';
         return;
     }
+    const apiBase = "https://api.ludocities.com";
 
-    // --- DYNAMIC CONNECTION LOGIC ---    
-    const hubUrl = "https://api.ludocities.com/DashboardHub";
+    async function apiGet(path) {
+        const res = await fetch(`${apiBase}${path}`, { headers: { "X-Auth-Token": authToken } });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+    }
 
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl(hubUrl, { accessTokenFactory: () => localStorage.getItem("LudoAuthToken") || "", headers: { "X-Auth-Token": localStorage.getItem("LudoAuthToken") || "" } })
-        .withAutomaticReconnect()
-        .build();
+    async function apiPost(path, body) {
+        const res = await fetch(`${apiBase}${path}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Auth-Token": authToken },
+            body: JSON.stringify(body || {})
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+    }
 
     const statusBadge = document.getElementById('connection-status');
     let currentTab = 'stats';
@@ -235,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const result = await connection.invoke("GetSwapBalances", phantomWallet);
+        const result = await apiGet(`/api/payments/swap-balances?walletAddress=${encodeURIComponent(phantomWallet)}`);
         if (!result?.success) {
             throw new Error(result?.error || "Could not load swap balances.");
         }
@@ -267,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
             candidate = candidate / 2;
             if (candidate <= 0) break;
 
-            const prep = await connection.invoke("PrepareAssetSwap", phantomWallet, inputAsset, outputAsset, candidate, 100);
+            const prep = await apiPost("/api/payments/swap/prepare", { walletAddress: phantomWallet, inputAsset, outputAsset, amount: candidate, slippageBps: 100 });
             if (prep?.success) {
                 return candidate;
             }
@@ -322,13 +331,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function start() {
         try {
-            await connection.start();
-            console.log("SignalR Connected.");
-            const isValid = await connection.invoke("ValidateSession", "Player");
+            const isValid = await (await apiGet("/api/auth/session")).role === "Player";
             if (!isValid) { logout(); return; }
             await loadRpcConfig();
             updateStatus(true);
-            loadPlayerData();
+            await loadPlayerData();
         } catch (err) {
             updateStatus(false);
             setTimeout(start, 5000);
@@ -351,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadRpcConfig() {
         try {
-            const rpc = await connection.invoke("GetClientRpcConfig", "Player");
+            const rpc = await apiGet("/api/user-portal/rpc-config");
             const display = document.getElementById('display-rpc-url');
             if (display) {
                 display.innerText = rpc?.hasRpc
@@ -419,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         setSwapStatus(previewOnly ? 'Preparing preview...' : 'Preparing swap...');
-        const prep = await connection.invoke("PrepareAssetSwap", phantomWallet, inputAsset, outputAsset, amount, 100);
+        const prep = await apiPost("/api/payments/swap/prepare", { walletAddress: phantomWallet, inputAsset, outputAsset, amount, slippageBps: 100 });
         if (!prep?.success) {
             throw new Error(prep?.error || "Server could not prepare the swap.");
         }
@@ -493,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const signedBase64 = toBase64(signedTx.serialize());
 
                     setSwapStatus('Submitting signed swap...');
-                    const result = await connection.invoke("ExecutePreparedSwap", prep.requestId, signedBase64);
+                    const result = await apiPost("/api/payments/swap/execute", { requestId: prep.requestId, signedTxBase64: signedBase64 });
                     if (!result?.success) {
                         throw new Error(result?.error || "Swap execution failed.");
                     }
@@ -584,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showConfirm(`Deposit ${amount} LUDC to your game wallet?`, async () => {
             try {
                 showToast("Preparing Transaction...", 'success');
-                const prep = await connection.invoke("PrepareLudcDeposit", phantomWallet, amount);
+                const prep = await apiPost("/api/payments/ludc-deposit/prepare", { walletAddress: phantomWallet, amount });
                 if (!prep) throw new Error("Server could not prepare the deposit transaction.");
                 if (!prep.senderAtaExists) throw new Error("Your Phantom wallet does not have an LUDC token account.");
 
@@ -619,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const provider = window.phantom?.solana || window.solana;
                 const result = await provider.signAndSendTransaction(transaction);
                 const signature = result?.signature || result;
-                const confirmed = await connection.invoke("ConfirmSolanaTransaction", "Player", signature);
+                const confirmed = await apiPost("/api/payments/transactions/confirm", { signature });
                 showToast(
                     confirmed
                         ? "Deposit Signature: " + signature.substring(0,8) + "..."
@@ -641,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showConfirm(`Withdraw ${amount} LUDC?`, async () => {
             try {
-                const res = await connection.invoke("InitiateWithdrawal", dest, amount);
+                const res = await apiPost("/api/payments/withdrawals/initiate", { destination: dest, amount });
                 if (res.startsWith("Success")) {
                     showToast("Processed!");
                     loadPlayerData();
@@ -655,7 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DATA HYDRATION ---
     async function loadPlayerData() {
         try {
-            const data = await connection.invoke("GetPlayerDashboard", parseInt(playerId));
+            const data = await apiGet("/api/user-portal/dashboard");
             if (!data) return;
 
             internalWalletAddress = data.walletAddress;
@@ -797,7 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Call the new Hub method for DEEP historical auditing
-            const filtered = await connection.invoke("GetTransactionsFiltered", parseInt(playerId), type, start);
+            const filtered = await apiGet(`/api/user-portal/transactions?type=${encodeURIComponent(type)}${start ? `&start=${encodeURIComponent(start)}` : ""}`);
             tTable.innerHTML = '';
             
             if (!filtered || filtered.length === 0) {
@@ -847,7 +854,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             showConfirm(`Deposit ${amount} LUDC with ref ${reference}?`, async () => {
                 try {
-                    const res = await connection.invoke("SubmitManualDeposit", parseInt(playerId), amount, method, reference, receipt);
+                    const res = await apiPost("/api/payments/manual-deposits", { playerId: parseInt(playerId), amount, method, referenceNumber: reference, receiptUrl: receipt });
                     if (res === "Success") { showToast("Submitted!"); dForm.reset(); loadPlayerData(); } else showToast(res, 'error');
                 } catch (err) {
                     showToast(err?.message || "Failed to submit receipt.", 'error');
@@ -881,7 +888,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             showConfirm(`Request ${amount} LUDC via ${method}?`, async () => {
                 try {
-                    const res = await connection.invoke("SubmitManualWithdrawal", amount, method, destination);
+                    const res = await apiPost("/api/payments/manual-withdrawals", { amount, method, destinationDetails: destination });
                     if (res === "Success") {
                         showToast("Withdrawal request submitted!");
                         mwForm.reset();
@@ -897,12 +904,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.loadMatchDetail = async function(id) {
-        const g = await connection.invoke("GetGameAudit", id);
+        const g = await apiGet(`/api/user-portal/game-audit/${id}`);
         if (g) showBoxScore(g);
     };
 
     window.loadMatchDetailByRoom = async function(room) {
-        const g = await connection.invoke("GetGameAuditByRoom", room);
+        const g = await apiGet(`/api/user-portal/game-audit-room/${encodeURIComponent(room)}`);
         if (g) showBoxScore(g);
     };
 
@@ -918,4 +925,5 @@ document.addEventListener('DOMContentLoaded', () => {
     window.closeAuditModal = (e) => { if (e && e.target !== e.currentTarget) return; document.getElementById('audit-modal').classList.add('hidden'); };
     window.logout = () => { localStorage.clear(); window.location.href = 'index.html'; };
 });
+
 
