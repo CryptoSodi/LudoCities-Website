@@ -706,6 +706,14 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 .game-text--wide .features-grid {
   margin-top: 28px;
 }
+.game-text--wide .feat-card {
+  text-align: left;
+}
+.game-text--wide .feat-card h3,
+.game-text--wide .feat-card p,
+.game-text--wide .feat-card .feat-link {
+  text-align: left;
+}
 .game-text--wide .feat-link a {
   color: inherit;
   text-decoration: none;
