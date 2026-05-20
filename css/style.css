@@ -976,7 +976,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 .rm-conduit {
   position: absolute;
   left: 50%;
-  top: 0; bottom: 0;
+  top: clamp(180px, 22vw, 240px); bottom: 0;
   transform: translateX(-50%);
   width: 2px;
   background: rgba(255,255,255,0.07);
