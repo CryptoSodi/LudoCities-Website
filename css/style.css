@@ -975,9 +975,9 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   padding: 24px;
 }
 .game-preview .traction-grid {
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-top: 18px;
-  gap: 14px;
+  gap: 16px;
 }
 .game-preview .traction-card {
   position: relative;
@@ -987,6 +987,10 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   backdrop-filter: blur(10px);
   padding: 20px 22px;
   text-align: left;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   transition: transform var(--mid) var(--ease), border-color var(--mid), box-shadow var(--mid);
 }
 .game-preview .traction-card::after {
@@ -1019,6 +1023,10 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   margin-bottom: 6px;
   position: relative;
   z-index: 1;
+}
+.game-preview .traction-card p:last-child {
+  margin-top: auto;
+  margin-bottom: 0;
 }
 .game-preview .traction-card a {
   color: #ffd86b;
@@ -1609,6 +1617,8 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   .features-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .nft-grid { grid-template-columns: repeat(2, 1fr); }
   .traction-grid { grid-template-columns: 1fr; }
+  .game-preview .traction-grid { grid-template-columns: 1fr; }
+  .game-preview .traction-card { aspect-ratio: auto; }
   .seeker-inner { gap: 48px; }
   .footer-main { grid-template-columns: 1fr 1fr; }
   .footer-stat { padding: 8px 24px; }
