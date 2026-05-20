@@ -864,40 +864,91 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 .platforms {
   background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 50%, var(--bg) 100%);
 }
-.platform-grid {
+.platform-showcase {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 64px;
+  align-items: center;
 }
-.platform-card {
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  background: var(--bg-2);
-  padding: 24px;
-  text-align: left;
-  transition: transform var(--mid) var(--ease), border-color var(--mid);
+.platform-copy .section-title,
+.platform-copy .section-desc { text-align: left; }
+.platform-visual {
+  position: relative;
+  min-height: 520px;
+  overflow: hidden;
 }
-.platform-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(153, 69, 255, 0.45);
+.platform-badges {
+  position: absolute;
+  top: 48px;
+  right: 6px;
+  z-index: 25;
 }
-.platform-logo {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  margin-bottom: 12px;
+.platform-badge-stack {
+  display: flex;
+  align-items: center;
 }
-.platform-logo--seeker {
-  object-fit: cover;
+.platform-badge-stack img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.07);
 }
-.platform-card h3 {
-  font-family: var(--font-head);
-  font-size: 1.08rem;
-  margin-bottom: 8px;
+.platform-badge-stack img + img { margin-left: -10px; }
+.platform-badges p {
+  margin-top: 8px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
 }
-.platform-card p {
-  color: var(--text-2);
+.platform-screen {
+  position: absolute;
+  width: 188px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-90%, -112%);
+  z-index: 22;
 }
+.platform-front {
+  position: absolute;
+  width: 515px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-66%, -50%);
+  z-index: 18;
+}
+.platform-back {
+  position: absolute;
+  width: 466px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-34%, -50%);
+  z-index: 12;
+}
+.platform-chip {
+  position: absolute;
+  z-index: 30;
+  border-radius: 12px;
+  border: 1px solid rgba(186, 82, 235, 0.3);
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(8px);
+  padding: 12px 14px;
+  max-width: 220px;
+}
+.platform-chip strong {
+  display: block;
+  color: #fff;
+  font-size: 0.98rem;
+  margin-bottom: 4px;
+}
+.platform-chip span {
+  color: rgba(255,255,255,0.72);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+.chip-left { left: 8px; top: 8px; }
+.chip-right { left: 16px; bottom: 84px; }
+.chip-bottom { right: 8px; bottom: 8px; }
 
 /* ─── SEEKER PHONE ───────────────────────────── */
 .seeker-section {
@@ -1692,7 +1743,14 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   .nav-links, .nav-actions { display: none; }
   .nav-hamburger { display: flex; }
   .nav-mobile.open { display: block; }
-  .platform-grid { grid-template-columns: 1fr; }
+  .platform-showcase { grid-template-columns: 1fr; gap: 36px; }
+  .platform-visual { min-height: 380px; }
+  .platform-screen { width: 122px; transform: translate(-90%, -113%); }
+  .platform-front { width: 352px; transform: translate(-66%, -50%); }
+  .platform-back { width: 315px; transform: translate(-34%, -50%); }
+  .platform-chip { display: none; }
+  .platform-badges { top: 18px; right: 0; }
+  .platform-badges p { font-size: 0.8rem; }
   .features .section-title { white-space: normal; }
   .hero-title { font-size: clamp(3rem, 16vw, 5rem); }
   .features-grid { grid-template-columns: 1fr; }
@@ -1710,6 +1768,15 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   .footer-stat { padding: 8px 20px; }
   .hero-stats { gap: 20px; padding: 16px 20px; }
   .hstat-sep { display: none; }
+}
+
+@media (max-width: 1280px) {
+  .platform-showcase { grid-template-columns: 1fr; gap: 36px; }
+  .platform-visual { min-height: 420px; }
+  .platform-screen { width: 138px; transform: translate(-90%, -113%); }
+  .platform-front { width: 390px; transform: translate(-66%, -50%); }
+  .platform-back { width: 350px; transform: translate(-34%, -50%); }
+  .platform-chip { display: none; }
 }
 
 @media (max-width: 480px) {
