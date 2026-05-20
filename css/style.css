@@ -975,12 +975,16 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   padding: 24px;
 }
 .game-preview .traction-grid {
+  grid-template-columns: 1fr;
   margin-top: 18px;
+  gap: 14px;
 }
 .game-preview .traction-card {
   background: rgba(5, 8, 14, 0.78);
   border: 1px solid rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(6px);
+  padding: 18px 20px;
+  text-align: left;
 }
 .traction-card h3 {
   font-family: var(--font-head);
@@ -996,6 +1000,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 }
 .game-preview .traction-card p {
   color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 6px;
 }
 .game-preview .traction-card a {
   color: #ffd86b;
