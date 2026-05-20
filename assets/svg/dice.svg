@@ -1,0 +1,30 @@
+<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <!-- Top face (white) -->
+  <path d="M10 10 L50 10 L70 30 L30 30 Z" fill="#F0F0F0"/>
+  <!-- Front face (light grey) -->
+  <path d="M10 10 L10 50 L30 70 L30 30 Z" fill="#D0D0D0"/>
+  <!-- Right face (medium grey) -->
+  <path d="M50 10 L50 50 L30 70 L30 30 Z" fill="#B0B0B0"/>
+  <!-- Dark edges -->
+  <path d="M10 10 L50 10 L70 30 L70 70 L30 70 L10 50 Z" stroke="#222" stroke-width="1.5" fill="none"/>
+  <line x1="30" y1="30" x2="70" y2="30" stroke="#222" stroke-width="1"/>
+  <line x1="30" y1="30" x2="30" y2="70" stroke="#222" stroke-width="1"/>
+  <line x1="10" y1="10" x2="30" y2="30" stroke="#222" stroke-width="1"/>
+  <line x1="50" y1="10" x2="70" y2="30" stroke="#222" stroke-width="1"/>
+  <line x1="10" y1="50" x2="30" y2="70" stroke="#222" stroke-width="1"/>
+  <!-- Top face dots (showing 5) -->
+  <circle cx="22" cy="17" r="2.5" fill="#222"/>
+  <circle cx="38" cy="17" r="2.5" fill="#222"/>
+  <circle cx="30" cy="20" r="2.5" fill="#222"/>
+  <circle cx="22" cy="24" r="2.5" fill="#222"/>
+  <circle cx="38" cy="24" r="2.5" fill="#222"/>
+  <!-- Front face dots (showing 3) -->
+  <circle cx="16" cy="28" r="2" fill="#444"/>
+  <circle cx="20" cy="40" r="2" fill="#444"/>
+  <circle cx="16" cy="52" r="2" fill="#444"/>
+  <!-- Right face dots (showing 4) -->
+  <circle cx="43" cy="37" r="2" fill="#555"/>
+  <circle cx="55" cy="37" r="2" fill="#555"/>
+  <circle cx="43" cy="50" r="2" fill="#555"/>
+  <circle cx="55" cy="50" r="2" fill="#555"/>
+</svg>
