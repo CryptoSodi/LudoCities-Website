@@ -570,6 +570,12 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 }
 
 /* ─── FEATURES ───────────────────────────────── */
+.features .section-header {
+  max-width: 1100px;
+}
+.features .section-title {
+  white-space: nowrap;
+}
 .features-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1647,6 +1653,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   .nav-links, .nav-actions { display: none; }
   .nav-hamburger { display: flex; }
   .nav-mobile.open { display: block; }
+  .features .section-title { white-space: normal; }
   .hero-title { font-size: clamp(3rem, 16vw, 5rem); }
   .features-grid { grid-template-columns: 1fr; }
   .game-preview-inner { grid-template-columns: 1fr; gap: 48px; }
