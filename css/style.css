@@ -974,6 +974,14 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   background: rgba(255,255,255,0.02);
   padding: 24px;
 }
+.game-preview .traction-grid {
+  margin-top: 18px;
+}
+.game-preview .traction-card {
+  background: rgba(5, 8, 14, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+}
 .traction-card h3 {
   font-family: var(--font-head);
   font-size: 1.05rem;
@@ -982,6 +990,19 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 .traction-card p {
   color: var(--text-2);
   font-size: 0.94rem;
+}
+.game-preview .traction-card h3 {
+  color: #ffffff;
+}
+.game-preview .traction-card p {
+  color: rgba(255, 255, 255, 0.9);
+}
+.game-preview .traction-card a {
+  color: #ffd86b;
+  font-weight: 700;
+}
+.game-preview .traction-card a:hover {
+  color: #fff0b0;
 }
 .traction-medal {
   color: var(--yellow);
