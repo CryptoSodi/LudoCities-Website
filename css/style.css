@@ -980,11 +980,27 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   gap: 14px;
 }
 .game-preview .traction-card {
-  background: rgba(5, 8, 14, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(6px);
-  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  background: rgba(12, 16, 24, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  padding: 20px 22px;
   text-align: left;
+  transition: transform var(--mid) var(--ease), border-color var(--mid), box-shadow var(--mid);
+}
+.game-preview .traction-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -20% -55% -20%;
+  height: 80%;
+  background: radial-gradient(ellipse at center, rgba(255, 214, 0, 0.2) 0%, rgba(255, 214, 0, 0) 70%);
+  pointer-events: none;
+}
+.game-preview .traction-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 214, 0, 0.45);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 214, 0, 0.12) inset;
 }
 .traction-card h3 {
   font-family: var(--font-head);
@@ -1001,6 +1017,8 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 .game-preview .traction-card p {
   color: rgba(255, 255, 255, 0.9);
   margin-bottom: 6px;
+  position: relative;
+  z-index: 1;
 }
 .game-preview .traction-card a {
   color: #ffd86b;
