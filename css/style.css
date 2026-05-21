@@ -872,34 +872,23 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 }
 .platform-copy .section-title,
 .platform-copy .section-desc { text-align: left; }
+.platform-copy { opacity: 0; transform: translateX(50px); }
 .platform-visual {
   position: relative;
   min-height: 520px;
   overflow: hidden;
+  opacity: 0;
+  transform: translateX(-50px);
 }
-.platform-badges {
-  position: absolute;
-  top: 48px;
-  right: 6px;
-  z-index: 25;
+.platform-stack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 320ms ease, filter 320ms ease;
 }
-.platform-badge-stack {
-  display: flex;
-  align-items: center;
-}
-.platform-badge-stack img {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.25);
-  background: rgba(255,255,255,0.07);
-}
-.platform-badge-stack img + img { margin-left: -10px; }
-.platform-badges p {
-  margin-top: 8px;
-  color: #fff;
-  font-size: 0.95rem;
-  font-weight: 700;
+.platform-visual:hover .platform-stack {
+  transform: translateY(-8px) scale(1.015);
+  filter: drop-shadow(0 26px 50px rgba(0,0,0,0.42));
 }
 .platform-screen {
   position: absolute;
@@ -908,6 +897,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   top: 50%;
   transform: translate(-90%, -112%);
   z-index: 22;
+  animation: platform-screen-float 5.2s ease-in-out infinite;
 }
 .platform-front {
   position: absolute;
@@ -916,6 +906,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   top: 50%;
   transform: translate(-66%, -50%);
   z-index: 18;
+  animation: platform-front-float 5.2s ease-in-out infinite;
 }
 .platform-back {
   position: absolute;
@@ -924,31 +915,20 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   top: 50%;
   transform: translate(-34%, -50%);
   z-index: 12;
+  animation: platform-back-float 5.2s ease-in-out infinite;
 }
-.platform-chip {
-  position: absolute;
-  z-index: 30;
-  border-radius: 12px;
-  border: 1px solid rgba(186, 82, 235, 0.3);
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(8px);
-  padding: 12px 14px;
-  max-width: 220px;
+@keyframes platform-front-float {
+  0%, 100% { transform: translate(-66%, -50%); }
+  50% { transform: translate(-66%, -54%); }
 }
-.platform-chip strong {
-  display: block;
-  color: #fff;
-  font-size: 0.98rem;
-  margin-bottom: 4px;
+@keyframes platform-back-float {
+  0%, 100% { transform: translate(-34%, -50%); }
+  50% { transform: translate(-34%, -53%); }
 }
-.platform-chip span {
-  color: rgba(255,255,255,0.72);
-  font-size: 0.82rem;
-  line-height: 1.35;
+@keyframes platform-screen-float {
+  0%, 100% { transform: translate(-90%, -112%); }
+  50% { transform: translate(-90%, -116%); }
 }
-.chip-left { left: 8px; top: 8px; }
-.chip-right { left: 16px; bottom: 84px; }
-.chip-bottom { right: 8px; bottom: 8px; }
 
 /* ─── SEEKER PHONE ───────────────────────────── */
 .seeker-section {
@@ -1748,9 +1728,6 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   .platform-screen { width: 122px; transform: translate(-90%, -113%); }
   .platform-front { width: 352px; transform: translate(-66%, -50%); }
   .platform-back { width: 315px; transform: translate(-34%, -50%); }
-  .platform-chip { display: none; }
-  .platform-badges { top: 18px; right: 0; }
-  .platform-badges p { font-size: 0.8rem; }
   .features .section-title { white-space: normal; }
   .hero-title { font-size: clamp(3rem, 16vw, 5rem); }
   .features-grid { grid-template-columns: 1fr; }
@@ -1776,7 +1753,6 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   .platform-screen { width: 138px; transform: translate(-90%, -113%); }
   .platform-front { width: 390px; transform: translate(-66%, -50%); }
   .platform-back { width: 350px; transform: translate(-34%, -50%); }
-  .platform-chip { display: none; }
 }
 
 @media (max-width: 480px) {
@@ -1785,3 +1761,4 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   .hero-cta .btn { width: 100%; }
   .seeker-phone { width: 210px; height: 430px; }
 }
+

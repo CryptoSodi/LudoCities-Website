@@ -144,6 +144,18 @@ if (ScrollTrigger) {
       scrollTrigger: { trigger: '.seeker-section', start: 'top 75%', once: true }
     }
   );
+  gsap.fromTo('.platform-visual',
+    { opacity: 0, x: -50 },
+    { opacity: 1, x: 0, duration: 0.8, ease: 'power2.out',
+      scrollTrigger: { trigger: '.platforms', start: 'top 75%', once: true }
+    }
+  );
+  gsap.fromTo('.platform-copy',
+    { opacity: 0, x: 50 },
+    { opacity: 1, x: 0, duration: 0.9, ease: 'power2.out', delay: 0.12,
+      scrollTrigger: { trigger: '.platforms', start: 'top 75%', once: true }
+    }
+  );
 
   /* ─── Roadmap comet line (scroll-driven) ────── */
   const rmLine = document.getElementById('rmProgressLine');
@@ -262,3 +274,4 @@ if (cursor && ScrollTrigger) {
     });
   });
 }
+
