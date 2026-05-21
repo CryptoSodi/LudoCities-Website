@@ -1180,7 +1180,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 
 .rm-comet-spark {
   position: absolute;
-  bottom: -7px; left: 50%;
+  bottom: 0; left: 50%;
   transform: translateX(-50%);
   width: 14px; height: 14px;
   border-radius: 50%;
