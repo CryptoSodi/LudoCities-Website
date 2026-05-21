@@ -875,7 +875,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 .platform-copy { opacity: 0; transform: translateX(50px); }
 .platform-visual {
   position: relative;
-  min-height: 520px;
+  min-height: 560px;
   overflow: hidden;
   opacity: 0;
   transform: translateX(-50px);
@@ -895,7 +895,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   width: 188px;
   left: 50%;
   top: 50%;
-  transform: translate(-86%, -102%);
+  transform: translate(-84%, -94%);
   z-index: 22;
   animation: platform-screen-float 5.2s ease-in-out infinite;
 }
@@ -904,7 +904,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   width: 515px;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -46%);
+  transform: translate(-48%, -40%);
   z-index: 18;
   animation: platform-front-float 5.2s ease-in-out infinite;
 }
@@ -913,21 +913,21 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   width: 466px;
   left: 50%;
   top: 50%;
-  transform: translate(-16%, -46%);
+  transform: translate(-14%, -40%);
   z-index: 12;
   animation: platform-back-float 5.2s ease-in-out infinite;
 }
 @keyframes platform-front-float {
-  0%, 100% { transform: translate(-50%, -46%); }
-  50% { transform: translate(-50%, -50%); }
+  0%, 100% { transform: translate(-48%, -40%); }
+  50% { transform: translate(-48%, -44%); }
 }
 @keyframes platform-back-float {
-  0%, 100% { transform: translate(-16%, -46%); }
-  50% { transform: translate(-16%, -49%); }
+  0%, 100% { transform: translate(-14%, -40%); }
+  50% { transform: translate(-14%, -43%); }
 }
 @keyframes platform-screen-float {
-  0%, 100% { transform: translate(-86%, -102%); }
-  50% { transform: translate(-86%, -106%); }
+  0%, 100% { transform: translate(-84%, -94%); }
+  50% { transform: translate(-84%, -98%); }
 }
 
 /* ─── SEEKER PHONE ───────────────────────────── */
@@ -1724,10 +1724,10 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   .nav-hamburger { display: flex; }
   .nav-mobile.open { display: block; }
   .platform-showcase { grid-template-columns: 1fr; gap: 36px; }
-  .platform-visual { min-height: 380px; }
-  .platform-screen { width: 122px; transform: translate(-86%, -103%); }
-  .platform-front { width: 352px; transform: translate(-50%, -47%); }
-  .platform-back { width: 315px; transform: translate(-16%, -47%); }
+  .platform-visual { min-height: 420px; }
+  .platform-screen { width: 122px; transform: translate(-84%, -95%); }
+  .platform-front { width: 352px; transform: translate(-48%, -41%); }
+  .platform-back { width: 315px; transform: translate(-14%, -41%); }
   .features .section-title { white-space: normal; }
   .hero-title { font-size: clamp(3rem, 16vw, 5rem); }
   .features-grid { grid-template-columns: 1fr; }
@@ -1749,10 +1749,10 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 
 @media (max-width: 1280px) {
   .platform-showcase { grid-template-columns: 1fr; gap: 36px; }
-  .platform-visual { min-height: 420px; }
-  .platform-screen { width: 138px; transform: translate(-86%, -103%); }
-  .platform-front { width: 390px; transform: translate(-50%, -47%); }
-  .platform-back { width: 350px; transform: translate(-16%, -47%); }
+  .platform-visual { min-height: 460px; }
+  .platform-screen { width: 138px; transform: translate(-84%, -95%); }
+  .platform-front { width: 390px; transform: translate(-48%, -41%); }
+  .platform-back { width: 350px; transform: translate(-14%, -41%); }
 }
 
 @media (max-width: 480px) {
