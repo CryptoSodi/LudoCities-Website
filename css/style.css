@@ -876,7 +876,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 .platform-visual {
   position: relative;
   min-height: 520px;
-  overflow: hidden;
+  overflow: visible;
   opacity: 0;
   transform: translateX(-50px);
 }
@@ -904,7 +904,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   width: 515px;
   left: 50%;
   top: 50%;
-  transform: translate(-66%, -50%);
+  transform: translate(-54%, -50%);
   z-index: 18;
   animation: platform-front-float 5.2s ease-in-out infinite;
 }
@@ -913,17 +913,17 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   width: 466px;
   left: 50%;
   top: 50%;
-  transform: translate(-34%, -50%);
+  transform: translate(-20%, -50%);
   z-index: 12;
   animation: platform-back-float 5.2s ease-in-out infinite;
 }
 @keyframes platform-front-float {
-  0%, 100% { transform: translate(-66%, -50%); }
-  50% { transform: translate(-66%, -54%); }
+  0%, 100% { transform: translate(-54%, -50%); }
+  50% { transform: translate(-54%, -54%); }
 }
 @keyframes platform-back-float {
-  0%, 100% { transform: translate(-34%, -50%); }
-  50% { transform: translate(-34%, -53%); }
+  0%, 100% { transform: translate(-20%, -50%); }
+  50% { transform: translate(-20%, -53%); }
 }
 @keyframes platform-screen-float {
   0%, 100% { transform: translate(-90%, -112%); }
@@ -1726,8 +1726,8 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   .platform-showcase { grid-template-columns: 1fr; gap: 36px; }
   .platform-visual { min-height: 380px; }
   .platform-screen { width: 122px; transform: translate(-90%, -113%); }
-  .platform-front { width: 352px; transform: translate(-66%, -50%); }
-  .platform-back { width: 315px; transform: translate(-34%, -50%); }
+  .platform-front { width: 352px; transform: translate(-54%, -50%); }
+  .platform-back { width: 315px; transform: translate(-20%, -50%); }
   .features .section-title { white-space: normal; }
   .hero-title { font-size: clamp(3rem, 16vw, 5rem); }
   .features-grid { grid-template-columns: 1fr; }
@@ -1751,8 +1751,8 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   .platform-showcase { grid-template-columns: 1fr; gap: 36px; }
   .platform-visual { min-height: 420px; }
   .platform-screen { width: 138px; transform: translate(-90%, -113%); }
-  .platform-front { width: 390px; transform: translate(-66%, -50%); }
-  .platform-back { width: 350px; transform: translate(-34%, -50%); }
+  .platform-front { width: 390px; transform: translate(-54%, -50%); }
+  .platform-back { width: 350px; transform: translate(-20%, -50%); }
 }
 
 @media (max-width: 480px) {
