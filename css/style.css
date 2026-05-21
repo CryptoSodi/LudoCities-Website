@@ -1249,11 +1249,15 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   border-radius: 50%;
   border: 1px solid rgba(255,255,255,0.15);
   opacity: 0;
+  animation: nodePulse 2.4s ease-in-out infinite;
 }
 .rm-sphere--done {
   background: rgba(0,212,106,0.25);
   border-color: var(--green);
   box-shadow: 0 0 12px rgba(0,212,106,0.6);
+}
+.rm-sphere--done::after {
+  border-color: rgba(0,212,106,0.45);
 }
 .rm-sphere--active {
   background: rgba(255,214,0,0.25);
@@ -1262,15 +1266,20 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 }
 .rm-sphere--active::after {
   border-color: rgba(255,214,0,0.5);
-  animation: nodePulse 2s ease-in-out infinite;
 }
 .rm-sphere--upcoming {
   background: rgba(0,145,255,0.15);
   border-color: rgba(0,145,255,0.5);
 }
+.rm-sphere--upcoming::after {
+  border-color: rgba(0,145,255,0.45);
+}
 .rm-sphere--future {
   background: rgba(153,69,255,0.1);
   border-color: rgba(153,69,255,0.4);
+}
+.rm-sphere--future::after {
+  border-color: rgba(153,69,255,0.45);
 }
 
 @keyframes nodePulse {
