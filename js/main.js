@@ -162,10 +162,10 @@ if (ScrollTrigger) {
   if (rmLine) {
     gsap.set(rmLine, { height: '0%' });
     ScrollTrigger.create({
-      trigger: '.rm-timeline-track',
-      start: 'top center',
-      end: 'bottom center',
-      scrub: 0.35,
+      trigger: '.roadmap-section',
+      start: 'top 80%',
+      end: 'bottom 20%',
+      scrub: 0.4,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
         rmLine.style.height = `${(self.progress * 100).toFixed(2)}%`;
