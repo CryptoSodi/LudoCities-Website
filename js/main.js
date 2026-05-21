@@ -161,14 +161,14 @@ if (ScrollTrigger) {
   const rmLine = document.getElementById('rmProgressLine');
   if (rmLine) {
     gsap.set(rmLine, { height: '0%' });
-    gsap.to(rmLine, {
-      height: '100%',
-      ease: 'none',
-      scrollTrigger: {
-        trigger: '.roadmap-section',
-        start: 'top 75%',
-        end: 'bottom 25%',
-        scrub: 0.5
+    ScrollTrigger.create({
+      trigger: '.rm-timeline-track',
+      start: 'top center',
+      end: 'bottom center',
+      scrub: 0.35,
+      invalidateOnRefresh: true,
+      onUpdate: (self) => {
+        rmLine.style.height = `${(self.progress * 100).toFixed(2)}%`;
       }
     });
   }
