@@ -2,6 +2,22 @@
 <html>
 <head>
     <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+        #remoteVideo {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+        }
         #debugLog {
             position: fixed;
             right: 8px;
@@ -21,19 +37,12 @@
     </style>
 </head>
 <body>
-<h2>Receiver</h2>
 <video id="remoteVideo" autoplay playsinline muted></video>
 <div id="debugLog"></div>
-<textarea id="offer" cols="60" rows="10" placeholder="Paste offer here"></textarea>
-<textarea id="answer" cols="60" rows="10" placeholder="Answer will appear here"></textarea>
-<button id="setOffer">Set Offer</button>
-<button id="createAnswer">Create Answer</button>
 
 <script>
 const remoteVideo = document.getElementById('remoteVideo');
 const debugLogEl = document.getElementById('debugLog');
-const offerTextarea = document.getElementById('offer');
-const answerTextarea = document.getElementById('answer');
 const qs = new URLSearchParams(window.location.search);
 const hs = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
 const roomId = ((qs.get("roomId") || hs.get("roomId") || "")).trim();
@@ -55,24 +64,9 @@ pc.ontrack = async event => { remoteVideo.srcObject = event.streams[0]; try { aw
 pc.onicecandidate = event => {
     if (!event.candidate) {
         log("All ICE candidates gathered.");
-        answerTextarea.value = JSON.stringify(pc.localDescription);
-        log(`Answer textarea updated length=${answerTextarea.value.length}`);
+        const answerJson = JSON.stringify(pc.localDescription || {});
+        log(`Answer updated length=${answerJson.length}`);
     }
-};
-
-document.getElementById('setOffer').onclick = async () => {
-    const offer = JSON.parse(offerTextarea.value);
-    await pc.setRemoteDescription(offer);
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    answerTextarea.value = JSON.stringify(pc.localDescription);
-        console.log("CCCCCC : "+answerTextarea.value);
-};
-
-document.getElementById('createAnswer').onclick = async () => {
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    answerTextarea.value = JSON.stringify(pc.localDescription);
 };
 
 
@@ -82,8 +76,8 @@ async function createAnswer(offerString) {
     await pc.setRemoteDescription(offer);
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
-    answerTextarea.value = JSON.stringify(pc.localDescription);
-    log(`Answer created length=${answerTextarea.value.length}`);
+    const answerJson = JSON.stringify(pc.localDescription || {});
+    log(`Answer created length=${answerJson.length}`);
     await waitForIceGatheringComplete(pc);
     
     // ✅ Return the *complete* answer JSON
@@ -92,8 +86,6 @@ async function createAnswer(offerString) {
     return finalAnswer;
 }
 function getAnswer() {
-    if (answerTextarea && answerTextarea.value)
-        return answerTextarea.value;
     if (pc && pc.localDescription)
         return JSON.stringify(pc.localDescription);
     return "";
