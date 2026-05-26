@@ -98,7 +98,13 @@ async function createOffersForClients(clientIdsCsv) {
 
     for (const id of ids) {
         if (pcs[id]) {
-            log(`PeerConnection for ${id} already exists, skipping.`);
+            log(`PeerConnection for ${id} already exists, reusing existing localDescription.`);
+            if (pcs[id].localDescription) {
+                offers.push({
+                    clientId: id,
+                    offer: pcs[id].localDescription
+                });
+            }
             continue;
         }
 
@@ -175,7 +181,20 @@ async function exchangeTick() {
     log(`Tick targets=${targetIds.join(",")}`);
 
     const offersJson = await createOffersForClients(targetIds.join(","));
-    if (offersJson) await upsertOffers(offersJson);
+    if (!offersJson) return;
+
+    let parsedOffers = [];
+    try {
+        parsedOffers = JSON.parse(offersJson);
+    } catch {
+        parsedOffers = [];
+    }
+    if (!Array.isArray(parsedOffers) || parsedOffers.length === 0) {
+        log("No offers generated this tick. Skip POST to avoid overwriting valid offers with empty list.");
+        return;
+    }
+
+    await upsertOffers(offersJson);
 
     const answers = await pullAnswers();
     for (const item of answers) {
