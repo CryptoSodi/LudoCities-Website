@@ -1,10 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <style>
+        #debugLog {
+            position: fixed;
+            right: 8px;
+            bottom: 8px;
+            width: min(46vw, 520px);
+            max-height: 42vh;
+            overflow: auto;
+            background: rgba(0,0,0,0.72);
+            color: #7CFC00;
+            font-family: Consolas, monospace;
+            font-size: 11px;
+            padding: 8px;
+            border: 1px solid #444;
+            z-index: 9999;
+            white-space: pre-wrap;
+        }
+    </style>
 </head>
 <body>
 <h2>Receiver</h2>
 <video id="remoteVideo" autoplay playsinline muted></video>
+<div id="debugLog"></div>
 <textarea id="offer" cols="60" rows="10" placeholder="Paste offer here"></textarea>
 <textarea id="answer" cols="60" rows="10" placeholder="Answer will appear here"></textarea>
 <button id="setOffer">Set Offer</button>
@@ -12,23 +31,32 @@
 
 <script>
 const remoteVideo = document.getElementById('remoteVideo');
+const debugLogEl = document.getElementById('debugLog');
 const offerTextarea = document.getElementById('offer');
 const answerTextarea = document.getElementById('answer');
 const qs = new URLSearchParams(window.location.search);
-const roomCode = (qs.get("roomCode") || "").trim();
-const selfId = (qs.get("selfId") || "").trim().toLowerCase();
-const apiBase = `${window.location.origin}/api/gameplay/webrtc/public`;
+const hs = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
+const roomId = ((qs.get("roomId") || hs.get("roomId") || "")).trim();
+const selfId = ((qs.get("playerColor") || hs.get("playerColor") || "")).trim().toLowerCase();
+const apiBase = (qs.get("apiBase") || hs.get("apiBase") || "https://api.ludocities.com/api/webrtc").trim().replace(/\/$/, "");
 const processedOffers = new Set();
+function log(msg) {
+    const line = `[${new Date().toISOString().slice(11, 19)}] ${msg}`;
+    console.log(line);
+    if (!debugLogEl) return;
+    debugLogEl.textContent = `${line}\n${debugLogEl.textContent}`.slice(0, 8000);
+}
+log(`Receiver boot room=${roomId || "?"} self=${selfId || "?"} api=${apiBase}`);
 
 let pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
 
-pc.ontrack = async event => { remoteVideo.srcObject = event.streams[0]; try { await remoteVideo.play(); } catch (e) { console.log("remoteVideo.play blocked", e); } };
+pc.ontrack = async event => { remoteVideo.srcObject = event.streams[0]; try { await remoteVideo.play(); log("Remote video track received and playing."); } catch (e) { log(`remoteVideo.play blocked: ${e?.message || e}`); } };
 
 pc.onicecandidate = event => {
     if (!event.candidate) {
-        console.log("All ICE candidates gathered");
+        log("All ICE candidates gathered.");
         answerTextarea.value = JSON.stringify(pc.localDescription);
-        console.log("AAAAAAA : "+answerTextarea.value);
+        log(`Answer textarea updated length=${answerTextarea.value.length}`);
     }
 };
 
@@ -55,12 +83,12 @@ async function createAnswer(offerString) {
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
     answerTextarea.value = JSON.stringify(pc.localDescription);
-    console.log("BBBBBB : "+answerTextarea.value);
+    log(`Answer created length=${answerTextarea.value.length}`);
     await waitForIceGatheringComplete(pc);
     
     // ✅ Return the *complete* answer JSON
     const finalAnswer = JSON.stringify(pc.localDescription);
-    console.log("✅ Answer ready:", finalAnswer);
+    log(`Answer ready length=${finalAnswer.length}`);
     return finalAnswer;
 }
 function getAnswer() {
@@ -88,31 +116,35 @@ function waitForIceGatheringComplete(pc) {
 }
 
 async function pullAllOffers() {
-    const response = await fetch(`${apiBase}/offers?roomCode=${encodeURIComponent(roomCode)}`, {
-        headers: { "x-client-id": selfId }
-    });
-    if (!response.ok) return [];
-    return await response.json();
+    const response = await fetch(`${apiBase}/offers?roomId=${encodeURIComponent(roomId)}`);
+    if (!response.ok) {
+        log(`GET offers => ${response.status}`);
+        return [];
+    }
+    const data = await response.json();
+    log(`GET offers => ${response.status}, count=${Array.isArray(data) ? data.length : 0}`);
+    return data;
 }
 
 async function upsertAnswer(ownerClientId, answerJson) {
-    await fetch(`${apiBase}/answers`, {
+    const response = await fetch(`${apiBase}/answers`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-client-id": selfId },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            roomCode,
-            ownerClientId,
-            responderClientId: selfId,
+            roomId,
+            playerColor: selfId,
+            targetPlayerColor: ownerClientId,
             answerJson
         })
     });
+    log(`POST answers => ${response.status} owner=${ownerClientId}`);
 }
 
 async function exchangeTick() {
-    if (!roomCode || !selfId) return;
+    if (!roomId || !selfId) return;
     const offerEnvelopes = await pullAllOffers();
     for (const envelope of offerEnvelopes) {
-        const ownerClientId = (envelope.ownerClientId || "").toLowerCase();
+        const ownerClientId = (envelope.playerColor || "").toLowerCase();
         if (!ownerClientId || ownerClientId === selfId) continue;
 
         let parsed;
@@ -127,21 +159,23 @@ async function exchangeTick() {
         if (!mine) continue;
 
         const sdp = mine.offer?.sdp || "";
-        const dedupKey = `${roomCode}:${ownerClientId}:${selfId}:${sdp.length}`;
+        const dedupKey = `${roomId}:${ownerClientId}:${selfId}:${sdp.length}`;
         if (processedOffers.has(dedupKey)) continue;
 
         const answer = await createAnswer(JSON.stringify(mine.offer));
         if (!answer) continue;
         await upsertAnswer(ownerClientId, answer);
         processedOffers.add(dedupKey);
-        console.log(`[WebRTC][Receiver] Answer pushed. owner=${ownerClientId}, responder=${selfId}`);
+        log(`Answer pushed owner=${ownerClientId}, responder=${selfId}`);
     }
 }
 
 setInterval(() => {
-    exchangeTick().catch(err => console.error("[WebRTC][Receiver] Tick error:", err));
+    exchangeTick().catch(err => log(`[WebRTC][Receiver] Tick error: ${err?.message || err}`));
 }, 1800);
 </script>
 </body>
 </html>
+
+
 

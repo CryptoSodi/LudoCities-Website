@@ -18,24 +18,52 @@ html, body {
             height: 100%;
             object-fit: cover;
         }
+        #debugLog {
+            position: fixed;
+            right: 8px;
+            bottom: 8px;
+            width: min(46vw, 520px);
+            max-height: 42vh;
+            overflow: auto;
+            background: rgba(0,0,0,0.72);
+            color: #7CFC00;
+            font-family: Consolas, monospace;
+            font-size: 11px;
+            padding: 8px;
+            border: 1px solid #444;
+            z-index: 9999;
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 <body>
 <video id="localVideo" autoplay playsinline muted width="400"></video>
-<div id="offers"></div>
+<div id="debugLog"></div>
 <script>
 const localVideo = document.getElementById('localVideo');
+const debugLogEl = document.getElementById('debugLog');
 let localStream = null;
 const qs = new URLSearchParams(window.location.search);
-const roomCode = (qs.get("roomCode") || "").trim();
-const selfId = (qs.get("selfId") || "").trim().toLowerCase();
-const apiBase = `${window.location.origin}/api/gameplay/webrtc/public`;
+const hs = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
+const roomId = ((qs.get("roomId") || hs.get("roomId") || "")).trim();
+const selfId = ((qs.get("playerColor") || hs.get("playerColor") || "")).trim().toLowerCase();
+const apiBase = (qs.get("apiBase") || hs.get("apiBase") || "https://api.ludocities.com/api/webrtc").trim().replace(/\/$/, "");
 const pcs = {};
 const appliedAnswers = new Set();
+function log(msg) {
+    const line = `[${new Date().toISOString().slice(11, 19)}] ${msg}`;
+    console.log(line);
+    if (!debugLogEl) return;
+    debugLogEl.textContent = `${line}\n${debugLogEl.textContent}`.slice(0, 8000);
+}
+log(`Broadcaster boot room=${roomId || "?"} self=${selfId || "?"} api=${apiBase}`);
 
 navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
     localVideo.srcObject = stream;
     localStream = stream;
+    log("Local media stream acquired.");
+}).catch(err => {
+    log(`getUserMedia failed: ${err?.message || err}`);
 });
 
 function waitForIceGatheringComplete(pc) {
@@ -70,7 +98,7 @@ async function createOffersForClients(clientIdsCsv) {
 
     for (const id of ids) {
         if (pcs[id]) {
-            console.log(`⚠️ PeerConnection for ${id} already exists — skipping.`);
+            log(`PeerConnection for ${id} already exists, skipping.`);
             continue;
         }
 
@@ -92,7 +120,7 @@ async function createOffersForClients(clientIdsCsv) {
     // Return clean JSON for copy/paste
     
     const result = JSON.stringify(offers, null, 2);
-    console.log("🎯 Offers JSON:\n", result);
+    log(`Offers created count=${offers.length}`);
     return result;
 }
 
@@ -100,16 +128,15 @@ async function setAnswerForClient(clientId, answerJson) {
     answerJson = answerJson.replace(/\r/g, "\\r").replace(/\n/g, "\\n");
     const pc = pcs[clientId];
     if (!pc) {
-        console.error(`❌ No PeerConnection for ${clientId}`);
+        log(`No PeerConnection for ${clientId}`);
         return;
     }
     try {
                 const answer = JSON.parse(answerJson);
                 await pc.setRemoteDescription(answer); // ✅ Don't wrap it in RTCSessionDescription
-                
-                console.log(`✅ Answer set for ${clientId}`);
+                log(`Answer applied for ${clientId}`);
     } catch (err) {
-        console.error(`⚠️ Failed to set answer for ${clientId}:`, err);
+        log(`Failed to set answer for ${clientId}: ${err?.message || err}`);
     }
 }
 
@@ -119,34 +146,42 @@ function getTargetIds() {
 }
 
 async function upsertOffers(offersJson) {
-    await fetch(`${apiBase}/offers`, {
+    const response = await fetch(`${apiBase}/offers`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-client-id": selfId },
-        body: JSON.stringify({ roomCode, ownerClientId: selfId, offersJson })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomId, playerColor: selfId, offersJson })
     });
+    log(`POST offers => ${response.status}`);
 }
 
 async function pullAnswers() {
-    const response = await fetch(`${apiBase}/answers?roomCode=${encodeURIComponent(roomCode)}&ownerClientId=${encodeURIComponent(selfId)}`, {
-        headers: { "x-client-id": selfId }
-    });
-    if (!response.ok) return [];
-    return await response.json();
+    const response = await fetch(`${apiBase}/answers?roomId=${encodeURIComponent(roomId)}&playerColor=${encodeURIComponent(selfId)}`);
+    if (!response.ok) {
+        log(`GET answers => ${response.status}`);
+        return [];
+    }
+    const data = await response.json();
+    log(`GET answers => ${response.status}, count=${Array.isArray(data) ? data.length : 0}`);
+    return data;
 }
 
 async function exchangeTick() {
-    if (!roomCode || !selfId) return;
+    if (!roomId || !selfId) return;
     const targetIds = getTargetIds();
-    if (targetIds.length === 0) return;
+    if (targetIds.length === 0) {
+        log("No target IDs.");
+        return;
+    }
+    log(`Tick targets=${targetIds.join(",")}`);
 
     const offersJson = await createOffersForClients(targetIds.join(","));
     if (offersJson) await upsertOffers(offersJson);
 
     const answers = await pullAnswers();
     for (const item of answers) {
-        const responder = (item.responderClientId || "").toLowerCase();
+        const responder = (item.playerColor || "").toLowerCase();
         if (!responder) continue;
-        const key = `${selfId}:${responder}:${item.updatedUtc || ""}`;
+        const key = `${roomId}:${selfId}:${responder}:${item.updatedUtc || ""}`;
         if (appliedAnswers.has(key)) continue;
         await setAnswerForClient(responder, item.answerJson || "");
         appliedAnswers.add(key);
@@ -154,9 +189,11 @@ async function exchangeTick() {
 }
 
 setInterval(() => {
-    exchangeTick().catch(err => console.error("[WebRTC][Broadcaster] Tick error:", err));
+    exchangeTick().catch(err => log(`[WebRTC][Broadcaster] Tick error: ${err?.message || err}`));
 }, 1800);
 </script>
 </body>
 </html>
+
+
 
