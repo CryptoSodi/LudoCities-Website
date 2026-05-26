@@ -4,7 +4,7 @@
 </head>
 <body>
 <h2>Receiver</h2>
-<video id="remoteVideo" autoplay playsinline></video>
+<video id="remoteVideo" autoplay playsinline muted></video>
 <textarea id="offer" cols="60" rows="10" placeholder="Paste offer here"></textarea>
 <textarea id="answer" cols="60" rows="10" placeholder="Answer will appear here"></textarea>
 <button id="setOffer">Set Offer</button>
@@ -14,12 +14,15 @@
 const remoteVideo = document.getElementById('remoteVideo');
 const offerTextarea = document.getElementById('offer');
 const answerTextarea = document.getElementById('answer');
+const qs = new URLSearchParams(window.location.search);
+const roomCode = (qs.get("roomCode") || "").trim();
+const selfId = (qs.get("selfId") || "").trim().toLowerCase();
+const apiBase = `${window.location.origin}/api/gameplay/webrtc/public`;
+const processedOffers = new Set();
 
-let pc = new RTCPeerConnection();
+let pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
 
-pc.ontrack = event => {
-    remoteVideo.srcObject = event.streams[0];
-};
+pc.ontrack = async event => { remoteVideo.srcObject = event.streams[0]; try { await remoteVideo.play(); } catch (e) { console.log("remoteVideo.play blocked", e); } };
 
 pc.onicecandidate = event => {
     if (!event.candidate) {
@@ -60,6 +63,13 @@ async function createAnswer(offerString) {
     console.log("✅ Answer ready:", finalAnswer);
     return finalAnswer;
 }
+function getAnswer() {
+    if (answerTextarea && answerTextarea.value)
+        return answerTextarea.value;
+    if (pc && pc.localDescription)
+        return JSON.stringify(pc.localDescription);
+    return "";
+}
 // ✅ This Promise resolves once ICE gathering is complete
 function waitForIceGatheringComplete(pc) {
     return new Promise(resolve => {
@@ -76,6 +86,62 @@ function waitForIceGatheringComplete(pc) {
         }
     });
 }
+
+async function pullAllOffers() {
+    const response = await fetch(`${apiBase}/offers?roomCode=${encodeURIComponent(roomCode)}`, {
+        headers: { "x-client-id": selfId }
+    });
+    if (!response.ok) return [];
+    return await response.json();
+}
+
+async function upsertAnswer(ownerClientId, answerJson) {
+    await fetch(`${apiBase}/answers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-client-id": selfId },
+        body: JSON.stringify({
+            roomCode,
+            ownerClientId,
+            responderClientId: selfId,
+            answerJson
+        })
+    });
+}
+
+async function exchangeTick() {
+    if (!roomCode || !selfId) return;
+    const offerEnvelopes = await pullAllOffers();
+    for (const envelope of offerEnvelopes) {
+        const ownerClientId = (envelope.ownerClientId || "").toLowerCase();
+        if (!ownerClientId || ownerClientId === selfId) continue;
+
+        let parsed;
+        try {
+            parsed = JSON.parse(envelope.offersJson || "[]");
+        } catch {
+            continue;
+        }
+        if (!Array.isArray(parsed)) continue;
+
+        const mine = parsed.find(x => (x?.clientId || "").toLowerCase() === selfId && x?.offer);
+        if (!mine) continue;
+
+        const sdp = mine.offer?.sdp || "";
+        const dedupKey = `${roomCode}:${ownerClientId}:${selfId}:${sdp.length}`;
+        if (processedOffers.has(dedupKey)) continue;
+
+        const answer = await createAnswer(JSON.stringify(mine.offer));
+        if (!answer) continue;
+        await upsertAnswer(ownerClientId, answer);
+        processedOffers.add(dedupKey);
+        console.log(`[WebRTC][Receiver] Answer pushed. owner=${ownerClientId}, responder=${selfId}`);
+    }
+}
+
+setInterval(() => {
+    exchangeTick().catch(err => console.error("[WebRTC][Receiver] Tick error:", err));
+}, 1800);
 </script>
 </body>
 </html>
+
