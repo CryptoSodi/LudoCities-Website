@@ -48,11 +48,14 @@ const hs = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
 const roomId = ((qs.get("roomId") || hs.get("roomId") || "")).trim();
 const selfId = ((qs.get("playerColor") || hs.get("playerColor") || "")).trim().toLowerCase();
 const apiBase = (qs.get("apiBase") || hs.get("apiBase") || "https://api.ludocities.com/api/webrtc").trim().replace(/\/$/, "");
+const debugParam = (qs.get("debug") || hs.get("debug") || "").trim().toLowerCase();
+const showDebug = debugParam === "1" || debugParam === "true" || debugParam === "yes";
 const processedOffers = new Set();
+if (debugLogEl) debugLogEl.style.display = showDebug ? "block" : "none";
 function log(msg) {
     const line = `[${new Date().toISOString().slice(11, 19)}] ${msg}`;
     console.log(line);
-    if (!debugLogEl) return;
+    if (!showDebug || !debugLogEl) return;
     debugLogEl.textContent = `${line}\n${debugLogEl.textContent}`.slice(0, 8000);
 }
 log(`Receiver boot room=${roomId || "?"} self=${selfId || "?"} api=${apiBase}`);
