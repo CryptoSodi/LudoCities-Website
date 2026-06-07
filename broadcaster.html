@@ -50,8 +50,9 @@ const selfId = ((qs.get("playerColor") || hs.get("playerColor") || "")).trim().t
 const apiBase = (qs.get("apiBase") || hs.get("apiBase") || "https://api.ludocities.com/api/webrtc").trim().replace(/\/$/, "");
 const debugParam = (qs.get("debug") || hs.get("debug") || "").trim().toLowerCase();
 const showDebug = debugParam === "1" || debugParam === "true" || debugParam === "yes";
-const pcs = {};
+let pcs = {};
 const appliedAnswers = new Set();
+let wasOffline = false;
 if (debugLogEl) debugLogEl.style.display = showDebug ? "block" : "none";
 function log(msg) {
     const line = `[${new Date().toISOString().slice(11, 19)}] ${msg}`;
@@ -60,6 +61,14 @@ function log(msg) {
     debugLogEl.textContent = `${line}\n${debugLogEl.textContent}`.slice(0, 8000);
 }
 log(`Broadcaster boot room=${roomId || "?"} self=${selfId || "?"} api=${apiBase}`);
+window.addEventListener("offline", () => {
+    wasOffline = true;
+    log("Network offline.");
+});
+window.addEventListener("online", () => {
+    log("Network online. Resetting peer connections for clean renegotiation.");
+    resetAllPeers("online");
+});
 
 navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
     localVideo.srcObject = stream;
@@ -153,6 +162,20 @@ function getTargetIds() {
     const all = ["red", "green", "yellow", "blue"];
     return all.filter(x => x !== selfId);
 }
+function isPcConnected(pc) {
+    if (!pc) return false;
+    const c = pc.connectionState;
+    const i = pc.iceConnectionState;
+    return c === "connected" || i === "connected" || i === "completed";
+}
+function resetAllPeers(reason) {
+    Object.keys(pcs).forEach(id => {
+        try { pcs[id].close(); } catch {}
+    });
+    pcs = {};
+    appliedAnswers.clear();
+    log(`All peers reset. reason=${reason}`);
+}
 
 async function upsertOffers(offersJson) {
     const response = await fetch(`${apiBase}/offers`, {
@@ -176,6 +199,11 @@ async function pullAnswers() {
 
 async function exchangeTick() {
     if (!roomId || !selfId) return;
+    if (!navigator.onLine) return;
+    if (wasOffline) {
+        wasOffline = false;
+        resetAllPeers("after-offline");
+    }
     const targetIds = getTargetIds();
     if (targetIds.length === 0) {
         log("No target IDs.");
@@ -183,7 +211,12 @@ async function exchangeTick() {
     }
     log(`Tick targets=${targetIds.join(",")}`);
 
-    const offersJson = await createOffersForClients(targetIds.join(","));
+    const pendingTargets = targetIds.filter(id => !isPcConnected(pcs[id]));
+    if (pendingTargets.length === 0) {
+        await pullAnswers();
+        return;
+    }
+    const offersJson = await createOffersForClients(pendingTargets.join(","));
     if (!offersJson) return;
 
     let parsedOffers = [];
@@ -207,12 +240,35 @@ async function exchangeTick() {
         if (appliedAnswers.has(key)) continue;
         await setAnswerForClient(responder, item.answerJson || "");
         appliedAnswers.add(key);
+        const pc = pcs[responder];
+        if (pc) {
+            pc.onconnectionstatechange = () => {
+                log(`PC[${responder}] connectionState=${pc.connectionState}`);
+                if (pc.connectionState === "failed" || pc.connectionState === "disconnected" || pc.connectionState === "closed") {
+                    try { pc.close(); } catch {}
+                    delete pcs[responder];
+                    log(`PC[${responder}] dropped; will renegotiate.`);
+                }
+            };
+            pc.oniceconnectionstatechange = () => {
+                log(`PC[${responder}] iceConnectionState=${pc.iceConnectionState}`);
+            };
+        }
     }
 }
-
-setInterval(() => {
-    exchangeTick().catch(err => log(`[WebRTC][Broadcaster] Tick error: ${err?.message || err}`));
-}, 1800);
+async function runLoop() {
+    try {
+        await exchangeTick();
+    } catch (err) {
+        log(`[WebRTC][Broadcaster] Tick error: ${err?.message || err}`);
+    } finally {
+        const targetIds = getTargetIds();
+        const pendingTargets = targetIds.filter(id => !isPcConnected(pcs[id]));
+        const nextMs = pendingTargets.length === 0 ? 7000 : 1800;
+        setTimeout(runLoop, nextMs);
+    }
+}
+runLoop();
 </script>
 </body>
 </html>
