@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <title>Sami Crown</title>
+  <defs>
+    <linearGradient id="bg" x1="14" y1="14" x2="146" y2="150"><stop stop-color="#ffe178"/><stop offset="1" stop-color="#714611"/></linearGradient>
+    <clipPath id="clip"><circle cx="80" cy="80" r="74"/></clipPath>
+  </defs>
+  <circle cx="80" cy="80" r="78" fill="#3f260b"/>
+  <g clip-path="url(#clip)">
+    <rect width="160" height="160" fill="url(#bg)"/>
+    <path d="M24 124c24-25 88-25 112 0v36H24z" fill="#3d2717"/>
+    <circle cx="80" cy="73" r="35" fill="#b87955"/>
+    <path d="M44 70c3-32 26-46 53-39 18 5 28 18 29 43-27-14-55-14-82-4z" fill="#1f150f"/>
+    <path d="M55 47l13-16 12 14 13-14 13 16-4 14H59z" fill="#ffd144"/>
+    <circle cx="68" cy="77" r="4" fill="#1a0f0b"/>
+    <circle cx="94" cy="77" r="4" fill="#1a0f0b"/>
+    <path d="M69 98c8 5 18 5 25 0" fill="none" stroke="#61262a" stroke-width="4" stroke-linecap="round"/>
+    <path d="M55 132l25-17 25 17-25 18z" fill="#ffd144"/>
+  </g>
+  <circle cx="80" cy="80" r="74" fill="none" stroke="#ffe487" stroke-width="6"/>
+</svg>

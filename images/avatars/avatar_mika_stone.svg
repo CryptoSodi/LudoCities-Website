@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <title>Mika Stone</title>
+  <defs>
+    <linearGradient id="bg" x1="20" y1="12" x2="136" y2="150"><stop stop-color="#65758b"/><stop offset="1" stop-color="#182335"/></linearGradient>
+    <clipPath id="clip"><circle cx="80" cy="80" r="74"/></clipPath>
+  </defs>
+  <circle cx="80" cy="80" r="78" fill="#101821"/>
+  <g clip-path="url(#clip)">
+    <rect width="160" height="160" fill="url(#bg)"/>
+    <path d="M24 125c24-28 88-28 112 0v35H24z" fill="#273244"/>
+    <circle cx="80" cy="72" r="34" fill="#d49a73"/>
+    <path d="M47 73c0-31 19-48 47-43 17 3 28 17 30 39-24-13-48-15-77 4z" fill="#202838"/>
+    <path d="M52 51c12-15 33-20 53-12-18 2-34 7-53 12z" fill="#b8c1ce"/>
+    <circle cx="68" cy="76" r="4" fill="#141a24"/>
+    <circle cx="94" cy="76" r="4" fill="#141a24"/>
+    <path d="M69 96c7 5 17 5 24 0" fill="none" stroke="#6d2a2c" stroke-width="4" stroke-linecap="round"/>
+    <path d="M52 132l28-16 28 16-28 18z" fill="#95a3b4"/>
+  </g>
+  <circle cx="80" cy="80" r="74" fill="none" stroke="#d9e1ea" stroke-width="6"/>
+</svg>

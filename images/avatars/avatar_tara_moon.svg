@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <title>Tara Moon</title>
+  <defs>
+    <linearGradient id="bg" x1="18" y1="14" x2="144" y2="148"><stop stop-color="#1d235d"/><stop offset="1" stop-color="#8d7cff"/></linearGradient>
+    <clipPath id="clip"><circle cx="80" cy="80" r="74"/></clipPath>
+  </defs>
+  <circle cx="80" cy="80" r="78" fill="#10143c"/>
+  <g clip-path="url(#clip)">
+    <rect width="160" height="160" fill="url(#bg)"/>
+    <circle cx="121" cy="34" r="14" fill="#fff6c8"/>
+    <path d="M24 125c25-25 87-25 112 0v35H24z" fill="#171943"/>
+    <circle cx="80" cy="73" r="35" fill="#c78362"/>
+    <path d="M42 72c4-34 27-49 55-42 19 5 29 20 29 46-26-14-55-14-84-4z" fill="#181225"/>
+    <path d="M49 52c18-13 42-17 65-5-23 2-42 7-65 5z" fill="#d7d2ff"/>
+    <circle cx="68" cy="77" r="4" fill="#171020"/>
+    <circle cx="94" cy="77" r="4" fill="#171020"/>
+    <path d="M69 98c8 5 18 5 25 0" fill="none" stroke="#78313c" stroke-width="4" stroke-linecap="round"/>
+    <path d="M55 132l25-17 25 17-25 18z" fill="#c4bcff"/>
+  </g>
+  <circle cx="80" cy="80" r="74" fill="none" stroke="#f4edff" stroke-width="6"/>
+</svg>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <title>Ilyas Ray</title>
+  <defs>
+    <linearGradient id="bg" x1="14" y1="14" x2="144" y2="150"><stop stop-color="#ffe45f"/><stop offset="1" stop-color="#f37c21"/></linearGradient>
+    <clipPath id="clip"><circle cx="80" cy="80" r="74"/></clipPath>
+  </defs>
+  <circle cx="80" cy="80" r="78" fill="#653b10"/>
+  <g clip-path="url(#clip)">
+    <rect width="160" height="160" fill="url(#bg)"/>
+    <path d="M23 125c25-24 89-24 114 0v35H23z" fill="#703f18"/>
+    <circle cx="80" cy="72" r="34" fill="#ad704f"/>
+    <path d="M46 70c3-33 26-47 53-40 18 5 28 18 29 44-25-14-55-14-82-4z" fill="#25160f"/>
+    <path d="M50 54c16-13 39-17 60-7-20 4-40 8-60 7z" fill="#ffc742"/>
+    <circle cx="68" cy="76" r="4" fill="#1b100a"/>
+    <circle cx="94" cy="76" r="4" fill="#1b100a"/>
+    <path d="M69 97c8 5 18 5 25 0" fill="none" stroke="#5d2224" stroke-width="4" stroke-linecap="round"/>
+    <path d="M55 132l25-17 25 17-25 18z" fill="#fff06f"/>
+  </g>
+  <circle cx="80" cy="80" r="74" fill="none" stroke="#fff48a" stroke-width="6"/>
+</svg>

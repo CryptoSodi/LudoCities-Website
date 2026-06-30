@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <title>Mina Spark</title>
+  <defs>
+    <linearGradient id="bg" x1="14" y1="14" x2="146" y2="150"><stop stop-color="#ff64b8"/><stop offset="1" stop-color="#6838ff"/></linearGradient>
+    <clipPath id="clip"><circle cx="80" cy="80" r="74"/></clipPath>
+  </defs>
+  <circle cx="80" cy="80" r="78" fill="#36175c"/>
+  <g clip-path="url(#clip)">
+    <rect width="160" height="160" fill="url(#bg)"/>
+    <path d="M24 125c24-26 88-26 112 0v35H24z" fill="#35194f"/>
+    <circle cx="80" cy="73" r="35" fill="#d99b77"/>
+    <path d="M43 72c4-34 27-49 55-42 19 5 29 20 29 46-26-15-55-15-84-4z" fill="#241023"/>
+    <path d="M49 52c17-13 41-17 64-5-22 2-42 7-64 5z" fill="#ffdd56"/>
+    <circle cx="68" cy="77" r="4" fill="#1b0f1b"/>
+    <circle cx="94" cy="77" r="4" fill="#1b0f1b"/>
+    <path d="M69 98c8 5 18 5 25 0" fill="none" stroke="#813145" stroke-width="4" stroke-linecap="round"/>
+    <path d="M56 132l24-17 24 17-24 18z" fill="#ff64b8"/>
+  </g>
+  <circle cx="80" cy="80" r="74" fill="none" stroke="#ffc1e8" stroke-width="6"/>
+</svg>

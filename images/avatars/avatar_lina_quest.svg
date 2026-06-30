@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <title>Lina Quest</title>
+  <defs>
+    <linearGradient id="bg" x1="20" y1="12" x2="140" y2="150"><stop stop-color="#ffe95f"/><stop offset="1" stop-color="#0ba36c"/></linearGradient>
+    <clipPath id="clip"><circle cx="80" cy="80" r="74"/></clipPath>
+  </defs>
+  <circle cx="80" cy="80" r="78" fill="#0b5d45"/>
+  <g clip-path="url(#clip)">
+    <rect width="160" height="160" fill="url(#bg)"/>
+    <path d="M24 124c24-26 88-26 112 0v36H24z" fill="#0e5947"/>
+    <circle cx="80" cy="73" r="35" fill="#d0926a"/>
+    <path d="M42 72c4-34 27-49 55-41 19 5 29 20 29 46-25-15-54-15-84-5z" fill="#2c1b16"/>
+    <path d="M49 52c18-13 42-17 65-5-23 2-42 7-65 5z" fill="#ffd94e"/>
+    <circle cx="68" cy="77" r="4" fill="#1b120f"/>
+    <circle cx="94" cy="77" r="4" fill="#1b120f"/>
+    <path d="M69 98c8 5 18 5 25 0" fill="none" stroke="#74333a" stroke-width="4" stroke-linecap="round"/>
+    <path d="M56 132l24-17 24 17-24 18z" fill="#f9d447"/>
+  </g>
+  <circle cx="80" cy="80" r="74" fill="none" stroke="#fff178" stroke-width="6"/>
+</svg>

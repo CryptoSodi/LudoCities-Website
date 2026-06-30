@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <title>Nia Frost</title>
+  <defs>
+    <linearGradient id="bg" x1="18" y1="12" x2="140" y2="150"><stop stop-color="#b6f3ff"/><stop offset="1" stop-color="#3764d8"/></linearGradient>
+    <clipPath id="clip"><circle cx="80" cy="80" r="74"/></clipPath>
+  </defs>
+  <circle cx="80" cy="80" r="78" fill="#24407f"/>
+  <g clip-path="url(#clip)">
+    <rect width="160" height="160" fill="url(#bg)"/>
+    <path d="M24 124c24-28 88-28 112 0v36H24z" fill="#1e3f7a"/>
+    <circle cx="80" cy="74" r="35" fill="#e7b18a"/>
+    <path d="M43 73c3-34 26-49 54-42 19 5 29 20 29 46-26-14-54-15-83-4z" fill="#edf7ff"/>
+    <path d="M48 52c17-14 40-18 65-6-18 3-43 10-65 6z" fill="#74d2ff"/>
+    <circle cx="68" cy="77" r="4" fill="#142543"/>
+    <circle cx="94" cy="77" r="4" fill="#142543"/>
+    <path d="M69 98c8 5 18 5 25 0" fill="none" stroke="#8a3c4a" stroke-width="4" stroke-linecap="round"/>
+    <path d="M56 133l24-18 24 18-24 17z" fill="#e7fbff"/>
+  </g>
+  <circle cx="80" cy="80" r="74" fill="none" stroke="#f4ffff" stroke-width="6"/>
+</svg>

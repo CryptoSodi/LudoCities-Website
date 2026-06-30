@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <title>Zara Vale</title>
+  <defs>
+    <linearGradient id="bg" x1="20" y1="18" x2="140" y2="148"><stop stop-color="#2dd36f"/><stop offset="1" stop-color="#0f4c45"/></linearGradient>
+    <clipPath id="clip"><circle cx="80" cy="80" r="74"/></clipPath>
+  </defs>
+  <circle cx="80" cy="80" r="78" fill="#0b2d27"/>
+  <g clip-path="url(#clip)">
+    <rect width="160" height="160" fill="url(#bg)"/>
+    <path d="M20 120c27-22 93-22 120 0v40H20z" fill="#0e3a32"/>
+    <circle cx="80" cy="73" r="35" fill="#b87355"/>
+    <path d="M43 72c5-34 25-49 52-43 19 4 30 20 31 45-23-13-55-13-83-2z" fill="#25150f"/>
+    <path d="M46 51c18-14 41-18 65-6-18 4-40 9-65 6z" fill="#1f7a4b"/>
+    <circle cx="68" cy="76" r="4" fill="#1a0f0b"/>
+    <circle cx="94" cy="76" r="4" fill="#1a0f0b"/>
+    <path d="M68 98c8 5 19 5 27 0" fill="none" stroke="#6f2c31" stroke-width="4" stroke-linecap="round"/>
+    <path d="M58 132l22-17 24 17-24 18z" fill="#b9ff66"/>
+  </g>
+  <circle cx="80" cy="80" r="74" fill="none" stroke="#9cff92" stroke-width="6"/>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <title>Kairo Vega</title>
+  <defs>
+    <linearGradient id="bg" x1="14" y1="14" x2="146" y2="148"><stop stop-color="#101746"/><stop offset="1" stop-color="#ffb000"/></linearGradient>
+    <clipPath id="clip"><circle cx="80" cy="80" r="74"/></clipPath>
+  </defs>
+  <circle cx="80" cy="80" r="78" fill="#0a0d25"/>
+  <g clip-path="url(#clip)">
+    <rect width="160" height="160" fill="url(#bg)"/>
+    <circle cx="126" cy="32" r="8" fill="#fff1a8"/>
+    <path d="M24 126c25-25 87-25 112 0v34H24z" fill="#11183c"/>
+    <circle cx="80" cy="73" r="34" fill="#a96e4f"/>
+    <path d="M47 71c2-33 25-47 52-40 17 4 28 18 29 43-26-13-55-14-81-3z" fill="#141018"/>
+    <path d="M50 53c15-13 36-17 59-8-20 5-39 8-59 8z" fill="#ffb000"/>
+    <circle cx="68" cy="76" r="4" fill="#151018"/>
+    <circle cx="94" cy="76" r="4" fill="#151018"/>
+    <path d="M69 97c8 5 18 5 25 0" fill="none" stroke="#5f2429" stroke-width="4" stroke-linecap="round"/>
+    <path d="M56 133l24-17 25 17-25 17z" fill="#ffb000"/>
+  </g>
+  <circle cx="80" cy="80" r="74" fill="none" stroke="#ffd36b" stroke-width="6"/>
+</svg>

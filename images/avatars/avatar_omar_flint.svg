@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <title>Omar Flint</title>
+  <defs>
+    <linearGradient id="bg" x1="16" y1="14" x2="146" y2="150"><stop stop-color="#ff5f2e"/><stop offset="1" stop-color="#2a2f38"/></linearGradient>
+    <clipPath id="clip"><circle cx="80" cy="80" r="74"/></clipPath>
+  </defs>
+  <circle cx="80" cy="80" r="78" fill="#211923"/>
+  <g clip-path="url(#clip)">
+    <rect width="160" height="160" fill="url(#bg)"/>
+    <path d="M23 125c24-25 90-25 114 0v35H23z" fill="#2d2328"/>
+    <circle cx="80" cy="72" r="34" fill="#b36f4f"/>
+    <path d="M46 70c3-33 25-47 52-40 18 5 28 18 29 44-26-15-55-14-81-4z" fill="#191313"/>
+    <path d="M50 54c16-13 38-17 59-7-20 4-39 8-59 7z" fill="#ff7b38"/>
+    <circle cx="68" cy="76" r="4" fill="#160f0f"/>
+    <circle cx="94" cy="76" r="4" fill="#160f0f"/>
+    <path d="M69 97c8 5 18 5 25 0" fill="none" stroke="#5a2226" stroke-width="4" stroke-linecap="round"/>
+    <path d="M55 132l25-17 25 17-25 18z" fill="#ff7b38"/>
+  </g>
+  <circle cx="80" cy="80" r="74" fill="none" stroke="#ffb071" stroke-width="6"/>
+</svg>

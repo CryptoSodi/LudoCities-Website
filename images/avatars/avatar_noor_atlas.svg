@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <title>Noor Atlas</title>
+  <defs>
+    <linearGradient id="bg" x1="16" y1="14" x2="146" y2="150"><stop stop-color="#00c2b8"/><stop offset="1" stop-color="#20406a"/></linearGradient>
+    <clipPath id="clip"><circle cx="80" cy="80" r="74"/></clipPath>
+  </defs>
+  <circle cx="80" cy="80" r="78" fill="#102d3d"/>
+  <g clip-path="url(#clip)">
+    <rect width="160" height="160" fill="url(#bg)"/>
+    <path d="M24 125c24-25 88-25 112 0v35H24z" fill="#123542"/>
+    <circle cx="80" cy="73" r="35" fill="#c18662"/>
+    <path d="M42 72c5-34 27-49 55-42 19 5 29 20 29 46-26-14-56-14-84-4z" fill="#171311"/>
+    <path d="M49 52c18-13 42-17 65-5-22 2-43 7-65 5z" fill="#24d0c7"/>
+    <circle cx="68" cy="77" r="4" fill="#11100f"/>
+    <circle cx="94" cy="77" r="4" fill="#11100f"/>
+    <path d="M69 98c8 5 18 5 25 0" fill="none" stroke="#6c2b31" stroke-width="4" stroke-linecap="round"/>
+    <path d="M56 132l24-17 24 17-24 18z" fill="#43e0d8"/>
+  </g>
+  <circle cx="80" cy="80" r="74" fill="none" stroke="#9afaf5" stroke-width="6"/>
+</svg>

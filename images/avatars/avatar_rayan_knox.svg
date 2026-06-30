@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <title>Rayan Knox</title>
+  <defs>
+    <linearGradient id="bg" x1="16" y1="14" x2="142" y2="150"><stop stop-color="#1d1b2f"/><stop offset="1" stop-color="#4c5bff"/></linearGradient>
+    <clipPath id="clip"><circle cx="80" cy="80" r="74"/></clipPath>
+  </defs>
+  <circle cx="80" cy="80" r="78" fill="#111225"/>
+  <g clip-path="url(#clip)">
+    <rect width="160" height="160" fill="url(#bg)"/>
+    <path d="M23 125c24-24 91-24 114 0v35H23z" fill="#121421"/>
+    <circle cx="80" cy="72" r="34" fill="#c98d66"/>
+    <path d="M46 70c2-34 25-47 53-40 18 5 28 19 29 44-28-17-55-17-82-4z" fill="#080b14"/>
+    <path d="M51 55l59-16 15 26c-29-7-49-7-74-10z" fill="#2c2b45"/>
+    <circle cx="68" cy="76" r="4" fill="#090b10"/>
+    <circle cx="94" cy="76" r="4" fill="#090b10"/>
+    <path d="M70 97c7 4 17 4 24 0" fill="none" stroke="#6b292d" stroke-width="4" stroke-linecap="round"/>
+    <path d="M55 132l25-17 25 17-25 18z" fill="#5d66ff"/>
+  </g>
+  <circle cx="80" cy="80" r="74" fill="none" stroke="#8f97ff" stroke-width="6"/>
+</svg>
