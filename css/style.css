@@ -1620,6 +1620,13 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   color: var(--green);
   letter-spacing: 0.05em;
   margin-bottom: 24px;
+  text-decoration: none;
+  transition: border-color var(--fast), background var(--fast), transform var(--fast);
+}
+.footer-chain-badge:hover {
+  border-color: rgba(0,212,106,0.55);
+  background: rgba(0,212,106,0.12);
+  transform: translateY(-2px);
 }
 .footer-chain-dot {
   width: 6px; height: 6px;
