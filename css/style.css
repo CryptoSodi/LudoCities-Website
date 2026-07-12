@@ -433,6 +433,15 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
 .btn-gplay img { display: block; height: 56px; width: auto; }
 .btn-gplay:hover { transform: translateY(-3px); filter: brightness(1.1) drop-shadow(0 8px 20px rgba(0,0,0,0.4)); }
 .btn-gplay--sm img { height: 36px; }
+.btn-dapp-store {
+  display: inline-flex;
+  align-items: center;
+  transition: transform var(--mid) var(--ease), filter var(--mid);
+  flex-shrink: 0;
+}
+.btn-dapp-store img { display: block; height: 56px; width: auto; }
+.btn-dapp-store:hover { transform: translateY(-3px); filter: brightness(1.1) drop-shadow(0 8px 20px rgba(0,0,0,0.4)); }
+.btn-dapp-store--sm img { height: 36px; }
 .download-ctas {
   display: flex;
   align-items: center;
@@ -440,22 +449,6 @@ button { cursor: pointer; border: none; background: none; font: inherit; }
   gap: 14px;
   flex-wrap: wrap;
 }
-.btn-solana-store {
-  min-height: 48px;
-  border: 1.5px solid rgba(0, 212, 106, 0.5);
-  background:
-    linear-gradient(135deg, rgba(0, 212, 106, 0.18), rgba(153, 69, 255, 0.18)),
-    rgba(7, 7, 16, 0.72);
-  color: var(--text);
-  box-shadow: 0 0 24px rgba(0, 212, 106, 0.16);
-}
-.btn-solana-store:hover {
-  transform: translateY(-3px);
-  border-color: rgba(0, 212, 106, 0.8);
-  box-shadow: 0 10px 28px rgba(0, 212, 106, 0.22), 0 0 28px rgba(153, 69, 255, 0.18);
-}
-.btn-solana-store--hero { min-height: 56px; padding-inline: 26px; }
-.btn-solana-store--sm { min-height: 36px; padding: 8px 18px; font-size: 0.78rem; }
 
 /* ─── Hero logo image ────────────────────────── */
 .hero-logo-img {
